@@ -1,0 +1,526 @@
+{ "sushi": [
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	},
+	{
+		"name": "Суси-хуюси",
+		"price": 123,
+		"components": "Грязь, говно, опилки.",
+		"weight": 456,
+		"picURL": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sushi-fish_eggs-Moscow.JPG/240px-Sushi-fish_eggs-Moscow.JPG",
+		"category": "Суши-сеты"
+	} ]
+}
