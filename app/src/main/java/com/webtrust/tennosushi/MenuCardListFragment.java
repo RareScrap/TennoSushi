@@ -5,6 +5,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
@@ -70,6 +72,8 @@ public class MenuCardListFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        setHasOptionsMenu(true); // у фрагмента имеются команды меню
+
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_menu_card_list, container, false);
     }
@@ -78,6 +82,7 @@ public class MenuCardListFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        // TODO: Лучше ли это место для установки адаптера?
         // ArrayAdapter для связывания weatherList с weatherListView
         menuItemListView = (ListView) getView().findViewById(R.id.cardList);
         menuItemArrayAdapter = new MenuItemArrayAdapter(getActivity(), menuItemList);
@@ -109,6 +114,31 @@ public class MenuCardListFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         //mListener = null;
+    }
+
+    /**
+     * Отображение команд меню фрагмента
+     * @param menu Меню
+     * @param inflater Инфлатер для меню
+     */
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.menu_list_menu, menu);
+    }
+
+    // Обработка выбора команд меню
+    @Override
+    public boolean onOptionsItemSelected(android.view.MenuItem item) {
+        // Выбор в зависимости от идентификатора MenuItem
+        switch (item.getItemId()) {
+            case R.id.shopping_cart:
+                return true; // Событие меню обработано
+            case R.id.sort:
+                return true; // Событие меню обработано
+        }
+
+        return super.onOptionsItemSelected(item); //TODO: Разобраться зачем вообще тут нужен супер
     }
 
     /**
