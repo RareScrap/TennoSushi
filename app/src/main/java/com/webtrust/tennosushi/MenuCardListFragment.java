@@ -9,6 +9,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.GridView;
 import android.widget.ListView;
 
 import org.json.JSONArray;
@@ -33,6 +34,10 @@ import java.util.List;
  * @author RareScrap
  */
 public class MenuCardListFragment extends Fragment {
+    // Константы, определяющие режим отображения списка
+    public static int CARD_MODE = 0;
+    public static int PLATE_MODE = 1;
+
     // Закомментирован, т.к. еще не изучен
     //private OnFragmentInteractionListener mListener;
 
@@ -41,12 +46,17 @@ public class MenuCardListFragment extends Fragment {
 
     // ArrayAdapter связывает объекты MenuItem с элементами ListView
     private MenuItemArrayAdapter menuItemArrayAdapter;
-    private ListView menuItemListView; // View для вывода информации
+    private ListView menuItemListListView; // View для вывода информации в виде списка
+    private GridView menuItemListGridView; // View для вывода информации в виде плиток
+
+    private int currentMode; // Текущий режим отображения списка
 
     /**
      * Необходимый пустой публичный конструктор
      */
-    public MenuCardListFragment() {}
+    public MenuCardListFragment() {
+        this.currentMode = PLATE_MODE; // режим по умолчанию
+    }
 
     /**
      * Используйте этот фабричный метод для создания новых экземпляров
@@ -75,7 +85,11 @@ public class MenuCardListFragment extends Fragment {
         setHasOptionsMenu(true); // у фрагмента имеются команды меню
 
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_menu_card_list, container, false);
+        if (currentMode == CARD_MODE) {
+            return inflater.inflate(R.layout.fragment_menu_card_list, container, false);
+        }else { // currentMode == PLATE_MODE
+            return inflater.inflate(R.layout.fragment_menu_plates_list, container, false);
+        }
     }
 
     @Override
@@ -84,9 +98,14 @@ public class MenuCardListFragment extends Fragment {
 
         // TODO: Лучше ли это место для установки адаптера?
         // ArrayAdapter для связывания weatherList с weatherListView
-        menuItemListView = (ListView) getView().findViewById(R.id.cardList);
         menuItemArrayAdapter = new MenuItemArrayAdapter(getActivity(), menuItemList);
-        menuItemListView.setAdapter(menuItemArrayAdapter);
+        if (currentMode == CARD_MODE) {
+            menuItemListListView = (ListView) getView().findViewById(R.id.cardList);
+            menuItemListListView.setAdapter(menuItemArrayAdapter);
+        }else { // currentMode == PLATE_MODE
+            menuItemListGridView = (GridView) getView().findViewById(R.id.platesList);
+            menuItemListGridView.setAdapter(menuItemArrayAdapter);
+        }
 
         try {
             URL url = new URL("http://192.168.1.254/index.php");
@@ -215,7 +234,13 @@ public class MenuCardListFragment extends Fragment {
             if (jsonObject != null) {
                 convertJSONtoArrayList(jsonObject); // Заполнение weatherList
                 menuItemArrayAdapter.notifyDataSetChanged(); // Связать с ListView
-                menuItemListView.smoothScrollToPosition(0); // Прокрутить до верха
+
+                // Прокрутить до верха
+                if (currentMode == CARD_MODE) {
+                    menuItemListListView.smoothScrollToPosition(0);
+                }else { // currentMode == PLATE_MODE
+                    menuItemListGridView.smoothScrollToPosition(0);
+                }
             }
         }
     }
