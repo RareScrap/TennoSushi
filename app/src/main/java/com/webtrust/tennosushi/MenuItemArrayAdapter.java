@@ -18,18 +18,33 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
+/**
+ * Адаптер для списка меню, основанный на {@link ArrayAdapter}
+ * @author RareScrap
+ */
 public class MenuItemArrayAdapter extends ArrayAdapter<MenuItem> {
     // Класс для повторного использования представлений списка при прокрутке
+
+    /**
+     * Внутренний класс для повторного использования представлений списка
+     * при прокрутке, реализующий паттерн ViewHolder
+     * @author RareScrap
+     */
     private static class ViewHolder {
-        ImageView menuImageView;
-        TextView menuTextView;
+        ImageView menuImageView; // ссылка на View изображения
+        TextView menuTextView; // ссылка на View названия меню
     }
 
     // Кэш для уже загруженных картинок (объектов Bitmap)
     private Map<String, Bitmap> bitmaps = new HashMap<>();
 
     // Конструктор для инициализации унаследованных членов суперкласса
+
+    /**
+     * Конструктор для инициализации унаследованных членов суперкласса
+     * @param context Контекст для super()
+     * @param MenuItemList Список элементов меню для super()
+     */
     public MenuItemArrayAdapter(Context context, List<MenuItem> MenuItemList) {
         /*
         в первом и третьем аргументах передаются объект Context (то есть активность,
@@ -42,10 +57,18 @@ public class MenuItemArrayAdapter extends ArrayAdapter<MenuItem> {
         super(context, -1, MenuItemList);
     }
 
-    // Создание пользовательских представлений для элементов ListView
+    /**
+     * Создание пользовательских представлений для элементов ListView
+     * Вызывается только когда в ListView, куда выводится списк, есть
+     * свободное место. Т.е. если высота списка 0, то этот метод Не вызовется.
+     * @param position Позиция элемента в списке
+     * @param convertView Один заполненный элемент списка, возвращаемые данным методом
+     * @param parent Родительский контейнер для списка
+     * @return convertView класса View
+     */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        // Получение объекта Weather для заданной позиции ListView
+        // Получение объекта MenuItem для заданной позиции ListView
         MenuItem menuItem = getItem(position);
 
         //Объект, содержащий ссылки на представления элемента списка
@@ -55,7 +78,7 @@ public class MenuItemArrayAdapter extends ArrayAdapter<MenuItem> {
         if (convertView == null) { // Объекта ViewHolder нет, создать его
             viewHolder = new ViewHolder();
             LayoutInflater inflater = LayoutInflater.from(getContext());
-            convertView = inflater.inflate(R.layout.card_list_item, parent, false); // последнем аргументе передается флаг автоматического присоединения представлений
+            convertView = inflater.inflate(R.layout.card_list_item, parent, false); // В последнем аргументе передается флаг автоматического присоединения представлений
             viewHolder.menuImageView = (ImageView) convertView.findViewById(R.id.menu_image);
             viewHolder.menuTextView = (TextView) convertView.findViewById(R.id.menu_text);
             convertView.setTag(viewHolder);
@@ -63,34 +86,44 @@ public class MenuItemArrayAdapter extends ArrayAdapter<MenuItem> {
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        // Если картинка уже загружена, использовать ее;
-        // в противном случае загрузить в отдельном потоке
+        // Если картинка уже загружена, использовать ее; в противном случае загрузить в отдельном потоке
         if (bitmaps.containsKey(menuItem.picURL)) {
-            viewHolder.menuImageView.setImageBitmap(
-                    bitmaps.get(menuItem.picURL));
-        }else {
-            // Загрузить и вывести значок погодных условий
+            viewHolder.menuImageView.setImageBitmap(bitmaps.get(menuItem.picURL));
+        }else { // Загрузить и вывести значок погодных условий
             new LoadImageTask(viewHolder.menuImageView).execute(menuItem.picURL);
         }
 
         // Получить данные из объекта MenuItem и заполнить представления
         // Назначается текст компонентов TextView элемента ListView
-        viewHolder.menuTextView.setText(menuItem.name); // Первый аргумент - строка; Второй - аргументы для форматирования
+        viewHolder.menuTextView.setText(menuItem.name);
 
         return convertView; // Вернуть готовое представление элемента
     }
 
     // Кажись, изменение imageView так же изменяет и аргумент, переданный в конструкторе LoadImageTask(). Таким образом, создается нечно вроде "ссылки"
     // AsyncTask для загрузки изображения в отдельном потоке
+
+    /**
+     * Внутренний класс {@link AsyncTask}, предназначенный
+     * для загрузки изображения в отдельном потоке
+     * @author RareScrap
+     */
     private class LoadImageTask extends AsyncTask<String, Void, Bitmap> {
         private ImageView imageView; // Для вывода миниатюры
 
-        // Сохранение ImageView для загруженного объекта Bitmap
+        /**
+         * Сохранение ImageView для загруженного объекта Bitmap
+         * @param imageView ImageView для загруженного объекта Bitmap, который сохраится внутри класса {@link LoadImageTask}
+         */
         public LoadImageTask(ImageView imageView) {
             this.imageView = imageView;
         }
 
-        // загрузить изображение; params[0] содержит URL-адрес изображения
+        /**
+         * Загрузить изображение
+         * @param params Cодержит URL-адрес изображения
+         * @return Загруженное изображение
+         */
         @Override
         protected Bitmap doInBackground(String... params) {
             Bitmap bitmap = null;
@@ -121,7 +154,10 @@ public class MenuItemArrayAdapter extends ArrayAdapter<MenuItem> {
             return bitmap;
         }
 
-        // Связать значок погодных условий с элементом списка
+        /**
+         * Связать изображение с элементом списка
+         * @param bitmap Связываемое изображение
+         */
         // Выполняется в потоке GUI вроде как для вывода изображения
         @Override
         protected void onPostExecute(Bitmap bitmap) {

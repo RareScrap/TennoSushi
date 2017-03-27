@@ -1,7 +1,6 @@
 package com.webtrust.tennosushi;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -22,36 +21,40 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link MenuCardListFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link MenuCardListFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * Простой наследник класса {@link Fragment}.
+ * Активити, которые содержат этот фрагмент должно реализовывать
+ * интерфейс {@link MenuCardListFragment.OnFragmentInteractionListener}
+ * для обработки событий взаимодействия между активностью и фрагментом.
+ * Используйте {@link MenuCardListFragment#newInstance} фабричный метод для
+ * создания экземпляра этого фрагмента.
+ * @author RareScrap
  */
 public class MenuCardListFragment extends Fragment {
+    // Закомментирован, т.к. еще не изучен
     //private OnFragmentInteractionListener mListener;
 
-    // Список объектов Weather, представляющих прогноз погоды
+    // Список объектов MenuItem, представляющих элементы главного мею (категории блюд)
     private List<MenuItem> menuItemList = new ArrayList<>();
 
-    // ArrayAdapter связывает объекты Weather с элементами ListView
+    // ArrayAdapter связывает объекты MenuItem с элементами ListView
     private MenuItemArrayAdapter menuItemArrayAdapter;
-    private ListView menuItemListView; // Для вывода информации
-
-    public MenuCardListFragment() {
-        // Required empty public constructor
-    }
+    private ListView menuItemListView; // View для вывода информации
 
     /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @return A new instance of fragment MenuCardListFragment.
+     * Необходимый пустой публичный конструктор
      */
-    // TODO: Rename and change types and number of parameters
+    public MenuCardListFragment() {}
+
+    /**
+     * Используйте этот фабричный метод для создания новых экземпляров
+     * этого фрагмента с использованием продоставленных параментров
+     * (черт знает где эти "параметры", япросто перевел сгенерированный коммент)
+     *
+     * @return Новый объект фрагмента {@link MenuCardListFragment}.
+     */
+    // TODO: Переменуйте и измените типы и количество параметров (перевод)
+    // TODO: разобраться зачем нужен этот метод
     public static MenuCardListFragment newInstance() {
         MenuCardListFragment fragment = new MenuCardListFragment();
         Bundle args = new Bundle();
@@ -109,24 +112,35 @@ public class MenuCardListFragment extends Fragment {
     }
 
     /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
+     * Этот интерфейс должно быть реализован в активити, которая содержит этот
+     * фрагмент, чтобы фрагмен смог взаимодействовать с активити
+     * и ,возможно, с другими фрагментами, содержащиеся в этой активити.
      * <p>
-     * See the Android Training lesson <a href=
+     * Подробнее смотрите в Android Training lesson: <a href=
      * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
+     * >Communicating with Other Fragments</a>
+     * </p>.
      */
+    // Закомментирован, т.к. еще не изучен
     /*public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }*/
 
-    /* Обращение к REST-совместимому веб-сервису за погодными данными
-    и сохранение данных в локальном файле HTML */
-    private class GetDataTask
-            extends AsyncTask<URL, Void, JSONObject> {
+    /* Обращение к REST-совместимому (якобы) веб-сервису за данными блюд и меню
+    и сохранение этих данных в локальном файле HTML */
+
+    /**
+     * Внутренний класс {@link AsyncTask} для загрузки данных
+     * в формате JSON.
+     * @author RareScrap
+     */
+    private class GetDataTask extends AsyncTask<URL, Void, JSONObject> {
+        /**
+         * Получение данных из сети
+         * @param params URL для получения JSON файла
+         * @return JSON файл с категориями меню и блюдами в них
+         */
         @Override
         protected JSONObject doInBackground(URL... params) {
             HttpURLConnection connection = null;
@@ -159,17 +173,13 @@ public class MenuCardListFragment extends Fragment {
                 connection.disconnect(); // Закрыть HttpURLConnection
             }
 
-            /*JSONObject returnedJSON;
-            try {
-                returnedJSON = new JSONObject( getResources().getString(R.string.test_json) );
-                return returnedJSON;
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }*/
             return null;
         }
-
-        // Обработка ответа JSON и обновление ListView
+        /**
+         * Обработка ответа JSON и обновление ListView.
+         *
+         * @param jsonObject JSON файл полученный после завершения работы doInBackground()
+         */
         @Override
         protected void onPostExecute(JSONObject jsonObject) {
             if (jsonObject != null) {
@@ -180,7 +190,12 @@ public class MenuCardListFragment extends Fragment {
         }
     }
 
-    // Создание объектов Weather на базе JSONObject с прогнозом
+    /**
+     * Создание объектов MenuItem на базе JSONObject
+     * с последующим их заесением в menuItemList.
+     *
+     * @param jsonObject Входящий JSON файл
+     */
     private void convertJSONtoArrayList(JSONObject jsonObject) {
         menuItemList.clear(); // Стирание старых погодных данных
 

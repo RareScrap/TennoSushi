@@ -7,8 +7,8 @@ package com.webtrust.tennosushi;
  * @author RareScrap
  */
 public class MenuItem {
-    public final String name;
-    public final String picURL;
+    public final String name; // Название меню
+    public final String picURL; // Ссылка на картинку меню
 
     public MenuItem(String name, String picURL) {
         this.name = name;
