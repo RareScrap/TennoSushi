@@ -4,11 +4,14 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ListView;
 
@@ -55,7 +58,20 @@ public class MenuCardListFragment extends Fragment {
      * Необходимый пустой публичный конструктор
      */
     public MenuCardListFragment() {
-        this.currentMode = PLATE_MODE; // режим по умолчанию
+        setArguments(PLATE_MODE);// режим по умолчанию
+    }
+
+    /**
+     * Метод-замена для конструктора с параметрами т.к.
+     * Google ОЧЕНЬ не рекомендует иметь дополнительные конструкторы
+     * во фрагментах
+     *
+     * @param mode Режим отображения списка
+     * @return this Возвращает этот же фрагмент (нужночтобы вызывать сразу после конструктора во FragmentTransaction
+     * */
+    public android.support.v4.app.Fragment setArguments(int mode) {
+        this.currentMode = mode; // режим по умолчанию
+        return this;
     }
 
     /**
@@ -149,11 +165,33 @@ public class MenuCardListFragment extends Fragment {
     // Обработка выбора команд меню
     @Override
     public boolean onOptionsItemSelected(android.view.MenuItem item) {
+        FragmentManager fm = getFragmentManager(); // Необходим для транзакий фрагментов: при удалении и заменене одного фрагмента другим
+
         // Выбор в зависимости от идентификатора MenuItem
         switch (item.getItemId()) {
             case R.id.shopping_cart:
                 return true; // Событие меню обработано
             case R.id.sort:
+                if (fm != null) {
+                    /*
+                    Perform the FragmentTransaction to load in the list tab content.
+                    Using FragmentTransaction#replace will destroy any Fragments
+                    currently inside R.id.fragment_content and add the new Fragment
+                    in its place. (с) Google doc
+                    */
+                    FragmentTransaction ft = fm.beginTransaction(); // Начало транзакции
+                    ( (ViewGroup) getActivity().findViewById(R.id.fragment_menu) ).removeAllViews(); // Удаляет View на экране (сам список)
+                    ft.remove(this); // Удаляет кнопки на палени действий (TODO: и вместе с ним сам фрагмент?)
+
+                    // Замена фрагмента
+                    if (currentMode == CARD_MODE) {
+                        ft.replace(R.id.fragment_menu, new MenuCardListFragment().setArguments(PLATE_MODE));
+                    }else {// currentMode == PLATE_MODE
+                        ft.replace(R.id.fragment_menu, new MenuCardListFragment().setArguments(CARD_MODE));
+
+                    }
+                    ft.commit(); // Завершение транзакции
+                }
                 return true; // Событие меню обработано
         }
 
