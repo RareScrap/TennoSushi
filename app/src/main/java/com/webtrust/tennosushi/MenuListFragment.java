@@ -43,7 +43,7 @@ public class MenuListFragment extends Fragment {
     // Закомментирован, т.к. еще не изучен
     //private OnFragmentInteractionListener mListener;
 
-    // Список объектов MenuItem, представляющих элементы главного мею (категории блюд)
+    // Список объектов MenuItem, представляющих элементы главного меню (категории блюд)
     private List<MenuItem> menuItemList = new ArrayList<>();
 
     // ArrayAdapter связывает объекты MenuItem с элементами ListView
@@ -183,6 +183,7 @@ public class MenuListFragment extends Fragment {
                     ft.remove(this); // Удаляет кнопки на палени действий (TODO: и вместе с ним сам фрагмент?)
 
                     // Замена фрагмента
+                    // TODO: Сделать так, чтобы разметка фрагмента менялась без пересоздания (читай удаления) макета
                     if (currentMode == CARD_MODE) {
                         ft.replace(R.id.fragment_menu, new MenuListFragment().setArguments(PLATE_MODE));
                     }else {// currentMode == PLATE_MODE
