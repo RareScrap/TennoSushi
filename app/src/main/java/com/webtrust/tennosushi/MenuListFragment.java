@@ -11,7 +11,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ListView;
 
@@ -30,13 +29,13 @@ import java.util.List;
 /**
  * Простой наследник класса {@link Fragment}.
  * Активити, которые содержат этот фрагмент должно реализовывать
- * интерфейс {@link MenuCardListFragment.OnFragmentInteractionListener}
+ * интерфейс {@link MenuListFragment.OnFragmentInteractionListener}
  * для обработки событий взаимодействия между активностью и фрагментом.
- * Используйте {@link MenuCardListFragment#newInstance} фабричный метод для
+ * Используйте {@link MenuListFragment#newInstance} фабричный метод для
  * создания экземпляра этого фрагмента.
  * @author RareScrap
  */
-public class MenuCardListFragment extends Fragment {
+public class MenuListFragment extends Fragment {
     // Константы, определяющие режим отображения списка
     public static int CARD_MODE = 0;
     public static int PLATE_MODE = 1;
@@ -57,7 +56,7 @@ public class MenuCardListFragment extends Fragment {
     /**
      * Необходимый пустой публичный конструктор
      */
-    public MenuCardListFragment() {
+    public MenuListFragment() {
         setArguments(PLATE_MODE);// режим по умолчанию
     }
 
@@ -79,12 +78,12 @@ public class MenuCardListFragment extends Fragment {
      * этого фрагмента с использованием продоставленных параментров
      * (черт знает где эти "параметры", япросто перевел сгенерированный коммент)
      *
-     * @return Новый объект фрагмента {@link MenuCardListFragment}.
+     * @return Новый объект фрагмента {@link MenuListFragment}.
      */
     // TODO: Переменуйте и измените типы и количество параметров (перевод)
     // TODO: разобраться зачем нужен этот метод
-    public static MenuCardListFragment newInstance() {
-        MenuCardListFragment fragment = new MenuCardListFragment();
+    public static MenuListFragment newInstance() {
+        MenuListFragment fragment = new MenuListFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
@@ -185,9 +184,9 @@ public class MenuCardListFragment extends Fragment {
 
                     // Замена фрагмента
                     if (currentMode == CARD_MODE) {
-                        ft.replace(R.id.fragment_menu, new MenuCardListFragment().setArguments(PLATE_MODE));
+                        ft.replace(R.id.fragment_menu, new MenuListFragment().setArguments(PLATE_MODE));
                     }else {// currentMode == PLATE_MODE
-                        ft.replace(R.id.fragment_menu, new MenuCardListFragment().setArguments(CARD_MODE));
+                        ft.replace(R.id.fragment_menu, new MenuListFragment().setArguments(CARD_MODE));
 
                     }
                     ft.commit(); // Завершение транзакции
