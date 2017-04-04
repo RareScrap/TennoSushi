@@ -57,7 +57,7 @@ public class MenuListFragment extends Fragment {
      * Необходимый пустой публичный конструктор
      */
     public MenuListFragment() {
-        setArguments(PLATE_MODE);// режим по умолчанию
+        setArguments(CARD_MODE);// режим по умолчанию
     }
 
     /**
@@ -178,19 +178,35 @@ public class MenuListFragment extends Fragment {
                     currently inside R.id.fragment_content and add the new Fragment
                     in its place. (с) Google doc
                     */
-                    FragmentTransaction ft = fm.beginTransaction(); // Начало транзакции
+                    //FragmentTransaction ft = fm.beginTransaction(); // Начало транзакции
                     ( (ViewGroup) getActivity().findViewById(R.id.fragment_menu) ).removeAllViews(); // Удаляет View на экране (сам список)
-                    ft.remove(this); // Удаляет кнопки на палени действий (TODO: и вместе с ним сам фрагмент?)
+                    //ft.remove(this); // Удаляет кнопки на палени действий (TODO: и вместе с ним сам фрагмент?)
 
                     // Замена фрагмента
                     // TODO: Сделать так, чтобы разметка фрагмента менялась без пересоздания (читай удаления) макета
                     if (currentMode == CARD_MODE) {
-                        ft.replace(R.id.fragment_menu, new MenuListFragment().setArguments(PLATE_MODE));
+                        currentMode = PLATE_MODE;
+                        //ft.replace(R.id.fragment_menu, new MenuListFragment().setArguments(PLATE_MODE));
+                        LayoutInflater inflater = getActivity().getLayoutInflater();
+                        int a = R.layout.fragment_menu_plates_list; // a и b Созданы, чтобы отслеживать их в отладчике
+                        ViewGroup b =  (ViewGroup) this.getView();
+                        View view = inflater.inflate(a, b, true); // Помещает разметку "a" как корневой элемент фрагмента
+                        menuItemListGridView = (GridView) getView().findViewById(R.id.platesList);
+                        menuItemListGridView.setAdapter(menuItemArrayAdapter);
+                        menuItemArrayAdapter.notifyDataSetChanged(); // Связать с ListView
                     }else {// currentMode == PLATE_MODE
-                        ft.replace(R.id.fragment_menu, new MenuListFragment().setArguments(CARD_MODE));
+                        currentMode = CARD_MODE;
+                        //ft.replace(R.id.fragment_menu, new MenuListFragment().setArguments(CARD_MODE));
+                        LayoutInflater inflater = getActivity().getLayoutInflater();
+                        int a = R.layout.fragment_menu_card_list;
+                        ViewGroup b =  (ViewGroup) this.getView();
+                        View view = inflater.inflate(a, b, true);
+                        menuItemListListView = (ListView) getView().findViewById(R.id.cardList);
+                        menuItemListListView.setAdapter(menuItemArrayAdapter);
+                        menuItemArrayAdapter.notifyDataSetChanged(); // Связать с ListView
 
                     }
-                    ft.commit(); // Завершение транзакции
+                    //ft.commit(); // Завершение транзакции
                 }
                 return true; // Событие меню обработано
         }
