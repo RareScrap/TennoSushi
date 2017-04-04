@@ -43,7 +43,7 @@ public class MenuListFragment extends Fragment {
     // Закомментирован, т.к. еще не изучен
     //private OnFragmentInteractionListener mListener;
 
-    // Список объектов MenuItem, представляющих элементы главного мею (категории блюд)
+    // Список объектов MenuItem, представляющих элементы главного меню (категории блюд)
     private List<MenuItem> menuItemList = new ArrayList<>();
 
     // ArrayAdapter связывает объекты MenuItem с элементами ListView
@@ -57,7 +57,7 @@ public class MenuListFragment extends Fragment {
      * Необходимый пустой публичный конструктор
      */
     public MenuListFragment() {
-        setArguments(PLATE_MODE);// режим по умолчанию
+        setArguments(CARD_MODE);// режим по умолчанию
     }
 
     /**
@@ -164,34 +164,45 @@ public class MenuListFragment extends Fragment {
     // Обработка выбора команд меню
     @Override
     public boolean onOptionsItemSelected(android.view.MenuItem item) {
-        FragmentManager fm = getFragmentManager(); // Необходим для транзакий фрагментов: при удалении и заменене одного фрагмента другим
-
         // Выбор в зависимости от идентификатора MenuItem
         switch (item.getItemId()) {
             case R.id.shopping_cart:
                 return true; // Событие меню обработано
             case R.id.sort:
-                if (fm != null) {
+                ( (ViewGroup) getActivity().findViewById(R.id.fragment_menu) ).removeAllViews(); // Удаляет View на экране (сам список)
+
+                // Замена одной разметки списка на другую
+                if (currentMode == CARD_MODE) {
+                    currentMode = PLATE_MODE; // Изменяет тукущий способ отображеия списка
+                    LayoutInflater inflater = getActivity().getLayoutInflater();
+
                     /*
-                    Perform the FragmentTransaction to load in the list tab content.
-                    Using FragmentTransaction#replace will destroy any Fragments
-                    currently inside R.id.fragment_content and add the new Fragment
-                    in its place. (с) Google doc
+                    Помещает разметку списка как корневой элемент фрагмента
+                    Возвращаемое значение не имеет смысла, т.к. всю работу делает сам метод
                     */
-                    FragmentTransaction ft = fm.beginTransaction(); // Начало транзакции
-                    ( (ViewGroup) getActivity().findViewById(R.id.fragment_menu) ).removeAllViews(); // Удаляет View на экране (сам список)
-                    ft.remove(this); // Удаляет кнопки на палени действий (TODO: и вместе с ним сам фрагмент?)
+                    View view = inflater.inflate(R.layout.fragment_menu_plates_list, (ViewGroup) this.getView(), true);
 
-                    // Замена фрагмента
-                    if (currentMode == CARD_MODE) {
-                        ft.replace(R.id.fragment_menu, new MenuListFragment().setArguments(PLATE_MODE));
-                    }else {// currentMode == PLATE_MODE
-                        ft.replace(R.id.fragment_menu, new MenuListFragment().setArguments(CARD_MODE));
+                    // Получение ссыки на GridView-элемент, помещенный в разметку методом inflate(), приведенным выше
+                    menuItemListGridView = (GridView) getView().findViewById(R.id.platesList);
+                    menuItemListGridView.setAdapter(menuItemArrayAdapter); // Установка адаптера
+                    menuItemArrayAdapter.notifyDataSetChanged(); // Обовлеия данных адаптера
+                } else {// currentMode == PLATE_MODE
+                    currentMode = CARD_MODE; // Изменяет тукущий способ отображеия списка
+                    LayoutInflater inflater = getActivity().getLayoutInflater();
 
-                    }
-                    ft.commit(); // Завершение транзакции
+                    /*
+                    Помещает разметку списка как корневой элемент фрагмента
+                    Возвращаемое значение не имеет смысла, т.к. всю работу делает сам метод
+                    */
+                    View view = inflater.inflate(R.layout.fragment_menu_card_list, (ViewGroup) this.getView(), true);
+
+                    // Получение ссыки на ListView-элемент, помещенный в разметку методом inflate(), приведенным выше
+                    menuItemListListView = (ListView) getView().findViewById(R.id.cardList);
+                    menuItemListListView.setAdapter(menuItemArrayAdapter); // Установка адаптера
+                    menuItemArrayAdapter.notifyDataSetChanged(); // Обовлеия данных адаптера
+
                 }
-                return true; // Событие меню обработано
+            return true; // Событие меню обработано
         }
 
         return super.onOptionsItemSelected(item); //TODO: Разобраться зачем вообще тут нужен супер
