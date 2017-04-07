@@ -1,11 +1,13 @@
 package com.webtrust.tennosushi;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -57,7 +59,7 @@ public class MenuListFragment extends Fragment {
      * Необходимый пустой публичный конструктор
      */
     public MenuListFragment() {
-        setArguments(PLATE_MODE);// режим по умолчанию
+        setArguments(CARD_MODE);// режим по умолчанию
     }
 
     /**
@@ -98,12 +100,33 @@ public class MenuListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true); // у фрагмента имеются команды меню
+        View returnedView; // Возвращаемый View
 
         // Inflate the layout for this fragment
         if (currentMode == CARD_MODE) {
-            return inflater.inflate(R.layout.fragment_menu_card_list, container, false);
+            returnedView = inflater.inflate(R.layout.fragment_menu_card_list, container, false);
+            try {
+                URL url = new URL("http://192.168.1.254/index.php");
+
+                GetDataTask getLocalDataTask = new GetDataTask();
+                getLocalDataTask.execute(url);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+            return returnedView;
         }else { // currentMode == PLATE_MODE
-            return inflater.inflate(R.layout.fragment_menu_plates_list, container, false);
+            returnedView = inflater.inflate(R.layout.fragment_menu_plates_list, container, false);
+            try {
+                URL url = new URL("http://192.168.1.254/index.php");
+
+                GetDataTask getLocalDataTask = new GetDataTask();
+                getLocalDataTask.execute(url);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+            return returnedView;
         }
     }
 
@@ -120,16 +143,6 @@ public class MenuListFragment extends Fragment {
         }else { // currentMode == PLATE_MODE
             menuItemListGridView = (GridView) getView().findViewById(R.id.platesList);
             menuItemListGridView.setAdapter(menuItemArrayAdapter);
-        }
-
-        try {
-            URL url = new URL("http://192.168.1.254/index.php");
-
-            GetDataTask getLocalDataTask = new GetDataTask();
-            getLocalDataTask.execute(url);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
@@ -164,35 +177,45 @@ public class MenuListFragment extends Fragment {
     // Обработка выбора команд меню
     @Override
     public boolean onOptionsItemSelected(android.view.MenuItem item) {
-        FragmentManager fm = getFragmentManager(); // Необходим для транзакий фрагментов: при удалении и заменене одного фрагмента другим
-
         // Выбор в зависимости от идентификатора MenuItem
         switch (item.getItemId()) {
             case R.id.shopping_cart:
                 return true; // Событие меню обработано
             case R.id.sort:
-                if (fm != null) {
+                ( (ViewGroup) getActivity().findViewById(R.id.fragment_menu) ).removeAllViews(); // Удаляет View на экране (сам список)
+
+                // Замена одной разметки списка на другую
+                if (currentMode == CARD_MODE) {
+                    currentMode = PLATE_MODE; // Изменяет тукущий способ отображеия списка
+                    LayoutInflater inflater = getActivity().getLayoutInflater();
+
                     /*
-                    Perform the FragmentTransaction to load in the list tab content.
-                    Using FragmentTransaction#replace will destroy any Fragments
-                    currently inside R.id.fragment_content and add the new Fragment
-                    in its place. (с) Google doc
+                    Помещает разметку списка как корневой элемент фрагмента
+                    Возвращаемое значение не имеет смысла, т.к. всю работу делает сам метод
                     */
-                    FragmentTransaction ft = fm.beginTransaction(); // Начало транзакции
-                    ( (ViewGroup) getActivity().findViewById(R.id.fragment_menu) ).removeAllViews(); // Удаляет View на экране (сам список)
-                    ft.remove(this); // Удаляет кнопки на палени действий (TODO: и вместе с ним сам фрагмент?)
+                    View view = inflater.inflate(R.layout.fragment_menu_plates_list, (ViewGroup) this.getView(), true);
 
-                    // Замена фрагмента
-                    // TODO: Сделать так, чтобы разметка фрагмента менялась без пересоздания (читай удаления) макета
-                    if (currentMode == CARD_MODE) {
-                        ft.replace(R.id.fragment_menu, new MenuListFragment().setArguments(PLATE_MODE));
-                    }else {// currentMode == PLATE_MODE
-                        ft.replace(R.id.fragment_menu, new MenuListFragment().setArguments(CARD_MODE));
+                    // Получение ссыки на GridView-элемент, помещенный в разметку методом inflate(), приведенным выше
+                    menuItemListGridView = (GridView) getView().findViewById(R.id.platesList);
+                    menuItemListGridView.setAdapter(menuItemArrayAdapter); // Установка адаптера
+                    menuItemArrayAdapter.notifyDataSetChanged(); // Обовлеия данных адаптера
+                } else {// currentMode == PLATE_MODE
+                    currentMode = CARD_MODE; // Изменяет тукущий способ отображеия списка
+                    LayoutInflater inflater = getActivity().getLayoutInflater();
 
-                    }
-                    ft.commit(); // Завершение транзакции
+                    /*
+                    Помещает разметку списка как корневой элемент фрагмента
+                    Возвращаемое значение не имеет смысла, т.к. всю работу делает сам метод
+                    */
+                    View view = inflater.inflate(R.layout.fragment_menu_card_list, (ViewGroup) this.getView(), true);
+
+                    // Получение ссыки на ListView-элемент, помещенный в разметку методом inflate(), приведенным выше
+                    menuItemListListView = (ListView) getView().findViewById(R.id.cardList);
+                    menuItemListListView.setAdapter(menuItemArrayAdapter); // Установка адаптера
+                    menuItemArrayAdapter.notifyDataSetChanged(); // Обовлеия данных адаптера
+
                 }
-                return true; // Событие меню обработано
+            return true; // Событие меню обработано
         }
 
         return super.onOptionsItemSelected(item); //TODO: Разобраться зачем вообще тут нужен супер
@@ -223,6 +246,7 @@ public class MenuListFragment extends Fragment {
      * @author RareScrap
      */
     private class GetDataTask extends AsyncTask<URL, Void, JSONObject> {
+        public int CONNECTION_TIMEOUT = 5000; // Максимальное время ожидания данных
         /**
          * Получение данных из сети
          * @param params URL для получения JSON файла
@@ -234,7 +258,10 @@ public class MenuListFragment extends Fragment {
 
             try {
                 connection = (HttpURLConnection) params[0].openConnection(); // Для выдачи запроса достаточно открыть объект подключения
+                connection.setConnectTimeout(this.CONNECTION_TIMEOUT);
                 int response = connection.getResponseCode(); // Получить код ответа от веб-сервера
+
+                //response = 404; // Это тест
 
                 if (response == HttpURLConnection.HTTP_OK) {
                     StringBuilder builder = new StringBuilder();
@@ -250,8 +277,7 @@ public class MenuListFragment extends Fragment {
                     }
 
                     return new JSONObject(builder.toString());
-                }else {
-                }
+                }else {}
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -279,6 +305,22 @@ public class MenuListFragment extends Fragment {
                 }else { // currentMode == PLATE_MODE
                     menuItemListGridView.smoothScrollToPosition(0);
                 }
+            } else { // Вывод алерта в случае, если данные не дошли
+                AlertDialog.Builder adBuilder = new AlertDialog.Builder(getActivity());
+
+                // Назначить сообщение AlertDialog
+                adBuilder.setMessage(R.string.noConnection_useCashe);
+
+                // Добавить кнопку OK в диалоговое окно
+                adBuilder.setPositiveButton(android.R.string.ok,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {}
+                        }
+                );
+
+                // Отображение диалогового окна
+                adBuilder.create().show();
             }
         }
     }
