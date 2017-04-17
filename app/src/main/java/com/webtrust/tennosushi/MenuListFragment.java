@@ -2,6 +2,8 @@ package com.webtrust.tennosushi;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -15,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,14 +36,16 @@ import java.util.List;
  * Активити, которые содержат этот фрагмент должно реализовывать
  * интерфейс {@link MenuListFragment.OnFragmentInteractionListener}
  * для обработки событий взаимодействия между активностью и фрагментом.
+ *
  * Используйте {@link MenuListFragment#newInstance} фабричный метод для
  * создания экземпляра этого фрагмента.
+ *
  * @author RareScrap
  */
 public class MenuListFragment extends Fragment {
     // Константы, определяющие режим отображения списка
-    public static int CARD_MODE = 0;
-    public static int PLATE_MODE = 1;
+    public static int CARD_MODE = 0; // В виде постов
+    public static int PLATE_MODE = 1; // В виде плиток
 
     // Закомментирован, т.к. еще не изучен
     //private OnFragmentInteractionListener mListener;
@@ -48,46 +53,35 @@ public class MenuListFragment extends Fragment {
     // Список объектов MenuItem, представляющих элементы главного меню (категории блюд)
     private List<MenuItem> menuItemList = new ArrayList<>();
 
-    // ArrayAdapter связывает объекты MenuItem с элементами ListView
+    // ArrayAdapter связывает объекты MenuItem с элементами списка (ListView или GridView)
     private MenuItemArrayAdapter menuItemArrayAdapter;
     private ListView menuItemListListView; // View для вывода информации в виде списка
     private GridView menuItemListGridView; // View для вывода информации в виде плиток
 
-    private int currentMode; // Текущий режим отображения списка
+    protected int currentMode; // Текущий режим отображения списка
+    public static JSONObject downloadedJSON = null; // Хранилище для загруженного JSON'а
 
     /**
      * Необходимый пустой публичный конструктор
      */
     public MenuListFragment() {
-        setArguments(CARD_MODE);// режим по умолчанию
-    }
-
-    /**
-     * Метод-замена для конструктора с параметрами т.к.
-     * Google ОЧЕНЬ не рекомендует иметь дополнительные конструкторы
-     * во фрагментах
-     *
-     * @param mode Режим отображения списка
-     * @return this Возвращает этот же фрагмент (нужночтобы вызывать сразу после конструктора во FragmentTransaction
-     * */
-    public android.support.v4.app.Fragment setArguments(int mode) {
-        this.currentMode = mode; // режим по умолчанию
-        return this;
+        this.currentMode = CARD_MODE; // режим по умолчанию
     }
 
     /**
      * Используйте этот фабричный метод для создания новых экземпляров
      * этого фрагмента с использованием продоставленных параментров
-     * (черт знает где эти "параметры", япросто перевел сгенерированный коммент)
      *
+     * @param currentMode Режим отображения списка
      * @return Новый объект фрагмента {@link MenuListFragment}.
      */
-    // TODO: Переменуйте и измените типы и количество параметров (перевод)
-    // TODO: разобраться зачем нужен этот метод
-    public static MenuListFragment newInstance() {
+    public static MenuListFragment newInstance(int currentMode) {
         MenuListFragment fragment = new MenuListFragment();
-        Bundle args = new Bundle();
+
+        Bundle args = new Bundle(); // Объект для хранения состояний приложения и метаинформации
+        args.putInt("currentMode", currentMode);
         fragment.setArguments(args);
+
         return fragment;
     }
 
@@ -95,48 +89,41 @@ public class MenuListFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        setHasOptionsMenu(true); // у фрагмента имеются команды меню
-        View returnedView; // Возвращаемый View
-
-        // Inflate the layout for this fragment
-        if (currentMode == CARD_MODE) {
-            returnedView = inflater.inflate(R.layout.fragment_menu_card_list, container, false);
-            try {
-                URL url = new URL("http://192.168.1.254/index.php");
-
-                GetDataTask getLocalDataTask = new GetDataTask();
-                getLocalDataTask.execute(url);
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-            return returnedView;
-        }else { // currentMode == PLATE_MODE
-            returnedView = inflater.inflate(R.layout.fragment_menu_plates_list, container, false);
-            try {
-                URL url = new URL("http://192.168.1.254/index.php");
-
-                GetDataTask getLocalDataTask = new GetDataTask();
-                getLocalDataTask.execute(url);
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-            return returnedView;
+        // Обработать аргументы в случае использования метод newInstance()
+        if (savedInstanceState != null) {
+            this.currentMode = getArguments().getInt("currentMode", CARD_MODE); // TODO: Стоит ли назвачать вторым аргументом CARD_MODE (аргумент по умолчанию)? Или лучше делать это в конструкторе?
         }
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        setHasOptionsMenu(true); // У фрагмента имеются команды меню
 
-        // TODO: Лучше ли это место для установки адаптера?
+        // Запрос на получение данных
+        try {
+            URL url = new URL("http://192.168.1.254/index.php");
+
+            GetDataTask getLocalDataTask = new GetDataTask();
+            getLocalDataTask.execute(url);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Развернуть разметку для фрагмента
+        if (currentMode == CARD_MODE) {
+            return inflater.inflate(R.layout.fragment_menu_card_list, container, false);
+        } else { // currentMode == PLATE_MODE
+            return inflater.inflate(R.layout.fragment_menu_plates_list, container, false);
+        }
+
+    }
+
+    // Ранее этот код хранился в onActivityCreated
+    @Override
+    public void onViewCreated (View view, Bundle savedInstanceState) {
         // ArrayAdapter для связывания weatherList с weatherListView
-        menuItemArrayAdapter = new MenuItemArrayAdapter(getActivity(), menuItemList);
+        menuItemArrayAdapter = new MenuItemArrayAdapter(getActivity(), menuItemList, itemClickListener);
         if (currentMode == CARD_MODE) {
             menuItemListListView = (ListView) getView().findViewById(R.id.cardList);
             menuItemListListView.setAdapter(menuItemArrayAdapter);
@@ -174,7 +161,14 @@ public class MenuListFragment extends Fragment {
         inflater.inflate(R.menu.menu_list_menu, menu);
     }
 
-    // Обработка выбора команд меню
+    //
+
+    /**
+     * Обработка выбора команд меню
+     *
+     * @param item Выбранный итем на панели действий (не путать этот параметр с MenuItem, обозначающий элемент списка
+     * @return Показатель успешность обработки события
+     */
     @Override
     public boolean onOptionsItemSelected(android.view.MenuItem item) {
         // Выбор в зависимости от идентификатора MenuItem
@@ -261,7 +255,7 @@ public class MenuListFragment extends Fragment {
                 connection.setConnectTimeout(this.CONNECTION_TIMEOUT);
                 int response = connection.getResponseCode(); // Получить код ответа от веб-сервера
 
-                //response = 404; // Это тест
+                //response = 404; // Это тест при недоступности сети
 
                 if (response == HttpURLConnection.HTTP_OK) {
                     StringBuilder builder = new StringBuilder();
@@ -296,6 +290,8 @@ public class MenuListFragment extends Fragment {
         @Override
         protected void onPostExecute(JSONObject jsonObject) {
             if (jsonObject != null) {
+                downloadedJSON = jsonObject; // Сохранение загруженного файла
+
                 convertJSONtoArrayList(jsonObject); // Заполнение weatherList
                 menuItemArrayAdapter.notifyDataSetChanged(); // Связать с ListView
 
@@ -355,4 +351,18 @@ public class MenuListFragment extends Fragment {
             e.printStackTrace();
         }
     }
+
+    // Слушатель кликов по объектам
+    private final View.OnClickListener itemClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            FragmentTransaction fTrans = getFragmentManager().beginTransaction();
+
+            FoodListFragment asd_test = FoodListFragment.newInstance("sushi");
+
+            fTrans.replace(R.id.fragment_menu, asd_test);
+            fTrans.addToBackStack(null);
+            fTrans.commit();
+        }
+    };
 }
