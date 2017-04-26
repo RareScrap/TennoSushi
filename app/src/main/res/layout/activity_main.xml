@@ -2,16 +2,16 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_root_relative_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.webtrust.tennosushi.MainActivity">
 
-    <fragment
-        android:id="@+id/fragment_menu"
+    <FrameLayout
+        android:id="@+id/fragment_menu_container"
         android:name="com.webtrust.tennosushi.MenuListFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:layout="@layout/fragment_menu_plates_list" />
+        android:layout_height="match_parent" />
 
 
 </RelativeLayout>

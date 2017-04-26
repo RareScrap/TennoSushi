@@ -101,7 +101,7 @@ public class MenuListFragment extends Fragment {
 
         // Запрос на получение данных
         try {
-            URL url = new URL("http://192.168.1.254/index.php");
+            URL url = new URL("http:// 192.168.1.254/index.php");
 
             GetDataTask getLocalDataTask = new GetDataTask();
             getLocalDataTask.execute(url);
@@ -176,7 +176,8 @@ public class MenuListFragment extends Fragment {
             case R.id.shopping_cart:
                 return true; // Событие меню обработано
             case R.id.sort:
-                ( (ViewGroup) getActivity().findViewById(R.id.fragment_menu) ).removeAllViews(); // Удаляет View на экране (сам список)
+                ViewGroup fragmentMenuContainerViewGroup = (ViewGroup) getActivity().findViewById(R.id.fragment_menu_container);
+                fragmentMenuContainerViewGroup.removeAllViews(); // Удаляет View на экране (сам список)
 
                 // Замена одной разметки списка на другую
                 if (currentMode == CARD_MODE) {
@@ -187,10 +188,10 @@ public class MenuListFragment extends Fragment {
                     Помещает разметку списка как корневой элемент фрагмента
                     Возвращаемое значение не имеет смысла, т.к. всю работу делает сам метод
                     */
-                    View view = inflater.inflate(R.layout.fragment_menu_plates_list, (ViewGroup) this.getView(), true);
+                    View view = inflater.inflate(R.layout.fragment_menu_plates_list, fragmentMenuContainerViewGroup, true);
 
                     // Получение ссыки на GridView-элемент, помещенный в разметку методом inflate(), приведенным выше
-                    menuItemListGridView = (GridView) getView().findViewById(R.id.platesList);
+                    menuItemListGridView = (GridView) fragmentMenuContainerViewGroup.findViewById(R.id.platesList);
                     menuItemListGridView.setAdapter(menuItemArrayAdapter); // Установка адаптера
                     menuItemArrayAdapter.notifyDataSetChanged(); // Обовлеия данных адаптера
                 } else {// currentMode == PLATE_MODE
@@ -201,10 +202,10 @@ public class MenuListFragment extends Fragment {
                     Помещает разметку списка как корневой элемент фрагмента
                     Возвращаемое значение не имеет смысла, т.к. всю работу делает сам метод
                     */
-                    View view = inflater.inflate(R.layout.fragment_menu_card_list, (ViewGroup) this.getView(), true);
+                    View view = inflater.inflate(R.layout.fragment_menu_card_list, fragmentMenuContainerViewGroup, true);
 
                     // Получение ссыки на ListView-элемент, помещенный в разметку методом inflate(), приведенным выше
-                    menuItemListListView = (ListView) getView().findViewById(R.id.cardList);
+                    menuItemListListView = (ListView) fragmentMenuContainerViewGroup.findViewById(R.id.cardList);
                     menuItemListListView.setAdapter(menuItemArrayAdapter); // Установка адаптера
                     menuItemArrayAdapter.notifyDataSetChanged(); // Обовлеия данных адаптера
 
@@ -359,10 +360,35 @@ public class MenuListFragment extends Fragment {
             FragmentTransaction fTrans = getFragmentManager().beginTransaction();
 
             FoodListFragment asd_test = FoodListFragment.newInstance("sushi");
-
-            fTrans.replace(R.id.fragment_menu, asd_test);
             fTrans.addToBackStack(null);
+            fTrans.replace(R.id.fragment_menu_container, asd_test);
+            //fTrans.remove( getFragmentManager().findFragmentById(R.id.fragment_menu) );
+            //fTrans.add(asd_test, "asd");
             fTrans.commit();
+
+            // TODO: При первом запуске приложения без этой строки можно обойтись, но после изменения currentMode, без этой строки не стирается прдыдущий view
+            ( (ViewGroup) getActivity().findViewById(R.id.fragment_menu_container) ).removeAllViews();
+
+
         }
     };
+
+
+
+    @Override
+    public void onResume () {
+        super.onResume();
+
+
+
+    }
+    @Override
+    public void onPause () {
+        super.onPause();
+    }
+    @Override
+    public void onStop () {
+        super.onStop();
+    }
+
 }

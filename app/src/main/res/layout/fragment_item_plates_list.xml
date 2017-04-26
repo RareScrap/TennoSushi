@@ -5,7 +5,6 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <!-- TODO: Как оно скролится, если не помещено в ScrollView?-->
     <GridView
         android:id="@+id/platesList"
         android:layout_width="match_parent"

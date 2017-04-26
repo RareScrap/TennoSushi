@@ -38,6 +38,9 @@ public class MenuItemArrayAdapter extends ArrayAdapter<MenuItem> {
     // Кэш для уже загруженных картинок (объектов Bitmap)
     private Map<String, Bitmap> bitmaps = new HashMap<>();
 
+    View.OnClickListener clickListener;
+
+
     // Конструктор для инициализации унаследованных членов суперкласса
 
     /**
@@ -45,7 +48,7 @@ public class MenuItemArrayAdapter extends ArrayAdapter<MenuItem> {
      * @param context Контекст для super()
      * @param MenuItemList Список элементов меню для super()
      */
-    public MenuItemArrayAdapter(Context context, List<MenuItem> MenuItemList) {
+    public MenuItemArrayAdapter(Context context, List<MenuItem> MenuItemList, View.OnClickListener clickListener) {
         /*
         в первом и третьем аргументах передаются объект Context (то есть активность,
         в которой отображается ListView) и List<MenuItem> (список выводимых данных).
@@ -55,6 +58,7 @@ public class MenuItemArrayAdapter extends ArrayAdapter<MenuItem> {
         чтобы элемент списка не ограничивался одним компонентом TextView.
          */
         super(context, -1, MenuItemList);
+        this.clickListener = clickListener;
     }
 
     /**
@@ -96,6 +100,8 @@ public class MenuItemArrayAdapter extends ArrayAdapter<MenuItem> {
         // Получить данные из объекта MenuItem и заполнить представления
         // Назначается текст компонентов TextView элемента ListView
         viewHolder.menuTextView.setText(menuItem.name);
+
+        convertView.setOnClickListener(clickListener);
 
         return convertView; // Вернуть готовое представление элемента
     }

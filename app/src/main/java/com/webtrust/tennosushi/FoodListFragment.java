@@ -33,6 +33,11 @@ import java.util.List;
  */
 
 public class FoodListFragment extends MenuListFragment {
+    public interface FoodListFragmentListener {
+        void onBackPressed(); // Вызывается, когда нажимается либо хардверная кнопка назад, либо софтверная
+    }
+
+
     // Список объектов FoodItem, представляющих элементы меню (блюда)
     private List<FoodItem> foodItemList = new ArrayList<>();
 
