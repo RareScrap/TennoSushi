@@ -1,4 +1,4 @@
-package com.webtrust.tennosushi;
+package com.webtrust.tennosushi.list_items;
 
 /**
  * Класс, представляющий собой элемент меню (суши, пицца и т.д.)

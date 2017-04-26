@@ -1,13 +1,10 @@
-package com.webtrust.tennosushi;
+package com.webtrust.tennosushi.fragments;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
@@ -17,7 +14,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
 import android.widget.ListView;
-import android.widget.TextView;
+
+import com.webtrust.tennosushi.R;
+import com.webtrust.tennosushi.adapters.MenuItemArrayAdapter;
+import com.webtrust.tennosushi.list_items.MenuItem;
 
 import org.json.JSONArray;
 import org.json.JSONException;

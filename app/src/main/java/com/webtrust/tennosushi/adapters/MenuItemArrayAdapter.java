@@ -1,4 +1,4 @@
-package com.webtrust.tennosushi;
+package com.webtrust.tennosushi.adapters;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -10,6 +10,9 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter; // Родительский класс
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.webtrust.tennosushi.R;
+import com.webtrust.tennosushi.list_items.MenuItem;
 
 import java.io.InputStream;
 import java.net.HttpURLConnection;

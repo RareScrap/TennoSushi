@@ -1,8 +1,7 @@
-package com.webtrust.tennosushi;
+package com.webtrust.tennosushi.adapters;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.Image;
 import android.os.AsyncTask;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -10,6 +9,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.webtrust.tennosushi.R;
+import com.webtrust.tennosushi.list_items.FoodItem;
 
 import java.io.InputStream;
 import java.net.HttpURLConnection;
