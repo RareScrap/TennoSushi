@@ -60,11 +60,13 @@ public class FoodListFragment extends MenuListFragment {
         gridLayoutManager = new GridLayoutManager(getContext(), 2); // Количество колонок в таблице;
     }
 
-    public static FoodListFragment newInstance(String foodCategory) {
+    public static FoodListFragment newInstance(String foodCategory, int currentMode) {
         FoodListFragment fragment = new FoodListFragment();
 
         Bundle args = new Bundle();
         args.putString("foodCategory", foodCategory);
+        args.putInt("currentMode", currentMode);
+        //fragment.currentMode = currentMode;
         fragment.setArguments(args);
 
         return fragment;
@@ -74,6 +76,11 @@ public class FoodListFragment extends MenuListFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true); // у фрагмента имеются команды меню
+
+        // Обработать аргументы в случае использования метод newInstance()
+        if (savedInstanceState != null) {
+            // this.currentMode = getArguments().getInt("currentMode", CARD_MODE); // TODO: Стоит ли назвачать вторым аргументом CARD_MODE (аргумент по умолчанию)? Или лучше делать это в конструкторе?
+        }
 
         // Получить ссылку на RecyclerView и настроить его
         /*RecyclerView recyclerView = (RecyclerView) getView().findViewById(R.id.recyclerView);
@@ -110,7 +117,7 @@ public class FoodListFragment extends MenuListFragment {
         recyclerView = (RecyclerView) getView().findViewById(R.id.recyclerView);
 
         // Получить LinearLayoutManager для определенного вида списка
-        if (currentMode == CARD_MODE)
+        if (MenuListFragment.getCurrentMode() == CARD_MODE)
             recyclerView.setLayoutManager(listLayoutManager); // Для карточного списка
         else // currentMode == PLATE_MODE
             recyclerView.setLayoutManager(gridLayoutManager); // Для плиточного списка
@@ -144,11 +151,11 @@ public class FoodListFragment extends MenuListFragment {
                 //fragmentMenuContainerViewGroup.removeAllViews(); // Удаляет View на экране (сам список)
 
                 // Замена одной разметки списка на другую
-                if (currentMode == CARD_MODE) {
-                    currentMode = PLATE_MODE; // Изменяет тукущий способ отображеия списка
+                if (MenuListFragment.getCurrentMode() == CARD_MODE) {
+                    MenuListFragment.setCurrentMode(PLATE_MODE); // Изменяет тукущий способ отображеия списка
                     recyclerView.setLayoutManager(gridLayoutManager); // Для карточного списка
-                } else {// currentMode == PLATE_MODE
-                    currentMode = CARD_MODE; // Изменяет тукущий способ отображеия списка
+                } else { // currentMode == PLATE_MODE
+                    MenuListFragment.setCurrentMode(CARD_MODE); // Изменяет тукущий способ отображеия списка
                     recyclerView.setLayoutManager(listLayoutManager); // Для карточного списка
                 }
 

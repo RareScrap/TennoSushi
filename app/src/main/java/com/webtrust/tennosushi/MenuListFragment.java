@@ -58,14 +58,21 @@ public class MenuListFragment extends Fragment {
     private ListView menuItemListListView; // View для вывода информации в виде списка
     private GridView menuItemListGridView; // View для вывода информации в виде плиток
 
-    protected int currentMode; // Текущий режим отображения списка
+    // currentMode не должен наследоваться но его субклассы должны уметь получать к нему доступ (см Set и Get методы ниже)
+    private static int currentMode = 0; // Текущий режим отображения списка (карточками по умолчанию)
     public static JSONObject downloadedJSON = null; // Хранилище для загруженного JSON'а
+
+    public static void setCurrentMode(int inputCurrentMode) {
+        currentMode = inputCurrentMode;
+    }
+    public static int getCurrentMode() {
+        return currentMode;
+    }
 
     /**
      * Необходимый пустой публичный конструктор
      */
     public MenuListFragment() {
-        this.currentMode = CARD_MODE; // режим по умолчанию
     }
 
     /**
@@ -78,8 +85,10 @@ public class MenuListFragment extends Fragment {
     public static MenuListFragment newInstance(int currentMode) {
         MenuListFragment fragment = new MenuListFragment();
 
+        MenuListFragment.setCurrentMode(currentMode);
+
         Bundle args = new Bundle(); // Объект для хранения состояний приложения и метаинформации
-        args.putInt("currentMode", currentMode);
+        args.putInt("currentMode", currentMode); // TODO: Эта хуйня не работает. И вообще я хз как с ее помощью передавать аргуметы
         fragment.setArguments(args);
 
         return fragment;
@@ -359,7 +368,7 @@ public class MenuListFragment extends Fragment {
         public void onClick(View view) {
             FragmentTransaction fTrans = getFragmentManager().beginTransaction();
 
-            FoodListFragment asd_test = FoodListFragment.newInstance("sushi");
+            FoodListFragment asd_test = FoodListFragment.newInstance("sushi", currentMode);
             fTrans.addToBackStack(null);
             fTrans.replace(R.id.fragment_menu_container, asd_test);
             //fTrans.remove( getFragmentManager().findFragmentById(R.id.fragment_menu) );
