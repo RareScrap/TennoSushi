@@ -21,36 +21,53 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by rares on 13.04.2017.
+ * Адаптер для списка меню, основанный на {@link RecyclerView.Adapter<FoodItemRecyclerViewAdapter.ViewHolder>}
+ * @author RareScrap
  */
 
 public class FoodItemRecyclerViewAdapter extends RecyclerView.Adapter<FoodItemRecyclerViewAdapter.ViewHolder> {
-    // Слушатели MainActivity, регистрируемые для каждого элемента списка
+    /** Слушатель MainActivity, регистрируемые для каждого элемента списка */
     private final View.OnClickListener clickListener;
 
-    // Кэш для уже загруженных картинок (объектов Bitmap)
+    /** Кэш для уже загруженных картинок (объектов Bitmap) */
     private Map<String, Bitmap> bitmaps = new HashMap<>();
 
-    // List<Foodtem> для хранения данных элементов RecyclerView
+    /** Список для хранения данных элементов RecyclerView */
     private final List<FoodItem> items;
 
-    // Конструктор
-    public FoodItemRecyclerViewAdapter(List<FoodItem> items,
-                           View.OnClickListener clickListener) {
+    /**
+     * Конструктор, инициализирующий свои поля.
+     * @param items Набор элементов {@link FoodItem}, представляющий
+     *              собой входные данные, которые необходимо отобразить
+     * @param clickListener Слушатель, который регистрирется для каждого элемента списка
+     */
+    public FoodItemRecyclerViewAdapter(List<FoodItem> items, View.OnClickListener clickListener) {
         this.items = items;
         this.clickListener = clickListener;
     }
 
-    // Вложенный субкласс RecyclerView.ViewHolder используется для
-    // реализации паттерна View-Holder в контексте RecyclerView-логики
-    // повторного использования представлений
+    /*
+    Вложенный субкласс RecyclerView.ViewHolder используется для
+    реализации паттерна View-Holder в контексте RecyclerView-логики
+    повторного использования представлений
+    */
+
+    /**
+     * Вложенный субкласс {@link RecyclerView.ViewHolder}. Используется для
+     * реализации паттерна View-Holder в контексте RecyclerView-логики
+     * повторного использования представлений.
+     */
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public final TextView nameTextView;
         public final TextView componentsTextView;
         public final TextView priceTextView;
         public final ImageView foodImageView;
 
-        // Настройка объекта ViewHolder элемента RecyclerView
+        /**
+         * Конструктор, инициализирующий свои поля.
+         * @param itemView Представление одного элемента списка
+         * @param clickListener Слушатель для этого элемента
+         */
         public ViewHolder(View itemView, View.OnClickListener clickListener) {
             super(itemView);
 
