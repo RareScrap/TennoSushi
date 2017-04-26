@@ -125,8 +125,40 @@ public class FoodListFragment extends MenuListFragment {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
+
+    /**
+     * Обработка выбора команд меню
+     *
+     * @param item Выбранный итем на панели действий (не путать этот параметр с MenuItem, обозначающий элемент списка
+     * @return Показатель успешность обработки события
+     */
+    @Override
+    public boolean onOptionsItemSelected(android.view.MenuItem item) {
+        // Выбор в зависимости от идентификатора MenuItem
+        switch (item.getItemId()) {
+            case R.id.shopping_cart:
+                return true; // Событие меню обработано
+            case R.id.sort:
+                ViewGroup fragmentMenuContainerViewGroup = (ViewGroup) getActivity().findViewById(R.id.fragment_menu_container);
+                //fragmentMenuContainerViewGroup.removeAllViews(); // Удаляет View на экране (сам список)
+
+                // Замена одной разметки списка на другую
+                if (currentMode == CARD_MODE) {
+                    currentMode = PLATE_MODE; // Изменяет тукущий способ отображеия списка
+                    recyclerView.setLayoutManager(gridLayoutManager); // Для карточного списка
+                } else {// currentMode == PLATE_MODE
+                    currentMode = CARD_MODE; // Изменяет тукущий способ отображеия списка
+                    recyclerView.setLayoutManager(listLayoutManager); // Для карточного списка
+                }
+
+                rvAdapter.notifyDataSetChanged();
+                return true; // Событие меню обработано
+        }
+
+        return super.onOptionsItemSelected(item); //TODO: Разобраться зачем вообще тут нужен супер
+    }
+
 
 
     private class GetDataTask extends AsyncTask<String, Void, String> {
