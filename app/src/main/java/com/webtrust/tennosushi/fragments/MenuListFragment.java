@@ -395,19 +395,20 @@ import java.util.List;
         menuItemList.clear(); // Стирание старых погодных данных
 
         try {
-            // Получение свойства "list" JSONArray
-            JSONArray list = jsonObject.getJSONArray("sushi");
+            // Получение массива с категориями блюд
+            JSONArray list = jsonObject.getJSONArray("categories");
 
             // Преобразовать каждый элемент списка в объект Weather
             for (int i = 0; i < list.length(); ++i) {
-                JSONObject deash = list.getJSONObject(i); // Данные за день
-                // Получить JSONObject с температурами дня ("temp")
-                String name = deash.getString("name");
+                JSONObject cathegory = list.getJSONObject(i); // Данные для одной категории меню
 
-                // Получить JSONObject c описанием и значком ("weather")
-                String picURL = deash.getString("picURL");
+                // Получить JSONObject с названием кагеории блюда
+                String name = cathegory.getString("name");
 
-                // Добавить новый объект Weather в weatherList
+                // Получить JSONObject c картинкой категории блюда
+                String picURL = cathegory.getString("picURL");
+
+                // Добавить новый объект MenuItem в menuItelList
                 menuItemList.add( new MenuItem(name, picURL));
             }
         }
