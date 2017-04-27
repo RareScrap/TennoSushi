@@ -400,16 +400,19 @@ import java.util.List;
 
             // Преобразовать каждый элемент списка в объект Weather
             for (int i = 0; i < list.length(); ++i) {
-                JSONObject cathegory = list.getJSONObject(i); // Данные для одной категории меню
+                JSONObject category = list.getJSONObject(i); // Данные для одной категории меню
 
-                // Получить JSONObject с названием кагеории блюда
-                String name = cathegory.getString("name");
+                // Получить из JSONObject ID-имя категории блюда
+                String categoryID = category.getString("category");
 
-                // Получить JSONObject c картинкой категории блюда
-                String picURL = cathegory.getString("picURL");
+                // Получить из JSONObject название кагеории блюда
+                String name = category.getString("name");
+
+                // Получить из JSONObject картинку категории блюда
+                String picURL = category.getString("picURL");
 
                 // Добавить новый объект MenuItem в menuItelList
-                menuItemList.add( new MenuItem(name, picURL));
+                menuItemList.add( new MenuItem(categoryID, name, picURL));
             }
         }
         catch (JSONException e) {
@@ -419,7 +422,7 @@ import java.util.List;
 
     // Слушатель кликов по объектам
     /**
-     * Слушатель кликов по объектам MenuItemю. При клике отображает {@link FoodListFragment}.
+     * Слушатель кликов по объектам MenuItem. При клике отображает {@link FoodListFragment}.
      */
     private final View.OnClickListener itemClickListener = new View.OnClickListener() {
         @Override
