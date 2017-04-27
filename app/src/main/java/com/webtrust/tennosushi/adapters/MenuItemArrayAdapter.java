@@ -36,6 +36,9 @@ public class MenuItemArrayAdapter extends ArrayAdapter<MenuItem> {
         ImageView menuImageView;
         /** Ссылка на элемент GUI, представляющий название категории блюда */
         TextView menuTextView;
+        /** ID-имя категории, с которым связан View, отображающий категорию меню.
+         * Используется в слушателе кликов, чтобы дать приложению понять, какое меню нужно отобразить */
+        String categoryID;
     }
 
     /** Кэш для уже загруженных картинок (объектов Bitmap) */
@@ -89,6 +92,11 @@ public class MenuItemArrayAdapter extends ArrayAdapter<MenuItem> {
             convertView = inflater.inflate(R.layout.card_list_item, parent, false); // В последнем аргументе передается флаг автоматического присоединения представлений
             viewHolder.menuImageView = (ImageView) convertView.findViewById(R.id.menu_image);
             viewHolder.menuTextView = (TextView) convertView.findViewById(R.id.menu_text);
+            /*
+            Извлечение ID-имени категории блюда из элемента menuItem
+            (входные данные к адаптеру) и сохранение его во ViewHolder'е
+            */
+            viewHolder.categoryID = menuItem.category;
             convertView.setTag(viewHolder);
         }else { // Cуществующий объект ViewHolder используется заново
             viewHolder = (ViewHolder) convertView.getTag();
@@ -107,6 +115,11 @@ public class MenuItemArrayAdapter extends ArrayAdapter<MenuItem> {
 
         convertView.setOnClickListener(clickListener);
 
+        /*
+        Присвоить возвращаемому View id'шник, совпадающий с порядковым номером
+        соответствующего объекта menuItem во входящем списке (второй аргумет) в конструктор MenuItemList
+        */
+        convertView.setId(position);
         return convertView; // Вернуть готовое представление элемента
     }
 

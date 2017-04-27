@@ -429,7 +429,23 @@ import java.util.List;
         public void onClick(View view) {
             FragmentTransaction fTrans = getFragmentManager().beginTransaction();
 
-            FoodListFragment asd_test = FoodListFragment.newInstance("sushi", currentMode);
+            /*
+            Ниже не самый, но в меру ебаный способ.
+
+            По хорошему, на основании передаваемой view нужно как-то достать связанный
+            с ней объект MenuItem, но я не знаю как это сделать
+            (setTag и getTag у меня не вышло использовать, т.к. я просто не знаю как из
+            getTag извлеч именно одно поле, предварительно помещенного в него объекта
+            класса ViewHolder из MenuItemArrayAdapter'а. Так что в качестве замены тегам,
+            я в адаптере присваиваю view'шкам их порядковый номер в выводимом списке.
+
+            TODO: Разберись, как решить задачу мульти клик листенера наилучшым образом
+             */
+
+            String viewCathgory = menuItemList.get( view.getId() ).category;
+
+            // В теге передаваемого View ПО-ХОРОШЕМУ ДОЛЖНА хранится ID-категории блюда, которое используется для поиска соответствующих блюд
+            FoodListFragment asd_test = FoodListFragment.newInstance(viewCathgory, currentMode);
             fTrans.addToBackStack(null);
             fTrans.replace(R.id.fragment_menu_container, asd_test);
             fTrans.commit();
