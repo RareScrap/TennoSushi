@@ -1,11 +1,10 @@
-package com.webtrust.tennosushi;
+package com.webtrust.tennosushi.fragments;
 
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
@@ -15,6 +14,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
 import android.widget.ListView;
+
+import com.webtrust.tennosushi.R;
+import com.webtrust.tennosushi.adapters.MenuItemArrayAdapter;
+import com.webtrust.tennosushi.list_items.MenuItem;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,65 +32,113 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Простой наследник класса {@link Fragment}.
+ * <p> Фрагмент, реализующий список категорий блюд. </p>
+ *
+ * <p>
+ * Вид списка определяется private полем {@link MenuListFragment#currentMode}, который может принимать
+ * одно нескольких значений: {@link MenuListFragment#CARD_MODE} (список в виде карточек) или
+ * {@link MenuListFragment#PLATE_MODE} (в виде постов).
+ * <p>
+ *
+ * <p>
+ * {@link MenuListFragment} являетяся простым наследником класса {@link Fragment}.
  * Активити, которые содержат этот фрагмент должно реализовывать
  * интерфейс {@link MenuListFragment.OnFragmentInteractionListener}
- * для обработки событий взаимодействия между активностью и фрагментом.
- * Используйте {@link MenuListFragment#newInstance} фабричный метод для
- * создания экземпляра этого фрагмента.
+ * (не реализованно т.к. пока не изучено) для обработки событий
+ * взаимодействия между активностью и фрагментом.
+ * </p>
+ *
+ * <p>
+ * Используйте фабричный метод {@link MenuListFragment#newInstance} для
+ * создания экземпляра этого фрагмента. Избегайте создания конструкторов с
+ * параметрами для любых наследников класса {@link Fragment}.
+ * Подробнее о конструкторе фрагментов на странице
+ * <a href="https://developer.android.com/reference/android/app/Fragment.html#Fragment()">Google документации</a>.
+ * </p>
+ *
  * @author RareScrap
  */
-public class MenuListFragment extends Fragment {
-    // Константы, определяющие режим отображения списка
+    public class MenuListFragment extends Fragment {
+    /** Константа, определяющие режим отображения списка в виде постов (карточек) */
     public static int CARD_MODE = 0;
+    /** Константа, определяющие режим отображения списка в виде плиток */
     public static int PLATE_MODE = 1;
+
+    /** Хранилище для загруженных данных в формате JSON */
+    public static JSONObject downloadedJSON = null;
 
     // Закомментирован, т.к. еще не изучен
     //private OnFragmentInteractionListener mListener;
 
-    // Список объектов MenuItem, представляющих элементы главного меню (категории блюд)
+    /** Список объектов MenuItem, представляющих элементы главного меню (категории блюд) */
     private List<MenuItem> menuItemList = new ArrayList<>();
 
-    // ArrayAdapter связывает объекты MenuItem с элементами ListView
+    /** Субкласс {@link android.widget.ArrayAdapter} связывающий объекты MenuItem с элементами списка (ListView или GridView) */
     private MenuItemArrayAdapter menuItemArrayAdapter;
-    private ListView menuItemListListView; // View для вывода информации в виде списка
-    private GridView menuItemListGridView; // View для вывода информации в виде плиток
 
-    private int currentMode; // Текущий режим отображения списка
+    // View для вывода различных вариантов списка
+    /** View для вывода информации в виде списка */
+    private ListView menuItemListListView;
+    /** View для вывода информации в виде плиток */
+    private GridView menuItemListGridView;
 
+
+    // TODO: Является ли мой подход лучшим решением для этой задачи?
     /**
-     * Необходимый пустой публичный конструктор
+     * Текущий вид списка. Поле {@link MenuListFragment#currentMode} не должно наследоваться (поэтому стоит private),
+     * но его субклассы должны уметь получать к нему доступ (поэтому реализованы set и get методы).
      */
-    public MenuListFragment() {
-        setArguments(CARD_MODE);// режим по умолчанию
+    private static int currentMode = 0; // Текущий режим отображения списка (карточками по умолчанию)
+
+    /**
+     * Set-метод для currentMode
+     * @param inputCurrentMode Новый режим отображения списка
+     */
+    public static void setCurrentMode(int inputCurrentMode) {
+        currentMode = inputCurrentMode;
     }
 
     /**
-     * Метод-замена для конструктора с параметрами т.к.
-     * Google ОЧЕНЬ не рекомендует иметь дополнительные конструкторы
-     * во фрагментах
-     *
-     * @param mode Режим отображения списка
-     * @return this Возвращает этот же фрагмент (нужночтобы вызывать сразу после конструктора во FragmentTransaction
-     * */
-    public android.support.v4.app.Fragment setArguments(int mode) {
-        this.currentMode = mode; // режим по умолчанию
-        return this;
+     * Get-метод для currentMode
+     * @return Текуий режим отображения списка
+     */
+    public static int getCurrentMode() {
+        return currentMode;
     }
+
+    /**
+     * Необходимый пустой публичный конструктор.
+     *
+     * <p>
+     * Используйте фабричный метод {@link MenuListFragment#newInstance} для
+     * создания экземпляра этого фрагмента. Избегайте создания конструкторов с
+     * параметрами для любых наследников класса {@link Fragment}.
+     * Подробнее о конструкторе фрагментов на странице
+     * <a href="https://developer.android.com/reference/android/app/Fragment.html#Fragment()">Google документации</a>.
+     * </p>
+     */
+    public MenuListFragment() {}
 
     /**
      * Используйте этот фабричный метод для создания новых экземпляров
-     * этого фрагмента с использованием продоставленных параментров
-     * (черт знает где эти "параметры", япросто перевел сгенерированный коммент)
+     * этого фрагмента с использованием предоставленных параментров
      *
+     * @param currentMode Режим отображения списка
      * @return Новый объект фрагмента {@link MenuListFragment}.
      */
-    // TODO: Переменуйте и измените типы и количество параметров (перевод)
-    // TODO: разобраться зачем нужен этот метод
-    public static MenuListFragment newInstance() {
+    public static MenuListFragment newInstance(int currentMode) {
         MenuListFragment fragment = new MenuListFragment();
-        Bundle args = new Bundle();
+
+        // Отображать список в виде currentMode
+        MenuListFragment.setCurrentMode(currentMode);
+
+        // TODO: Разобраться когда и как следует использовать подход ниже для передачи аргументов фрагментам
+        /*
+        Bundle args = new Bundle(); // Объект для хранения состояний приложения и метаинформации
+        args.putInt("currentMode", currentMode); // TODO: Эта хуйня не работает.
         fragment.setArguments(args);
+        */
+
         return fragment;
     }
 
@@ -95,48 +146,45 @@ public class MenuListFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // TODO: Разобраться как код ниже используется в паре с закоментированны кодом в newInstance()
+        /*
+        // Обработать аргументы в случае использования метод newInstance()
+        if (savedInstanceState != null) {
+            this.currentMode = getArguments().getInt("currentMode", CARD_MODE); // TODO: Стоит ли назвачать вторым аргументом CARD_MODE (аргумент по умолчанию)? Или лучше делать это в конструкторе?
+        }
+        */
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        setHasOptionsMenu(true); // у фрагмента имеются команды меню
-        View returnedView; // Возвращаемый View
+        setHasOptionsMenu(true); // У фрагмента имеются команды меню
 
-        // Inflate the layout for this fragment
-        if (currentMode == CARD_MODE) {
-            returnedView = inflater.inflate(R.layout.fragment_menu_card_list, container, false);
-            try {
-                URL url = new URL("http://192.168.1.254/index.php");
+        // Запрос на получение данных
+        try {
+            URL url = new URL("http://192.168.1.254/index.php");
 
-                GetDataTask getLocalDataTask = new GetDataTask();
-                getLocalDataTask.execute(url);
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-            return returnedView;
-        }else { // currentMode == PLATE_MODE
-            returnedView = inflater.inflate(R.layout.fragment_menu_plates_list, container, false);
-            try {
-                URL url = new URL("http://192.168.1.254/index.php");
-
-                GetDataTask getLocalDataTask = new GetDataTask();
-                getLocalDataTask.execute(url);
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-            return returnedView;
+            GetDataTask getLocalDataTask = new GetDataTask();
+            getLocalDataTask.execute(url);
         }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Развернуть разметку для фрагмента
+        if (currentMode == CARD_MODE) { // Для разметки в виде постов
+            return inflater.inflate(R.layout.fragment_menu_card_list, container, false);
+        } else { // ДЛя разметки в виде плиток
+            // currentMode == PLATE_MODE
+            return inflater.inflate(R.layout.fragment_menu_plates_list, container, false);
+        }
+
     }
 
+    // Ранее этот код хранился в onActivityCreated
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        // TODO: Лучше ли это место для установки адаптера?
-        // ArrayAdapter для связывания weatherList с weatherListView
-        menuItemArrayAdapter = new MenuItemArrayAdapter(getActivity(), menuItemList);
+    public void onViewCreated (View view, Bundle savedInstanceState) {
+        // ArrayAdapter для связывания menuItemList с menuItemListListView или menuItemListGridView
+        menuItemArrayAdapter = new MenuItemArrayAdapter(getActivity(), menuItemList, itemClickListener);
         if (currentMode == CARD_MODE) {
             menuItemListListView = (ListView) getView().findViewById(R.id.cardList);
             menuItemListListView.setAdapter(menuItemArrayAdapter);
@@ -149,7 +197,9 @@ public class MenuListFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        /*if (context instanceof OnFragmentInteractionListener) {
+        /*
+        // Кусок сгенерированного кода
+        if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
@@ -160,11 +210,12 @@ public class MenuListFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
+        // Кусок сгенерированного кода
         //mListener = null;
     }
 
     /**
-     * Отображение команд меню фрагмента
+     * Отображение команд меню фрагмента.
      * @param menu Меню
      * @param inflater Инфлатер для меню
      */
@@ -174,7 +225,13 @@ public class MenuListFragment extends Fragment {
         inflater.inflate(R.menu.menu_list_menu, menu);
     }
 
-    // Обработка выбора команд меню
+    //
+
+    /**
+     * Обработка выбора команд меню.
+     * @param item Выбранный итем на панели действий (не путать этот параметр с MenuItem, обозначающий элемент списка
+     * @return Показатель успешность обработки события
+     */
     @Override
     public boolean onOptionsItemSelected(android.view.MenuItem item) {
         // Выбор в зависимости от идентификатора MenuItem
@@ -182,7 +239,9 @@ public class MenuListFragment extends Fragment {
             case R.id.shopping_cart:
                 return true; // Событие меню обработано
             case R.id.sort:
-                ( (ViewGroup) getActivity().findViewById(R.id.fragment_menu) ).removeAllViews(); // Удаляет View на экране (сам список)
+                // Получение ссылки для ViewGroup контейнера фрагментов
+                ViewGroup fragmentMenuContainerViewGroup = (ViewGroup) getActivity().findViewById(R.id.fragment_menu_container);
+                fragmentMenuContainerViewGroup.removeAllViews(); // Удаляет View на экране (сам список)
 
                 // Замена одной разметки списка на другую
                 if (currentMode == CARD_MODE) {
@@ -193,10 +252,10 @@ public class MenuListFragment extends Fragment {
                     Помещает разметку списка как корневой элемент фрагмента
                     Возвращаемое значение не имеет смысла, т.к. всю работу делает сам метод
                     */
-                    View view = inflater.inflate(R.layout.fragment_menu_plates_list, (ViewGroup) this.getView(), true);
+                    View view = inflater.inflate(R.layout.fragment_menu_plates_list, fragmentMenuContainerViewGroup, true);
 
                     // Получение ссыки на GridView-элемент, помещенный в разметку методом inflate(), приведенным выше
-                    menuItemListGridView = (GridView) getView().findViewById(R.id.platesList);
+                    menuItemListGridView = (GridView) fragmentMenuContainerViewGroup.findViewById(R.id.platesList);
                     menuItemListGridView.setAdapter(menuItemArrayAdapter); // Установка адаптера
                     menuItemArrayAdapter.notifyDataSetChanged(); // Обовлеия данных адаптера
                 } else {// currentMode == PLATE_MODE
@@ -207,10 +266,10 @@ public class MenuListFragment extends Fragment {
                     Помещает разметку списка как корневой элемент фрагмента
                     Возвращаемое значение не имеет смысла, т.к. всю работу делает сам метод
                     */
-                    View view = inflater.inflate(R.layout.fragment_menu_card_list, (ViewGroup) this.getView(), true);
+                    View view = inflater.inflate(R.layout.fragment_menu_card_list, fragmentMenuContainerViewGroup, true);
 
                     // Получение ссыки на ListView-элемент, помещенный в разметку методом inflate(), приведенным выше
-                    menuItemListListView = (ListView) getView().findViewById(R.id.cardList);
+                    menuItemListListView = (ListView) fragmentMenuContainerViewGroup.findViewById(R.id.cardList);
                     menuItemListListView.setAdapter(menuItemArrayAdapter); // Установка адаптера
                     menuItemArrayAdapter.notifyDataSetChanged(); // Обовлеия данных адаптера
 
@@ -221,10 +280,11 @@ public class MenuListFragment extends Fragment {
         return super.onOptionsItemSelected(item); //TODO: Разобраться зачем вообще тут нужен супер
     }
 
-    /**
-     * Этот интерфейс должно быть реализован в активити, которая содержит этот
+    /*
+     * Этот интерфейс должен быть реализован в активити, которая содержит этот
      * фрагмент, чтобы фрагмен смог взаимодействовать с активити
      * и ,возможно, с другими фрагментами, содержащиеся в этой активити.
+     *
      * <p>
      * Подробнее смотрите в Android Training lesson: <a href=
      * "http://developer.android.com/training/basics/fragments/communicating.html"
@@ -239,7 +299,6 @@ public class MenuListFragment extends Fragment {
 
     /* Обращение к REST-совместимому (якобы) веб-сервису за данными блюд и меню
     и сохранение этих данных в локальном файле HTML */
-
     /**
      * Внутренний класс {@link AsyncTask} для загрузки данных
      * в формате JSON.
@@ -261,7 +320,7 @@ public class MenuListFragment extends Fragment {
                 connection.setConnectTimeout(this.CONNECTION_TIMEOUT);
                 int response = connection.getResponseCode(); // Получить код ответа от веб-сервера
 
-                //response = 404; // Это тест
+                //response = 404; // Это тест при недоступности сети
 
                 if (response == HttpURLConnection.HTTP_OK) {
                     StringBuilder builder = new StringBuilder();
@@ -289,13 +348,14 @@ public class MenuListFragment extends Fragment {
             return null;
         }
         /**
-         * Обработка ответа JSON и обновление ListView.
-         *
+         * Обработка ответа JSON и обновление ListView/GridView.
          * @param jsonObject JSON файл полученный после завершения работы doInBackground()
          */
         @Override
         protected void onPostExecute(JSONObject jsonObject) {
             if (jsonObject != null) {
+                downloadedJSON = jsonObject; // Сохранение загруженного файла
+
                 convertJSONtoArrayList(jsonObject); // Заполнение weatherList
                 menuItemArrayAdapter.notifyDataSetChanged(); // Связать с ListView
 
@@ -355,4 +415,23 @@ public class MenuListFragment extends Fragment {
             e.printStackTrace();
         }
     }
+
+    // Слушатель кликов по объектам
+    /**
+     * Слушатель кликов по объектам MenuItemю. При клике отображает {@link FoodListFragment}.
+     */
+    private final View.OnClickListener itemClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            FragmentTransaction fTrans = getFragmentManager().beginTransaction();
+
+            FoodListFragment asd_test = FoodListFragment.newInstance("sushi", currentMode);
+            fTrans.addToBackStack(null);
+            fTrans.replace(R.id.fragment_menu_container, asd_test);
+            fTrans.commit();
+
+            // TODO: При первом запуске приложения без этой строки можно обойтись, но после изменения currentMode, без этой строки не стирается прдыдущий view
+            ( (ViewGroup) getActivity().findViewById(R.id.fragment_menu_container) ).removeAllViews();
+        }
+    };
 }

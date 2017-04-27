@@ -1,4 +1,4 @@
-package com.webtrust.tennosushi;
+package com.webtrust.tennosushi.adapters;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -10,6 +10,9 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter; // Родительский класс
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.webtrust.tennosushi.R;
+import com.webtrust.tennosushi.list_items.MenuItem;
 
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -23,29 +26,32 @@ import java.util.Map;
  * @author RareScrap
  */
 public class MenuItemArrayAdapter extends ArrayAdapter<MenuItem> {
-    // Класс для повторного использования представлений списка при прокрутке
-
     /**
      * Внутренний класс для повторного использования представлений списка
      * при прокрутке, реализующий паттерн ViewHolder
      * @author RareScrap
      */
     private static class ViewHolder {
-        ImageView menuImageView; // ссылка на View изображения
-        TextView menuTextView; // ссылка на View названия меню
+        /** Ссылка на элемент GUI, представляющий картинку категории блюда */
+        ImageView menuImageView;
+        /** Ссылка на элемент GUI, представляющий название категории блюда */
+        TextView menuTextView;
     }
 
-    // Кэш для уже загруженных картинок (объектов Bitmap)
+    /** Кэш для уже загруженных картинок (объектов Bitmap) */
     private Map<String, Bitmap> bitmaps = new HashMap<>();
 
-    // Конструктор для инициализации унаследованных членов суперкласса
+    /** Слушатель кликов по элементам списка */
+    View.OnClickListener clickListener;
 
     /**
      * Конструктор для инициализации унаследованных членов суперкласса
      * @param context Контекст для super()
      * @param MenuItemList Список элементов меню для super()
+     * @param clickListener Слушатель, который будет прослушить события элементов списка,
+     *                      с которыи работает данный адаптер.
      */
-    public MenuItemArrayAdapter(Context context, List<MenuItem> MenuItemList) {
+    public MenuItemArrayAdapter(Context context, List<MenuItem> MenuItemList, View.OnClickListener clickListener) {
         /*
         в первом и третьем аргументах передаются объект Context (то есть активность,
         в которой отображается ListView) и List<MenuItem> (список выводимых данных).
@@ -55,12 +61,14 @@ public class MenuItemArrayAdapter extends ArrayAdapter<MenuItem> {
         чтобы элемент списка не ограничивался одним компонентом TextView.
          */
         super(context, -1, MenuItemList);
+        this.clickListener = clickListener;
     }
 
     /**
      * Создание пользовательских представлений для элементов ListView
      * Вызывается только когда в ListView, куда выводится списк, есть
      * свободное место. Т.е. если высота списка 0, то этот метод Не вызовется.
+     *
      * @param position Позиция элемента в списке
      * @param convertView Один заполненный элемент списка, возвращаемые данным методом
      * @param parent Родительский контейнер для списка
@@ -97,22 +105,23 @@ public class MenuItemArrayAdapter extends ArrayAdapter<MenuItem> {
         // Назначается текст компонентов TextView элемента ListView
         viewHolder.menuTextView.setText(menuItem.name);
 
+        convertView.setOnClickListener(clickListener);
+
         return convertView; // Вернуть готовое представление элемента
     }
 
     // Кажись, изменение imageView так же изменяет и аргумент, переданный в конструкторе LoadImageTask(). Таким образом, создается нечно вроде "ссылки"
-    // AsyncTask для загрузки изображения в отдельном потоке
-
     /**
      * Внутренний класс {@link AsyncTask}, предназначенный
      * для загрузки изображения в отдельном потоке
      * @author RareScrap
      */
     private class LoadImageTask extends AsyncTask<String, Void, Bitmap> {
-        private ImageView imageView; // Для вывода миниатюры
+        /** Ссылка на элемент GUI, представляющий картинку категории блюда */
+        private ImageView imageView;
 
         /**
-         * Сохранение ImageView для загруженного объекта Bitmap
+         * Сохраняет ImageView для загруженного объекта Bitmap
          * @param imageView ImageView для загруженного объекта Bitmap, который сохраится внутри класса {@link LoadImageTask}
          */
         public LoadImageTask(ImageView imageView) {
@@ -120,7 +129,7 @@ public class MenuItemArrayAdapter extends ArrayAdapter<MenuItem> {
         }
 
         /**
-         * Загрузить изображение
+         * Загружает изображение из сети.
          * @param params Cодержит URL-адрес изображения
          * @return Загруженное изображение
          */
@@ -155,7 +164,7 @@ public class MenuItemArrayAdapter extends ArrayAdapter<MenuItem> {
         }
 
         /**
-         * Связать изображение с элементом списка
+         * Связывает изображение с элементом списка
          * @param bitmap Связываемое изображение
          */
         // Выполняется в потоке GUI вроде как для вывода изображения
