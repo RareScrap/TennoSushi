@@ -24,7 +24,6 @@ import java.util.Map;
  * Адаптер для списка меню, основанный на {@link RecyclerView.Adapter<FoodItemRecyclerViewAdapter.ViewHolder>}
  * @author RareScrap
  */
-
 public class FoodItemRecyclerViewAdapter extends RecyclerView.Adapter<FoodItemRecyclerViewAdapter.ViewHolder> {
     /** Слушатель MainActivity, регистрируемые для каждого элемента списка */
     private final View.OnClickListener clickListener;
@@ -46,21 +45,19 @@ public class FoodItemRecyclerViewAdapter extends RecyclerView.Adapter<FoodItemRe
         this.clickListener = clickListener;
     }
 
-    /*
-    Вложенный субкласс RecyclerView.ViewHolder используется для
-    реализации паттерна View-Holder в контексте RecyclerView-логики
-    повторного использования представлений
-    */
-
     /**
      * Вложенный субкласс {@link RecyclerView.ViewHolder}. Используется для
      * реализации паттерна View-Holder в контексте RecyclerView-логики
      * повторного использования представлений.
      */
     public static class ViewHolder extends RecyclerView.ViewHolder {
+        /** Ссылка на элемент GUI, представляющий название блюда */
         public final TextView nameTextView;
+        /** Ссылка на элемент GUI, представляющий состав блюда */
         public final TextView componentsTextView;
+        /** Ссылка на элемент GUI, представляющий цену блюда */
         public final TextView priceTextView;
+        /** Ссылка на элемент GUI, представляющий картинку блюда */
         public final ImageView foodImageView;
 
         /**
@@ -71,70 +68,78 @@ public class FoodItemRecyclerViewAdapter extends RecyclerView.Adapter<FoodItemRe
         public ViewHolder(View itemView, View.OnClickListener clickListener) {
             super(itemView);
 
-            // Получение ссылок на элемент в представлении
+            // Получение ссылок на элементы GUI в представлении
             nameTextView = (TextView) itemView.findViewById(R.id.menu_text_card);
             componentsTextView = (TextView) itemView.findViewById(R.id.components_card);
             priceTextView = (TextView) itemView.findViewById(R.id.price_card);
             foodImageView = (ImageView) itemView.findViewById(R.id.menu_image_card);
 
-            // Связывание слушателей с itemView
+            // Связывание слушателя с itemView
             itemView.setOnClickListener(clickListener);
         }
     }
 
-    /*
-    Создает новый элемент списка и его объект ViewHolder.
-
-    Компонент RecyclerView вызывает метод onCreateViewHolder
-    своего объекта RecyclerView.Adapter для
-    заполнения макета каждого элемента RecyclerView
-    и упаковки его в объект субкласса RecyclerView.ViewHolder с именем ViewHolder.
-    Новый объект ViewHolder возвращается RecyclerView для отображения.
-    */
-
     // TODO: Нихера не понял где что "упаковывается". Разобраться
-
-    /*
-    Метод получает:
-        1)объект субкласса RecyclerView.ViewHolder с
-    представлениями View, в которых будут отображаться данные
-    (в данном случае один компонент TextView);
-        2) значение int, представляющее позицию элемента в RecyclerView.
+    /**
+     * Создает новый элемент списка и его объект ViewHolder.
+     *
+     * <p>
+     * Компонент RecyclerView вызывает метод onCreateViewHolder
+     * своего объекта RecyclerView.Adapter для
+     * заполнения макета каждого элемента RecyclerView
+     * и упаковки его в объект субкласса RecyclerView.ViewHolder с именем ViewHolder.
+     * Новый объект ViewHolder возвращается RecyclerView для отображения.
+     * </p>
+     *
+     * @param parent Объект субкласса {@link RecyclerView.ViewHolder} с представлениями View,
+     *               в которых будут отображаться данные.
+     * @param viewType Значение int, представляющее позицию элемента в списке {@link RecyclerView}.
+     * @return Объект, отображающий данные в виде GUI-элемента списка.
      */
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         //ViewHolder.menuTextView = (TextView) convertView.findViewById(R.id.menu_text);
+
         // Заполнение макета list_item
         View view = LayoutInflater.from( parent.getContext() ).inflate(R.layout.food_card_list_item, parent, false);
-
-
 
         // Создание ViewHolder для текущего элемента
         return (new ViewHolder(view, clickListener));
     }
 
-    // Назначение текста элемента списка для вывода тега запроса
+    /**
+     * Назначает данные элементам GUI.
+     * @param holder Объект GUI, содеращий поля, которые следует установить
+     * @param position Порядковый номер элемента {@link FoodItem}, который
+     *                 хранится в {@link FoodItemRecyclerViewAdapter#items}
+     */
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         // Получение объекта FoodItem для заданной позиции ListView
         FoodItem foodItem = items.get(position);
 
-
+        // Назначения текста элементам GUI
         holder.nameTextView.setText(foodItem.name);
         holder.componentsTextView.setText(foodItem.components);
         holder.priceTextView.setText( String.valueOf(foodItem.price) );
 
         // Если картинка уже загружена, использовать ее; в противном случае загрузить в отдельном потоке
         if (bitmaps.containsKey(foodItem.picURL)) {
-            String a1 = foodItem.picURL;
+            // Дебажный кусок кода для отладчика
+            /*String a1 = foodItem.picURL;
             Bitmap a2 = bitmaps.get(a1);
-            holder.foodImageView.setImageBitmap(a2);
+            holder.foodImageView.setImageBitmap(a2);*/
+
+            holder.foodImageView.setImageBitmap(bitmaps.get( foodItem.picURL ));
         }else { // Загрузить и вывести значок погодных условий
             new LoadImageTask(holder.foodImageView).execute(foodItem.picURL);
         }
     }
 
-    // Возвращение количества элементов, связываемых через адаптер
+    /**
+     * Возвращение количества элементов, связываемых через адаптер.
+     * @return Количества элементов, связываемых через адаптер
+     */
     @Override
     public int getItemCount() {
         return items.size();
@@ -144,26 +149,27 @@ public class FoodItemRecyclerViewAdapter extends RecyclerView.Adapter<FoodItemRe
 
     // Кажись, изменение imageView так же изменяет и аргумент, переданный в конструкторе LoadImageTask(). Таким образом, создается нечно вроде "ссылки"
     // AsyncTask для загрузки изображения в отдельном потоке
-
     /**
      * Внутренний класс {@link AsyncTask}, предназначенный
      * для загрузки изображения в отдельном потоке
      * @author RareScrap
      */
     private class LoadImageTask extends AsyncTask<String, Void, Bitmap> {
-        private ImageView imageView; // Для вывода миниатюры
+        /** Сохраненная ссылка на {@link ImageView} для вывода изображения */
+        private ImageView imageView;
 
         /**
-         * Сохранение ImageView для загруженного объекта Bitmap
-         * @param imageView ImageView для загруженного объекта Bitmap, который сохраится внутри класса {@link LoadImageTask}
+         * Конструктор, инициализирующий свои поля.
+         * Сохраняет ссылку на ImageView, куда следует поместить загруженный объект Bitmap.
+         * @param imageView Ссылка наImageView, куда следует поместить загруженный объект Bitmap.
          */
         public LoadImageTask(ImageView imageView) {
             this.imageView = imageView;
         }
 
         /**
-         * Загрузить изображение
-         * @param params Cодержит URL-адрес изображения
+         * Загрузить изображение с данного URL адреса.
+         * @param params URL-адрес изображения
          * @return Загруженное изображение
          */
         @Override
@@ -174,8 +180,7 @@ public class FoodItemRecyclerViewAdapter extends RecyclerView.Adapter<FoodItemRe
             try {
                 URL url = new URL(params[0]); // Создать URL для изображения
 
-                // Открыть объект HttpURLConnection, получить InputStream
-                // и загрузить изображение
+                // Открыть объект HttpURLConnection, получить InputStream и загрузить изображение
                 connection = (HttpURLConnection) url.openConnection(); // Преобразование типа необходимо, потому что метод возвращает URLConnection
 
                 try (InputStream inputStream = connection.getInputStream()) {
@@ -196,11 +201,11 @@ public class FoodItemRecyclerViewAdapter extends RecyclerView.Adapter<FoodItemRe
             return bitmap;
         }
 
+        // Выполняется в потоке GUI вроде как для вывода изображения
         /**
-         * Связать изображение с элементом списка
+         * Связывает изображение с элементом списка.
          * @param bitmap Связываемое изображение
          */
-        // Выполняется в потоке GUI вроде как для вывода изображения
         @Override
         protected void onPostExecute(Bitmap bitmap) {
             imageView.setImageBitmap(bitmap);
