@@ -210,7 +210,15 @@ public class FoodListFragment extends MenuListFragment {
 
         try {
             // Получение свойства "list" JSONArray
-            JSONArray list = jsonObject.getJSONArray(findName);
+            JSONArray list = jsonObject.getJSONArray("categories");
+
+            int categoryIndex = 0;
+            for (; categoryIndex < list.length(); ++categoryIndex) {
+                if ( list.getJSONObject(categoryIndex).getString("category") == findName )
+                    break;
+            }
+
+            list = list.getJSONObject(categoryIndex).getJSONArray("food");
 
             // Преобразовать каждый элемент списка в объект Weather
             for (int i = 0; i < list.length(); ++i) {

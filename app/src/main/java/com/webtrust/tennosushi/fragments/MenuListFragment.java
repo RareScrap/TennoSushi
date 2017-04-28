@@ -395,20 +395,24 @@ import java.util.List;
         menuItemList.clear(); // Стирание старых погодных данных
 
         try {
-            // Получение свойства "list" JSONArray
-            JSONArray list = jsonObject.getJSONArray("sushi");
+            // Получение массива с категориями блюд
+            JSONArray list = jsonObject.getJSONArray("categories");
 
             // Преобразовать каждый элемент списка в объект Weather
             for (int i = 0; i < list.length(); ++i) {
-                JSONObject deash = list.getJSONObject(i); // Данные за день
-                // Получить JSONObject с температурами дня ("temp")
-                String name = deash.getString("name");
+                JSONObject category = list.getJSONObject(i); // Данные для одной категории меню
 
-                // Получить JSONObject c описанием и значком ("weather")
-                String picURL = deash.getString("picURL");
+                // Получить из JSONObject ID-имя категории блюда
+                String categoryID = category.getString("category");
 
-                // Добавить новый объект Weather в weatherList
-                menuItemList.add( new MenuItem(name, picURL));
+                // Получить из JSONObject название кагеории блюда
+                String name = category.getString("name");
+
+                // Получить из JSONObject картинку категории блюда
+                String picURL = category.getString("picURL");
+
+                // Добавить новый объект MenuItem в menuItelList
+                menuItemList.add( new MenuItem(categoryID, name, picURL));
             }
         }
         catch (JSONException e) {
@@ -418,14 +422,30 @@ import java.util.List;
 
     // Слушатель кликов по объектам
     /**
-     * Слушатель кликов по объектам MenuItemю. При клике отображает {@link FoodListFragment}.
+     * Слушатель кликов по объектам MenuItem. При клике отображает {@link FoodListFragment}.
      */
     private final View.OnClickListener itemClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
             FragmentTransaction fTrans = getFragmentManager().beginTransaction();
 
-            FoodListFragment asd_test = FoodListFragment.newInstance("sushi", currentMode);
+            /*
+            Ниже не самый, но в меру ебаный способ.
+
+            По хорошему, на основании передаваемой view нужно как-то достать связанный
+            с ней объект MenuItem, но я не знаю как это сделать
+            (setTag и getTag у меня не вышло использовать, т.к. я просто не знаю как из
+            getTag извлеч именно одно поле, предварительно помещенного в него объекта
+            класса ViewHolder из MenuItemArrayAdapter'а. Так что в качестве замены тегам,
+            я в адаптере присваиваю view'шкам их порядковый номер в выводимом списке.
+
+            TODO: Разберись, как решить задачу мульти клик листенера наилучшым образом
+             */
+
+            String viewCathgory = menuItemList.get( view.getId() ).category;
+
+            // В теге передаваемого View ПО-ХОРОШЕМУ ДОЛЖНА хранится ID-категории блюда, которое используется для поиска соответствующих блюд
+            FoodListFragment asd_test = FoodListFragment.newInstance(viewCathgory, currentMode);
             fTrans.addToBackStack(null);
             fTrans.replace(R.id.fragment_menu_container, asd_test);
             fTrans.commit();
