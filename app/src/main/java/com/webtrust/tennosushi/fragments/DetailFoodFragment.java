@@ -54,9 +54,19 @@ public class DetailFoodFragment extends Fragment {
 
         // Получение ссылок на элементы GUI
         TextView priceTextView = (TextView) returnedView.findViewById(R.id.food_price_textField);
+        TextView weightTextView = (TextView) returnedView.findViewById(R.id.food_weight_textField);
+        TextView componentsTextView = (TextView) returnedView.findViewById(R.id.components_textField);
 
         // Назначение даных элементам GUI
         priceTextView.setText(foodItem.price + " \u20BD");
+        weightTextView.setText(foodItem.weight + " Г");
+        componentsTextView.setText(foodItem.components);
+
+        if (foodItem.category.equals("pizza")) {
+            returnedView.findViewById(R.id.pizza_options_container).setVisibility(View.VISIBLE);
+        } else if (foodItem.category.equals("wok")) {
+            returnedView.findViewById(R.id.wok_options_container).setVisibility(View.VISIBLE);
+        }
 
         return returnedView;
     }

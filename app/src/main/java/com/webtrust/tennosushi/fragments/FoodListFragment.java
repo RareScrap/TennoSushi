@@ -133,14 +133,6 @@ public class FoodListFragment extends MenuListFragment {
         recyclerView = (RecyclerView) getView().findViewById(R.id.recyclerView);
 
         /*
-        // Получить LayoutManager для определенного вида списка
-        if (MenuListFragment.getCurrentMode() == CARD_MODE)
-            recyclerView.setLayoutManager(listLayoutManager); // Для карточного списка
-        else // MenuListFragment.getCurrentMode() == PLATE_MODE
-            recyclerView.setLayoutManager(gridLayoutManager); // Для плиточного списка
-            */
-
-        /*
         Получить LayoutManager для определенного вида списка.
         Новый экзмепляр LayoutManager'ов создается при возрате к этому фрагменту
         через BackStack во избежания исключения "LayoutManager is already attached
@@ -244,10 +236,11 @@ public class FoodListFragment extends MenuListFragment {
                 String name = deash.getString("name");
                 String components = deash.getString("components");
                 String price = deash.getString("price");
+                int weight = deash.getInt("weight");
                 String picURL = deash.getString("picURL"); // Получить URL на картинку с блюдом
 
                 // Добавить новый объект FoodItem в foodItemList
-                foodItemList.add( new FoodItem(name, Double.parseDouble(price), components, picURL));
+                foodItemList.add( new FoodItem(name, Double.parseDouble(price), components, weight, picURL, findName));
             }
         }
         catch (JSONException e) {
