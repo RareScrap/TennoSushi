@@ -58,7 +58,7 @@ import java.util.List;
  *
  * @author RareScrap
  */
-    public class MenuListFragment extends Fragment {
+public class MenuListFragment extends Fragment {
     /** Константа, определяющие режим отображения списка в виде постов (карточек) */
     public static int CARD_MODE = 0;
     /** Константа, определяющие режим отображения списка в виде плиток */
