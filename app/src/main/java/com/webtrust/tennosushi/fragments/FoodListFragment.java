@@ -3,6 +3,7 @@ package com.webtrust.tennosushi.fragments;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment; // Подлючается для использования в javadoc
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -131,11 +132,27 @@ public class FoodListFragment extends MenuListFragment {
         // Получение ссылки на recyclerView
         recyclerView = (RecyclerView) getView().findViewById(R.id.recyclerView);
 
+        /*
         // Получить LayoutManager для определенного вида списка
         if (MenuListFragment.getCurrentMode() == CARD_MODE)
             recyclerView.setLayoutManager(listLayoutManager); // Для карточного списка
         else // MenuListFragment.getCurrentMode() == PLATE_MODE
             recyclerView.setLayoutManager(gridLayoutManager); // Для плиточного списка
+            */
+
+        /*
+        Получить LayoutManager для определенного вида списка.
+        Новый экзмепляр LayoutManager'ов создается при возрате к этому фрагменту
+        через BackStack во избежания исключения "LayoutManager is already attached
+        to a RecyclerView”
+         */
+        if (MenuListFragment.getCurrentMode() == CARD_MODE) {
+            listLayoutManager = new LinearLayoutManager(getContext());
+            recyclerView.setLayoutManager(listLayoutManager); // Для карточного списка
+        } else { // MenuListFragment.getCurrentMode() == PLATE_MODE
+            gridLayoutManager = new GridLayoutManager(getContext(), 2);
+            recyclerView.setLayoutManager(gridLayoutManager); // Для плиточного списка
+        }
 
         // Создать RecyclerView.Adapter для связывания тегов с RecyclerView
         rvAdapter = new FoodItemRecyclerViewAdapter(foodItemList, itemClickListener);
@@ -246,7 +263,19 @@ public class FoodListFragment extends MenuListFragment {
         // Клик по элементу
         @Override
         public void onClick(View view) {
-            int a = 5;
+            FragmentTransaction fTrans = getFragmentManager().beginTransaction();
+
+            int asd = Integer.parseInt( view.getTag().toString(), 10 );
+            FoodItem clickedFoodView = foodItemList.get( asd );
+
+            // В теге передаваемого View ПО-ХОРОШЕМУ ДОЛЖНА хранится ID-категории блюда, которое используется для поиска соответствующих блюд
+            DetailFoodFragment detailFoodFragment = DetailFoodFragment.newInstance(clickedFoodView);
+            fTrans.addToBackStack(null);
+            fTrans.replace(R.id.fragment_menu_container, detailFoodFragment);
+            fTrans.commit();
+
+            // TODO: При первом запуске приложения без этой строки можно обойтись, но после изменения currentMode, без этой строки не стирается прдыдущий view
+            ( (ViewGroup) getActivity().findViewById(R.id.fragment_menu_container) ).removeAllViews();
         }
     };
 }
