@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/foodPicture"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:layout_margin="@dimen/cardview_margin"
+                app:srcCompat="@mipmap/ic_launcher" />
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/main_information_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/foodPicture"
+                android:layout_margin="@dimen/cardview_margin"
+                app:cardBackgroundColor="@color/cardview_light_background"
+                app:cardElevation="2dp">
+
+                <android.support.v7.widget.GridLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    app:columnCount="3"
+                    app:orientation="vertical"
+                    app:rowCount="1"
+                    app:useDefaultMargins="true">
+
+                    <TextView
+                        android:id="@+id/food_price_textField"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="9999 ₽"
+                        app:layout_column="0"
+                        app:layout_columnWeight="1"
+                        app:layout_row="0" />
+
+                    <TextView
+                        android:id="@+id/food_weight_textField"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="9999 Г"
+                        app:layout_column="1"
+                        app:layout_columnWeight="1"
+                        app:layout_row="0" />
+
+                    <Button
+                        android:id="@+id/addToBusketButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Добавить"
+                        app:layout_column="2"
+                        app:layout_columnWeight="1"
+                        app:layout_row="0" />
+
+                </android.support.v7.widget.GridLayout>
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/components_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/main_information_container"
+                android:layout_margin="@dimen/cardview_margin">
+
+                <TextView
+                    android:id="@+id/components_textField"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textMultiLine"
+                    android:text='"МАКАРОНЫ С СЫРОМ ПИДОРАЧЧИНИ ПОД СОУСОМ ПОДЗАЛУПИЕ", "МАКАРОНЫ ПО-ПАРИЖСКИ С МЁДОМ",
+            "МАКАРОНЫ С КРЕВЕТКАМИ И ЛЕПЕСТКАМИ РОЗ", "МАКАРОНЫ С МАЙОНЕЗОМ ПОД МАЙОНЕЗОМ В МУНДИРЕ" \n
+            ФРАНЦУЗСКИЙ СЫР "ЛЕ ПИЗДУА" - 400 ГР \n
+            ИТАЛЬЯНСКИЕ АРТИШОКИ ДРОЧЁНЫЕ В ВИННОМ УКСУСЕ С ДОБАВЛЕНИЕМ СОУСА ИЗ УЛИТОК - 200 ГР \n
+            МАРИНОВАННЫЙ БАТАТ - 8 КЛУБНЕЙ РОЗМАРИН СОБРАННЫЙ НА СКЛОНАХ ГОР ТИБЕТА - 1\n
+            ВЕТОЧКА РОЗОВЫЙ ТРЮФЕЛЬ - НЕБОЛЬШОЙ ГРИБ (~1,5 КГ) МРАМОРНАЯ ГОВЯДИНА - 6 КГ\n
+            ВОДА ИСПРАВЛЕННАЯ, КРАХМАЛ, ЦИАНИД НАТРИЯ, АРОМАТИЗАТОР "ГУСЬ", ИДЕНТИЧНЫЙ НАТУРАЛЬНОМУ, E666, ГОВЯЖЬИ АНУСЫ, НИТРАТ, НИТРИТ, ИПРИТ, НИТРЯТ, БУТИЛОПРОПЕЛОШЕКЕЛЬ, ПЕНТАГРАММЫ ИЗМЕЛЬЧЁННЫЕ, ЭТИЛОВО-БЕНЗОЛОВЫЕ РЫБКИ, КАНИФОЛЬ, SPEERT METEELOVY ПИВНОЙ НАПИТОК "ЗАВТРАК КОЛХОЗНИКА"\n
+            АРОМАТИЗАТОР ИДЕНТИЧНЫЙ НАТУРАЛЬНОМУ "ПЕРЕГАР ДЯДИ ГРИШИ"\n
+            КАТЕГОРИЧЕСКИ ЗАПРЕЩАЕТСЯ ТРЯСТИ, ПЕРЕВОРАЧИВАТЬ, ПОДВЕРГАТЬ ВОЗДЕЙСТВИЮ УЛЬТРАФИОЛЕТА, РАЗГОНЯТЬ ДО ВТОРОЙ КОСМИЧЕСКОЙ СКОРОСТИ; ДЕРЖАТЬ В ГЕРМЕТИЧНОЙ ВАКУУМНОЙ УПАКОВКЕ С ДВОЙНЫМ СЛОЕМ БЕТА-ОТРАЖАЮЩЕЙ ФОЛЬГИ, ПОД НАПРЯЖЕНИЕМ В 12 ВОЛЬТ, С ВОЗДЕЙСТВИЕМ НА УПАКОВКУ ИЗЛУЧЕНИЯ ЗЕЛЁНОГО СПЕКТРА, ДЕРЖАТЬ ПРИ ТЕМПЕРАТУРЕ -230°С.\n
+            ВЫПОЛНЯТЬ РАСПАКОВКУ В ЦЕНТРИФУГЕ С ВОЗДЕЙСТВИЕМ ВИБРАЦИЕЙ БЛИЗКОЙ К РЕЗОНАНСУ;  ПОСЛЕ ИЗВЛЕЧЕНИЯ ИЗ УПАКОВКИ, ПРОДУКТА ИЗ УПАКОВКИ, ПОМЕСТИТЬ ЕГО В ЭМАЛИРОВАННУЮ ТАРУ И В ТЕЧЕНИЕ 2 СУТОК ПОДВЕРГАТЬ БОМБАРДИРОВКЕ ТЯЖЁЛЫМИ ИОНАМИ ЛИТИЯ;  УПАКОВКУ ДЕСТАБИЛИЗИРОВАТЬ И ПОДВЕРГНУТЬ РАСЩЕПЛЕНИЮ НА ЭЛЕМЕНТАРНЫЕ ЧАСТИЦЫ, КОМПРЕССИРОВАТЬ В БРИКЕТ И СЖЕЧЬ В РАСПЛАВЛЕННОМ НИКЕЛЕ.  ПОСЛЕ УПОТРЕБЛЕНИЯ ВЫЖДАТЬ 56 ЧАСОВ ДЛЯ ЛУЧШЕГО \n УСВАИВАНИЯ ' />
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/wok_options_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/components_container"
+                android:layout_margin="@dimen/cardview_margin"
+                android:visibility="gone">
+
+                <android.support.v7.widget.GridLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:columnCount="2"
+                    app:orientation="vertical"
+                    app:rowCount="1">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:inputType="textMultiLine"
+                        android:singleLine="false"
+                        android:text="Чем \nнапонить \nвок?"
+                        app:layout_columnWeight="1" />
+
+                    <RadioGroup
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_columnWeight="5">
+
+                        <android.support.v7.widget.GridLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:fadeScrollbars="false"
+                            app:columnCount="2"
+                            app:rowCount="2">
+
+                            <RadioButton
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Рис" />
+
+                            <RadioButton
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Лапша" />
+
+                            <RadioButton
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Говно" />
+                        </android.support.v7.widget.GridLayout>
+
+                    </RadioGroup>
+                </android.support.v7.widget.GridLayout>
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/count_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/wok_options_container"
+                android:layout_margin="@dimen/cardview_margin">
+
+                <android.support.v7.widget.GridLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    app:columnCount="3"
+                    app:orientation="vertical"
+                    app:rowCount="1"
+                    app:useDefaultMargins="true">
+
+                    <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Button"
+                        app:layout_column="0"
+                        app:layout_columnWeight="1"
+                        app:layout_row="0" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="TextView"
+                        android:textAlignment="center"
+                        app:layout_column="1"
+                        app:layout_columnWeight="1"
+                        app:layout_row="0"
+                        tools:text="1" />
+
+                    <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Button"
+                        app:layout_column="2"
+                        app:layout_columnWeight="1"
+                        app:layout_row="0" />
+
+                </android.support.v7.widget.GridLayout>
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/pizza_options_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/count_container"
+                android:layout_margin="@dimen/cardview_margin"
+                android:visibility="gone">
+
+                <android.support.v7.widget.GridLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/count_container"
+                    app:columnCount="2"
+                    app:orientation="vertical"
+                    app:rowCount="2">
+
+                    <TextView
+                        android:id="@+id/editText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:inputType="textPersonName"
+                        android:text="Размер"
+                        app:layout_column="0"
+                        app:layout_columnWeight="1"
+                        app:layout_row="0" />
+
+                    <RadioGroup
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_column="1"
+                        app:layout_columnWeight="5"
+                        app:layout_row="0">
+
+                        <android.support.v7.widget.GridLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:fadeScrollbars="false"
+                            app:columnCount="2"
+                            app:rowCount="1">
+
+                            <RadioButton
+                                android:id="@+id/radioButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Большой" />
+
+                            <RadioButton
+                                android:id="@+id/radioButton2"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Маленький" />
+
+                        </android.support.v7.widget.GridLayout>
+
+                    </RadioGroup>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:inputType="textPersonName"
+                        android:text="Тесто"
+                        app:layout_column="0"
+                        app:layout_columnWeight="1"
+                        app:layout_row="1" />
+
+                    <RadioGroup
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_column="1"
+                        app:layout_columnWeight="5"
+                        app:layout_row="1">
+
+                        <android.support.v7.widget.GridLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:fadeScrollbars="false"
+                            app:columnCount="2"
+                            app:rowCount="2">
+
+                            <RadioButton
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Тонкое" />
+
+                            <RadioButton
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Толстое" />
+
+                            <RadioButton
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Традиционное" />
+
+                        </android.support.v7.widget.GridLayout>
+
+                    </RadioGroup>
+                </android.support.v7.widget.GridLayout>
+            </android.support.v7.widget.CardView>
+
+        </RelativeLayout>
+    </ScrollView>
+
+</RelativeLayout>

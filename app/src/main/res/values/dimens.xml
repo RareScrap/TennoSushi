@@ -2,4 +2,6 @@
 <resources>
     <dimen name="list_item_text_margin">10dp</dimen>
     <dimen name="shader_up_value">200dp</dimen>
+    <dimen name="cardview_content_margin">20dp</dimen>
+    <dimen name="cardview_margin">4dp</dimen>
 </resources>

@@ -107,6 +107,7 @@ public class FoodItemRecyclerViewAdapter extends RecyclerView.Adapter<FoodItemRe
         return (new ViewHolder(view, clickListener));
     }
 
+
     /**
      * Назначает данные элементам GUI.
      * @param holder Объект GUI, содеращий поля, которые следует установить
@@ -117,6 +118,9 @@ public class FoodItemRecyclerViewAdapter extends RecyclerView.Adapter<FoodItemRe
     public void onBindViewHolder(ViewHolder holder, int position) {
         // Получение объекта FoodItem для заданной позиции ListView
         FoodItem foodItem = items.get(position);
+
+        // Присвоении ID к View на основании его порядкого номера в списке
+        holder.itemView.setTag(position);
 
         // Назначения текста элементам GUI
         holder.nameTextView.setText(foodItem.name);
