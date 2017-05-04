@@ -25,8 +25,10 @@ import java.util.Map;
  * @author RareScrap
  */
 public class FoodItemRecyclerViewAdapter extends RecyclerView.Adapter<FoodItemRecyclerViewAdapter.ViewHolder> {
-    /** Слушатель MainActivity, регистрируемые для каждого элемента списка */
+    /** Слушатель нажатия на элемент списка (кроме кнопки "добавить"), регистрируемые для каждого элемента списка */
     private final View.OnClickListener clickListener;
+    /** Слушатель  нажатия на кнопку "добавить", регистрируемые для каждого элемента списка */
+    private final View.OnClickListener buyClickListener;
 
     /** Кэш для уже загруженных картинок (объектов Bitmap) */
     private Map<String, Bitmap> bitmaps = new HashMap<>();
@@ -40,9 +42,10 @@ public class FoodItemRecyclerViewAdapter extends RecyclerView.Adapter<FoodItemRe
      *              собой входные данные, которые необходимо отобразить
      * @param clickListener Слушатель, который регистрирется для каждого элемента списка
      */
-    public FoodItemRecyclerViewAdapter(List<FoodItem> items, View.OnClickListener clickListener) {
+    public FoodItemRecyclerViewAdapter(List<FoodItem> items, View.OnClickListener clickListener, View.OnClickListener buyClickListener) {
         this.items = items;
         this.clickListener = clickListener;
+        this.buyClickListener = buyClickListener;
     }
 
     /**
@@ -64,8 +67,9 @@ public class FoodItemRecyclerViewAdapter extends RecyclerView.Adapter<FoodItemRe
          * Конструктор, инициализирующий свои поля.
          * @param itemView Представление одного элемента списка
          * @param clickListener Слушатель для этого элемента
+         * @param buyClickListener Слушатель для кнопки "добавить"
          */
-        public ViewHolder(View itemView, View.OnClickListener clickListener) {
+        public ViewHolder(View itemView, View.OnClickListener clickListener, View.OnClickListener buyClickListener) {
             super(itemView);
 
             // Получение ссылок на элементы GUI в представлении
@@ -76,6 +80,8 @@ public class FoodItemRecyclerViewAdapter extends RecyclerView.Adapter<FoodItemRe
 
             // Связывание слушателя со всеми элеметами списка, кроме кнопки "Добавить в корзину"
             itemView.setOnClickListener(clickListener);
+            // Связывание слушателя с кнопкой "Добавить в корзину"
+            itemView.findViewById(R.id.addToCart_ImageButton).setOnClickListener(buyClickListener);
 
             // TODO: Вот тут нужно сделать связывание слушателя с кнопкой "Добавить в корзину"
         }
@@ -106,7 +112,7 @@ public class FoodItemRecyclerViewAdapter extends RecyclerView.Adapter<FoodItemRe
         View view = LayoutInflater.from( parent.getContext() ).inflate(R.layout.food_card_list_item, parent, false);
 
         // Создание ViewHolder для текущего элемента
-        return (new ViewHolder(view, clickListener));
+        return (new ViewHolder(view, clickListener, buyClickListener));
     }
 
 
@@ -123,6 +129,9 @@ public class FoodItemRecyclerViewAdapter extends RecyclerView.Adapter<FoodItemRe
 
         // Присвоении ID к View на основании его порядкого номера в списке
         holder.itemView.setTag(position);
+        /* Тот же ID должен быть присвое и кнопке "добавить в корзину", чтобы
+        buyClickListener знал, КАКОЕ блюдо добавлено в корзнну */
+        holder.itemView.findViewById(R.id.addToCart_ImageButton).setTag(position);
 
         // Назначения текста элементам GUI
         holder.nameTextView.setText(foodItem.name);

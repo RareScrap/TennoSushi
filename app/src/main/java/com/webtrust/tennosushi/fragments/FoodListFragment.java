@@ -2,6 +2,7 @@ package com.webtrust.tennosushi.fragments;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment; // Подлючается для использования в javadoc
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.GridLayoutManager;
@@ -146,8 +147,8 @@ public class FoodListFragment extends MenuListFragment {
             recyclerView.setLayoutManager(gridLayoutManager); // Для плиточного списка
         }
 
-        // Создать RecyclerView.Adapter для связывания тегов с RecyclerView
-        rvAdapter = new FoodItemRecyclerViewAdapter(foodItemList, itemClickListener);
+        // Создать RecyclerView.Adapter для связывания элементов списка foodItemList с RecyclerView
+        rvAdapter = new FoodItemRecyclerViewAdapter(foodItemList, itemClickListener, buyItemClickListener);
         recyclerView.setAdapter(rvAdapter);
 
         // Запрос на получение данных
@@ -249,11 +250,16 @@ public class FoodListFragment extends MenuListFragment {
     }
 
     /**
-     * Обрабатывает события клика по элементам списка
-     * {@link FoodListFragment#foodItemList}, вызывая подробную информацию о блюде.
+     * Обрабатывает события клика по элементам списка {@link FoodListFragment#foodItemList},
+     * кроме кнопки "добавить  корзину".
+     * Вызывает подробную информацию о блюде, открывая {@link DetailFoodFragment}.
      */
     private final View.OnClickListener itemClickListener = new View.OnClickListener() {
-        // Клик по элементу
+        /**
+         * Вызывается когда по кноке "добавить в корзину" произошел клик.
+         * Открывает {@link DetailFoodFragment}.
+         * @param view {@link View}, по которому был сделан клик
+         */
         @Override
         public void onClick(View view) {
             FragmentTransaction fTrans = getFragmentManager().beginTransaction();
@@ -269,6 +275,30 @@ public class FoodListFragment extends MenuListFragment {
 
             // TODO: При первом запуске приложения без этой строки можно обойтись, но после изменения currentMode, без этой строки не стирается прдыдущий view
             ( (ViewGroup) getActivity().findViewById(R.id.fragment_menu_container) ).removeAllViews();
+        }
+    };
+
+    /**
+     * Обрабатывает события клика по кнопке "добавить корзину" для элементов списка
+     * {@link FoodListFragment#foodItemList}, вызывая подробную информацию о блюде,
+     * открывая {@link DetailFoodFragment}.
+     */
+    private final View.OnClickListener buyItemClickListener = new View.OnClickListener() {
+        /**
+         * Вызывается когда по кноке "добавить в корзину" произошел клик.
+         * Показывает уведомление при нажатии и добавляет .
+         * @param view {@link View}, по которому был сделан клик
+         */
+        @Override
+        public void onClick(View view) {
+            int asd = Integer.parseInt( view.getTag().toString(), 10 );
+            FoodItem clickedFoodView = foodItemList.get( asd );
+
+            // Добавляет выбранное блюдо в корзину
+            ShoppingCartFragment.addedFoodList.add(clickedFoodView);
+
+            // Отобразать уведомление о добавлении
+            Snackbar.make(getView(), "Добавлено в корзину ;)", Snackbar.LENGTH_SHORT).show();
         }
     };
 }
