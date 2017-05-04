@@ -74,8 +74,10 @@ public class FoodItemRecyclerViewAdapter extends RecyclerView.Adapter<FoodItemRe
             priceTextView = (TextView) itemView.findViewById(R.id.price_card);
             foodImageView = (ImageView) itemView.findViewById(R.id.menu_image_card);
 
-            // Связывание слушателя с itemView
+            // Связывание слушателя со всеми элеметами списка, кроме кнопки "Добавить в корзину"
             itemView.setOnClickListener(clickListener);
+
+            // TODO: Вот тут нужно сделать связывание слушателя с кнопкой "Добавить в корзину"
         }
     }
 
