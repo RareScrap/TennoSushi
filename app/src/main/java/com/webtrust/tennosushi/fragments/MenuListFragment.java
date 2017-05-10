@@ -222,6 +222,7 @@ public class MenuListFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
+        menu.clear(); // предотвращает дублирование элементов меню
         inflater.inflate(R.menu.menu_list_menu, menu);
     }
 
