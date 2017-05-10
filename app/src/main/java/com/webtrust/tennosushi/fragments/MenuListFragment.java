@@ -161,7 +161,7 @@ public class MenuListFragment extends Fragment {
 
         // Запрос на получение данных
         try {
-            URL url = new URL("http://192.168.1.254/index.php");
+            URL url = new URL("http://romhacking.pw/sushi.php");
 
             GetDataTask getLocalDataTask = new GetDataTask();
             getLocalDataTask.execute(url);
