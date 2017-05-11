@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -15,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.GridView;
 import android.widget.ListView;
 
+import com.webtrust.tennosushi.MainActivity;
 import com.webtrust.tennosushi.R;
 import com.webtrust.tennosushi.adapters.MenuItemArrayAdapter;
 import com.webtrust.tennosushi.list_items.MenuItem;
@@ -161,7 +163,7 @@ public class MenuListFragment extends Fragment {
 
         // Запрос на получение данных
         try {
-            URL url = new URL("http://192.168.1.254/index.php");
+            URL url = new URL("http://romhacking.pw/sushi.php");
 
             GetDataTask getLocalDataTask = new GetDataTask();
             getLocalDataTask.execute(url);
@@ -237,6 +239,7 @@ public class MenuListFragment extends Fragment {
         // Выбор в зависимости от идентификатора MenuItem
         switch (item.getItemId()) {
             case R.id.shopping_cart:
+                ((MainActivity) getActivity()).displayShoppingCartFragment(R.id.fragment_menu_container);
                 return true; // Событие меню обработано
             case R.id.sort:
                 // Получение ссылки для ViewGroup контейнера фрагментов
@@ -442,10 +445,10 @@ public class MenuListFragment extends Fragment {
             TODO: Разберись, как решить задачу мульти клик листенера наилучшым образом
              */
 
-            String viewCathgory = menuItemList.get( view.getId() ).category;
+            String viewCategory = menuItemList.get( view.getId() ).category;
 
             // В теге передаваемого View ПО-ХОРОШЕМУ ДОЛЖНА хранится ID-категории блюда, которое используется для поиска соответствующих блюд
-            FoodListFragment asd_test = FoodListFragment.newInstance(viewCathgory, currentMode);
+            FoodListFragment asd_test = FoodListFragment.newInstance(viewCategory, currentMode);
             fTrans.addToBackStack(null);
             fTrans.replace(R.id.fragment_menu_container, asd_test);
             fTrans.commit();

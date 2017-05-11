@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.webtrust.tennosushi.MainActivity;
 import com.webtrust.tennosushi.R;
 import com.webtrust.tennosushi.adapters.FoodItemRecyclerViewAdapter;
 import com.webtrust.tennosushi.list_items.FoodItem;
@@ -170,6 +171,7 @@ public class FoodListFragment extends MenuListFragment {
         // Выбор в зависимости от идентификатора MenuItem
         switch (item.getItemId()) {
             case R.id.shopping_cart:
+                ((MainActivity) getActivity()).displayShoppingCartFragment(R.id.fragment_menu_container);
                 return true; // Событие меню обработано
             case R.id.sort:
                 // Замена одной разметки списка на другую
