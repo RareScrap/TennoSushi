@@ -1,11 +1,18 @@
 package com.webtrust.tennosushi.fragments;
 
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -106,7 +113,7 @@ public class ShoppingCartFragment extends Fragment {
         recyclerView.setLayoutManager(listLayoutManager);
 
         // Создать RecyclerView.Adapter для связывания тегов с RecyclerView
-        rvAdapter = new ShoppingCartItemRecyclerViewAdapter(addedFoodList, itemTouchListener);
+        rvAdapter = new ShoppingCartItemRecyclerViewAdapter(addedFoodList);
         recyclerView.setAdapter(rvAdapter);
 
         // Слушание свайпов
@@ -126,6 +133,9 @@ public class ShoppingCartFragment extends Fragment {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        setUpItemTouchHelper();
+        setUpAnimationDecoratorHelper();
     }
 
     /**
@@ -145,174 +155,160 @@ public class ShoppingCartFragment extends Fragment {
     }
 
     /**
-     * Обрабатывает события клика по элементам списка
-     * {@link FoodListFragment#foodItemList}, вызывая подробную информацию о блюде.
+     * This is the standard support library way of implementing "swipe to delete" feature. You can do custom drawing in onChildDraw method
+     * but whatever you draw will disappear once the swipe is over, and while the items are animating to their new position the recycler view
+     * background will be visible. That is rarely an desired effect.
      */
-    private final View.OnTouchListener itemTouchListener = new View.OnTouchListener() {
-        public String[] Action = {
-            "LR", // Слева направо
-            "RL", // Справа налево
-            "TB", // Сверху вниз
-            "BT", // Снизу вверх
-            "None"};
+    private void setUpItemTouchHelper() {
 
-        private static final int HORIZONTAL_MIN_DISTANCE = 50; // Минимальное расстояние для свайпа по горизонтали
-        private static final int VERTICAL_MIN_DISTANCE = 80; // Минимальное расстояние для свайпа по вертикали
-        private float downX, downY, upX, upY; // Координаты
-        private String mSwipeDetected = Action[4]; // Последнее дейтсвие
+        ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
 
-        public boolean swipeDetected() {
-            return mSwipeDetected != Action[4];
-        }
+            // we want to cache these and not allocate anything repeatedly in the onChildDraw method
+            Drawable background;
+            boolean initiated;
 
-        public String getAction() {
-            return mSwipeDetected;
-        }
+            private void init() {
+                background = new ColorDrawable(Color.RED);
+                initiated = true;
+            }
 
-        /**
-         * Вызывается когда по элементу списка в корзине товаров произошел клик.
-         * Открывает {@link DetailFoodFragment}.
-         * @param view {@link View}, по которому был сделан клик
-         */
-        @Override
-        public boolean onTouch(View view, MotionEvent event) {
-            // TODO: Сделать открытие DetailFragment по нажатию
+            // not important, we don't want drag & drop
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
 
-            // TODO: При первом запуске приложения без этой строки можно обойтись, но после изменения currentMode, без этой строки не стирается прдыдущий view
-            //( (ViewGroup) getActivity().findViewById(R.id.fragment_menu_container) ).removeAllViews();
-
-
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN: {
-                    downX = event.getX();
-                    downY = event.getY();
-                    mSwipeDetected = Action[4];
-                    break;
+            @Override
+            public int getSwipeDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+                int position = viewHolder.getAdapterPosition();
+                ShoppingCartItemRecyclerViewAdapter testAdapter =
+                        (ShoppingCartItemRecyclerViewAdapter) recyclerView.getAdapter();
+                if (testAdapter.undoOn == true && testAdapter.isPendingRemoval(position)) {
+                    return 0;
                 }
-                case MotionEvent.ACTION_MOVE: {
-                    upX = event.getX();
-                    upY = event.getY();
+                return super.getSwipeDirs(recyclerView, viewHolder);
+            }
 
-                    float deltaX = downX - upX;
-                    float deltaY = downY - upY;
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
+                int swipedPosition = viewHolder.getAdapterPosition();
+                ShoppingCartItemRecyclerViewAdapter adapter =
+                        (ShoppingCartItemRecyclerViewAdapter) recyclerView.getAdapter();
+                boolean undoOn = adapter.undoOn;
+                if (undoOn) {
+                    adapter.pendingRemoval(swipedPosition);
+                } else {
+                    adapter.remove(swipedPosition);
+                }
+            }
 
-                    // Обнаружение горизонтального свайпа
-                    if (Math.abs(deltaX) > HORIZONTAL_MIN_DISTANCE) {
-                        // Слева направо
-                        if (deltaX < 0) {
-                            mSwipeDetected = Action[0];
-                        }
-                        // Справа налево
-                        if (deltaX > 0) {
-                            mSwipeDetected = Action[1];
+            @Override
+            public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+                View itemView = viewHolder.itemView;
+
+                // not sure why, but this method get's called for viewholder that are already swiped away
+                if (viewHolder.getAdapterPosition() == -1) {
+                    // not interested in those
+                    return;
+                }
+
+                if (!initiated) {
+                    init();
+                }
+
+                // draw red background
+                background.setBounds(itemView.getRight() + (int) dX, itemView.getTop(), itemView.getRight(), itemView.getBottom());
+                background.draw(c);
+
+                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+            }
+
+        };
+        ItemTouchHelper mItemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
+        mItemTouchHelper.attachToRecyclerView(recyclerView);
+    }
+
+    /**
+     * We're gonna setup another ItemDecorator that will draw the red background in the empty space while the items are animating to thier new positions
+     * after an item is removed.
+     */
+    private void setUpAnimationDecoratorHelper() {
+        recyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
+
+            // we want to cache this and not allocate anything repeatedly in the onDraw method
+            Drawable background;
+            boolean initiated;
+
+            private void init() {
+                background = new ColorDrawable(Color.RED);
+                initiated = true;
+            }
+
+            @Override
+            public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
+
+                if (!initiated) {
+                    init();
+                }
+
+                // only if animation is in progress
+                if (parent.getItemAnimator().isRunning()) {
+
+                    // some items might be animating down and some items might be animating up to close the gap left by the removed item
+                    // this is not exclusive, both movement can be happening at the same time
+                    // to reproduce this leave just enough items so the first one and the last one would be just a little off screen
+                    // then remove one from the middle
+
+                    // find first child with translationY > 0
+                    // and last one with translationY < 0
+                    // we're after a rect that is not covered in recycler-view views at this point in time
+                    View lastViewComingDown = null;
+                    View firstViewComingUp = null;
+
+                    // this is fixed
+                    int left = 0;
+                    int right = parent.getWidth();
+
+                    // this we need to find out
+                    int top = 0;
+                    int bottom = 0;
+
+                    // find relevant translating views
+                    int childCount = parent.getLayoutManager().getChildCount();
+                    for (int i = 0; i < childCount; i++) {
+                        View child = parent.getLayoutManager().getChildAt(i);
+                        if (child.getTranslationY() < 0) {
+                            // view is coming down
+                            lastViewComingDown = child;
+                        } else if (child.getTranslationY() > 0) {
+                            // view is coming up
+                            if (firstViewComingUp == null) {
+                                firstViewComingUp = child;
+                            }
                         }
                     }
-                    break;/*else
 
-                    // Обнаружение вертикального свайпа
-                    if (Math.abs(deltaY) > VERTICAL_MIN_DISTANCE) {
-                        // Сверху вниз
-                        if (deltaY < 0) {
-                            mSwipeDetected = Action.TB;
-                            return false;
-                        }
-                        // Снизу вверх
-                        if (deltaY > 0) {
-                            mSwipeDetected = Action.BT;
-                            return false;
-                        }
-                    }*/
+                    if (lastViewComingDown != null && firstViewComingUp != null) {
+                        // views are coming down AND going up to fill the void
+                        top = lastViewComingDown.getBottom() + (int) lastViewComingDown.getTranslationY();
+                        bottom = firstViewComingUp.getTop() + (int) firstViewComingUp.getTranslationY();
+                    } else if (lastViewComingDown != null) {
+                        // views are going down to fill the void
+                        top = lastViewComingDown.getBottom() + (int) lastViewComingDown.getTranslationY();
+                        bottom = lastViewComingDown.getBottom();
+                    } else if (firstViewComingUp != null) {
+                        // views are coming up to fill the void
+                        top = firstViewComingUp.getTop();
+                        bottom = firstViewComingUp.getTop() + (int) firstViewComingUp.getTranslationY();
+                    }
+
+                    background.setBounds(left, top, right, bottom);
+                    background.draw(c);
+
                 }
+                super.onDraw(c, parent, state);
             }
 
-
-            // Для свайпов
-            int position = Integer.parseInt( view.getTag().toString(), 10 );
-            // Если произошло нажатие по Header или Footer, то ничего не делаем
-            //if (position == 0 || position == addedFoodList.size() + 1)
-                //return;
-
-            Message msg = new Message();
-            msg.arg1 = position;
-            // Если был обнаружен свайп, то удаляем айтем
-            if (this.swipeDetected()){
-                if (this.getAction().equals(Action[0])  ||
-                        this.getAction().equals(Action[1]))
-                {
-                    msg.what = MSG_ANIMATION_REMOVE;
-                    msg.arg2 = swipeDetector.getAction().equals(Action[0]) ? 1 : 0;
-                    msg.obj = view;
-                }
-            }
-            // Иначе выбираем айтем
-            else
-                msg.what = MSG_CHANGE_ITEM;
-
-            handler.sendMessage(msg);
-            return true;
-        }
-    };
-
-    /**
-     * Запуск анимации удаления
-     */
-    private Animation getDeleteAnimation(float fromX, float toX, int position)
-    {
-        Animation animation = new TranslateAnimation(fromX, toX, 0, 0);
-        animation.setStartOffset(100);
-        animation.setDuration(800);
-        animation.setAnimationListener(new DeleteAnimationListenter(position));
-        animation.setInterpolator(AnimationUtils.loadInterpolator(getContext(),
-                android.R.anim.anticipate_overshoot_interpolator));
-        return animation;
+        });
     }
-
-    /**
-     * Listenter служит для удаления айтема после того, как анимация удаления завершилась
-     */
-    public class DeleteAnimationListenter implements Animation.AnimationListener
-    {
-        private int position;
-        public DeleteAnimationListenter(int position) {
-            this.position = position;
-        }
-
-        @Override
-        public void onAnimationEnd(Animation arg0) {
-            addedFoodList.remove(position);
-            rvAdapter.notifyDataSetChanged();
-            //removeItem(position);
-        }
-
-        @Override
-        public void onAnimationRepeat(Animation animation) {}
-
-        @Override
-        public void onAnimationStart(Animation animation) {}
-    }
-
-    private Handler handler = new Handler() {
-        public void handleMessage(Message msg) {
-
-            switch (msg.what)
-            {
-                case MSG_UPDATE_ADAPTER: // Обновление ListView
-                    rvAdapter.notifyDataSetChanged();
-                    //setCountPurchaseProduct();
-                    break;
-                case MSG_CHANGE_ITEM: // Сделано / Не сделано дело
-                    /*ToDoItem item = list.get(msg.arg1);
-                    item.setCheck(!item.isCheck());
-                    Utils.sorting(list, 0);
-                    saveList();
-                    adapter.notifyDataSetChanged();
-                    setCountPurchaseProduct();*/
-                    break;
-                case MSG_ANIMATION_REMOVE: // Старт анимации удаления
-                    View view = (View)msg.obj;
-                    view.startAnimation(getDeleteAnimation(0, (msg.arg2 == 0) ? -view.getWidth() : 2 * view.getWidth(), msg.arg1));
-                    break;
-            }
-        }
-    };
 }

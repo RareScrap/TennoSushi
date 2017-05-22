@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:padding="@dimen/shopping_cart_cardview_padding">
 
     <RelativeLayout
@@ -27,10 +27,10 @@
                 android:id="@+id/price"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="1500 Р"
                 android:layout_alignBaseline="@+id/number_of_deashes"
                 android:layout_alignBottom="@+id/number_of_deashes"
-                android:layout_toStartOf="@+id/comonents" />
+                android:layout_toStartOf="@+id/comonents"
+                android:text="1500 Р" />
 
             <ImageView
                 android:id="@+id/picture"
@@ -60,12 +60,12 @@
                 android:id="@+id/weight"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/shopping_cart_item_name_margin"
-                android:layout_marginRight="@dimen/shopping_cart_item_name_margin"
-                android:text="Вес: 228 Г"
                 android:layout_alignBaseline="@+id/name"
                 android:layout_alignBottom="@+id/name"
-                android:layout_alignParentEnd="true" />
+                android:layout_alignParentEnd="true"
+                android:layout_marginLeft="@dimen/shopping_cart_item_name_margin"
+                android:layout_marginRight="@dimen/shopping_cart_item_name_margin"
+                android:text="Вес: 228 Г" />
 
             <TextView
                 android:id="@+id/comonents"

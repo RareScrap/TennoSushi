@@ -1,15 +1,19 @@
 package com.webtrust.tennosushi.adapters;
 
+import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.webtrust.tennosushi.CartListSwipeDetector;
 import com.webtrust.tennosushi.R;
 import com.webtrust.tennosushi.list_items.FoodItem;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -21,12 +25,28 @@ public class ShoppingCartItemRecyclerViewAdapter
     /** Список для хранения данных элементов RecyclerView */
     private final List<FoodItem> items;
 
-    /** Слушатель нажатия на фотографию блюда */
-    private final View.OnTouchListener touchListener;
 
-    public ShoppingCartItemRecyclerViewAdapter(List<FoodItem> addedFoodList, View.OnTouchListener touchListener) {
+
+    private static final int PENDING_REMOVAL_TIMEOUT = 3000; // 3sec
+
+    List<FoodItem> itemsPendingRemoval;
+    int lastInsertedIndex; // so we can add some more items for testing purposes
+    public boolean undoOn; // is undo on, you can turn it on from the toolbar menu
+
+
+
+    private Handler handler = new Handler(); // hanlder for running delayed runnables
+    HashMap<FoodItem, Runnable> pendingRunnables = new HashMap<>(); // map of items to pending runnables, so we can cancel a removal if need be
+
+
+    /** Слушатель нажатия на фотографию блюда */
+    //private final View.OnTouchListener touchListener;
+
+    public ShoppingCartItemRecyclerViewAdapter(List<FoodItem> addedFoodList/*, View.OnTouchListener touchListener*/) {
         this.items = addedFoodList;
-        this.touchListener = touchListener;
+        //this.touchListener = touchListener;
+
+        itemsPendingRemoval = new ArrayList<>();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -44,7 +64,7 @@ public class ShoppingCartItemRecyclerViewAdapter
          * @param itemView Представление одного элемента списка
          * @param clickListener Слушатель для этого элемента
          */
-        public ViewHolder(View itemView, View.OnTouchListener touchListener) {
+        public ViewHolder(View itemView) {
             super(itemView);
 
             // Получение ссылок на элементы GUI в представлении
@@ -54,7 +74,7 @@ public class ShoppingCartItemRecyclerViewAdapter
             weightTextView = (TextView) itemView.findViewById(R.id.weight);
 
             // // Связывание слушателя со всеми элеметами списка, кроме кнопки "Добавить в корзину"
-            itemView.setOnTouchListener(touchListener);
+            //itemView.setOnTouchListener(touchListener);
 
             // Слушание свайпов
             //nameTextView.getParent().setOnTouchListener(swipeDetector);
@@ -90,7 +110,7 @@ public class ShoppingCartItemRecyclerViewAdapter
         View view = LayoutInflater.from( parent.getContext() ).inflate(R.layout.shopping_cart_item, parent, false);
 
         // Создание ViewHolder для текущего элемента
-        return (new ViewHolder(view, touchListener));
+        return (new ViewHolder(view/*, touchListener*/));
     }
 
     @Override
@@ -113,5 +133,37 @@ public class ShoppingCartItemRecyclerViewAdapter
         return items.size();
     }
 
+    public void pendingRemoval(int position) {
+        final FoodItem item = items.get(position);
+        if (!itemsPendingRemoval.contains(item)) {
+            itemsPendingRemoval.add(item);
+            // this will redraw row in "undo" state
+            notifyItemChanged(position);
+            // let's create, store and post a runnable to remove the item
+            Runnable pendingRemovalRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    remove(items.indexOf(item));
+                }
+            };
+            handler.postDelayed(pendingRemovalRunnable, PENDING_REMOVAL_TIMEOUT);
+            pendingRunnables.put(item, pendingRemovalRunnable);
+        }
+    }
 
+    public void remove(int position) {
+        FoodItem item = items.get(position);
+        if (itemsPendingRemoval.contains(item)) {
+            itemsPendingRemoval.remove(item);
+        }
+        if (items.contains(item)) {
+            items.remove(position);
+            notifyItemRemoved(position);
+        }
+    }
+
+    public boolean isPendingRemoval(int position) {
+        FoodItem item = items.get(position);
+        return itemsPendingRemoval.contains(item);
+    }
 }
