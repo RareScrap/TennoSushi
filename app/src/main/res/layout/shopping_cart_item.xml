@@ -10,6 +10,22 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <Button
+            android:id="@+id/undo_button"
+            style="@style/Base.Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="false"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="false"
+            android:layout_centerVertical="true"
+            android:layout_gravity="end|center_vertical"
+            android:layout_margin="@dimen/undo_button_margin"
+            android:text="@string/button_undo"
+            android:textAllCaps="true"
+            android:textColor="@android:color/white" />
+
         <RelativeLayout
             android:id="@+id/main_container"
             android:layout_width="match_parent"
@@ -84,6 +100,7 @@
                 android:layout_margin="@dimen/shopping_cart_item_name_margin"
                 android:layout_toEndOf="@+id/picture"
                 android:text="Пицца с хуями" />
+
         </RelativeLayout>
 
         <android.support.v7.widget.GridLayout

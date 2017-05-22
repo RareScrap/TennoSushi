@@ -1,11 +1,14 @@
 package com.webtrust.tennosushi.adapters;
 
+import android.graphics.Color;
 import android.os.Handler;
+import android.support.v7.widget.GridLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.webtrust.tennosushi.CartListSwipeDetector;
@@ -31,7 +34,7 @@ public class ShoppingCartItemRecyclerViewAdapter
 
     List<FoodItem> itemsPendingRemoval;
     int lastInsertedIndex; // so we can add some more items for testing purposes
-    public boolean undoOn; // is undo on, you can turn it on from the toolbar menu
+    public boolean undoOn = true; // is undo on, you can turn it on from the toolbar menu
 
 
 
@@ -58,6 +61,11 @@ public class ShoppingCartItemRecyclerViewAdapter
         public final TextView priceTextView;
         /** Ссылка на элемент GUI, представляющий вес порции блюда */
         public final TextView weightTextView;
+        /** Ссылка на элемент GUI, представляющий кнопку undo */
+        public final Button undoButton;
+
+        public final RelativeLayout relativeLayout;
+        public final GridLayout gridLayout;
 
         /**
          * Конструктор, инициализирующий свои поля.
@@ -72,6 +80,10 @@ public class ShoppingCartItemRecyclerViewAdapter
             componentsTextView = (TextView) itemView.findViewById(R.id.comonents);
             priceTextView = (TextView) itemView.findViewById(R.id.price);
             weightTextView = (TextView) itemView.findViewById(R.id.weight);
+            undoButton = (Button) itemView.findViewById(R.id.undo_button);
+
+            relativeLayout = (RelativeLayout) itemView.findViewById(R.id.main_container);
+            gridLayout = (GridLayout) itemView.findViewById(R.id.pizza_options);
 
             // // Связывание слушателя со всеми элеметами списка, кроме кнопки "Добавить в корзину"
             //itemView.setOnTouchListener(touchListener);
@@ -126,6 +138,38 @@ public class ShoppingCartItemRecyclerViewAdapter
         holder.componentsTextView.setText(foodItem.components);
         holder.priceTextView.setText( String.valueOf(foodItem.price) + " \u20BD" );
         holder.weightTextView.setText("Вес: " + foodItem.weight + " Г");
+
+
+
+        ViewHolder viewHolder = (ViewHolder) holder;
+        final FoodItem item = items.get(position);
+
+        if (itemsPendingRemoval.contains(item)) {
+            // we need to show the "undo" state of the row
+            viewHolder.itemView.setBackgroundColor(Color.RED);
+            viewHolder.relativeLayout.setVisibility(View.GONE);
+            viewHolder.gridLayout.setVisibility(View.GONE);
+            viewHolder.undoButton.setVisibility(View.VISIBLE);
+            viewHolder.undoButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // user wants to undo the removal, let's cancel the pending task
+                    Runnable pendingRemovalRunnable = pendingRunnables.get(item);
+                    pendingRunnables.remove(item);
+                    if (pendingRemovalRunnable != null) handler.removeCallbacks(pendingRemovalRunnable);
+                    itemsPendingRemoval.remove(item);
+                    // this will rebind the row in "normal" state
+                    notifyItemChanged(items.indexOf(item));
+                }
+            });
+        } else {
+            // we need to show the "normal" state
+            viewHolder.itemView.setBackgroundColor(Color.WHITE);
+            viewHolder.relativeLayout.setVisibility(View.VISIBLE);
+            viewHolder.gridLayout.setVisibility(View.VISIBLE);
+            viewHolder.undoButton.setVisibility(View.GONE);
+            viewHolder.undoButton.setOnClickListener(null);
+        }
     }
 
     @Override
