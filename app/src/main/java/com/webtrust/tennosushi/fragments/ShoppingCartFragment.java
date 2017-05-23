@@ -65,14 +65,7 @@ public class ShoppingCartFragment extends Fragment {
 
     /** Адаптер для связывания {@link ShoppingCartFragment#recyclerView}
      * c {@link ShoppingCartFragment#listLayoutManager}*/
-    public ShoppingCartItemRecyclerViewAdapter rvAdapter; // Адаптер
-
-    // Сообщения для Handler'а
-    public static final int MSG_UPDATE_ADAPTER 		= 0;
-    public static final int MSG_CHANGE_ITEM 		= 1;
-    public static final int MSG_ANIMATION_REMOVE 	= 2;
-
-    final CartListSwipeDetector swipeDetector = new CartListSwipeDetector();
+    public ShoppingCartItemRecyclerViewAdapter rvAdapter;
 
     /**
      * Необходимый пустой публичный конструктор.
@@ -95,8 +88,7 @@ public class ShoppingCartFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_shopping_cart, (ViewGroup) this.getView(), false);
+        return inflater.inflate(R.layout.fragment_shopping_cart, (ViewGroup) this.getView(), false); // Inflate the layout for this fragment
     }
 
     @Override
@@ -112,13 +104,11 @@ public class ShoppingCartFragment extends Fragment {
         listLayoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(listLayoutManager);
 
-        // Создать RecyclerView.Adapter для связывания тегов с RecyclerView
+        // Создать RecyclerView.Adapter для связывания элементов FoodItem с RecyclerView
         rvAdapter = new ShoppingCartItemRecyclerViewAdapter(addedFoodList);
         recyclerView.setAdapter(rvAdapter);
 
-        // Слушание свайпов
-        //recyclerView.setOnTouchListener(swipeDetector);
-
+        // Слушатель кликов, открывающий подробное описание блюда
         /*recyclerView.setOnClickListener( new RecyclerView.Adapter<ShoppingCartItemRecyclerViewAdapter.ViewHolder>);
         recyclerView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -155,18 +145,18 @@ public class ShoppingCartFragment extends Fragment {
     }
 
     /**
-     * This is the standard support library way of implementing "swipe to delete" feature. You can do custom drawing in onChildDraw method
-     * but whatever you draw will disappear once the swipe is over, and while the items are animating to their new position the recycler view
-     * background will be visible. That is rarely an desired effect.
+     * Подготавливает объект {@link ItemTouchHelper} и его колбэк {@link android.support.v7.widget.helper.ItemTouchHelper.SimpleCallback}
+     * для прослушивания свайпов
      */
     private void setUpItemTouchHelper() {
-
         ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
-
-            // we want to cache these and not allocate anything repeatedly in the onChildDraw method
+            // мы хотим кешировать это и не распределять ничего повторно в методе onChildDraw TODO: ЯННП
+            /** Фон, который показывается "за" элеметом при свайпе */
             Drawable background;
+            /** Флаг того, что метод {@link #init()} был вызван */
             boolean initiated;
 
+            /** Инициализирует ресурсы графики, требуемые для свайпа. Например, {@link #background} */
             private void init() {
                 background = new ColorDrawable(Color.RED);
                 initiated = true;
@@ -178,12 +168,19 @@ public class ShoppingCartFragment extends Fragment {
                 return false;
             }
 
+            /**
+             * Возвращает допустимые направления свайпа для данного объекта viewHolder.
+             * Эти допустимые направления свайпов настраиваются либо в кострукторе, либо в {@link #setDefaultSwipeDirs(int)}.
+             * @param recyclerView {@link RecyclerView}, к которому прикрепляется наш {@link ItemTouchHelper}
+             * @param viewHolder {@link RecyclerView.ViewHolder}, для которого запашивается направление свайпа
+             * @return Логическое сложение допустимых свайпов (допустимый свайп представляет собой одну из костан группы "Direction Flag")
+             */
             @Override
             public int getSwipeDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
                 int position = viewHolder.getAdapterPosition();
-                ShoppingCartItemRecyclerViewAdapter testAdapter =
-                        (ShoppingCartItemRecyclerViewAdapter) recyclerView.getAdapter();
-                if (testAdapter.undoOn == true && testAdapter.isPendingRemoval(position)) {
+
+                // Запретить свайп, если появился красный фон, ожидающий нажатие кнопки Undo
+                if (rvAdapter.undoOn && rvAdapter.isPendingRemoval(position)) {
                     return 0;
                 }
                 return super.getSwipeDirs(recyclerView, viewHolder);
@@ -192,31 +189,46 @@ public class ShoppingCartFragment extends Fragment {
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
                 int swipedPosition = viewHolder.getAdapterPosition();
-                ShoppingCartItemRecyclerViewAdapter adapter =
-                        (ShoppingCartItemRecyclerViewAdapter) recyclerView.getAdapter();
-                boolean undoOn = adapter.undoOn;
-                if (undoOn) {
-                    adapter.pendingRemoval(swipedPosition);
+                if (rvAdapter.undoOn) {
+                    rvAdapter.pendingRemoval(swipedPosition); // Добавить элемент в список элементов, ожидающих удаление
                 } else {
-                    adapter.remove(swipedPosition);
+                    rvAdapter.remove(swipedPosition);
                 }
             }
 
+            /**
+             * Вызывается для отрисовки всех элеметов позади элемента, который сдвинули свайпом. Подробнее:
+             * <a href="https://developer.android.com/reference/android/support/v7/widget/helper/ItemTouchHelper.Callback.html#onChildDraw(android.graphics.Canvas,%20android.support.v7.widget.RecyclerView,%20android.support.v7.widget.RecyclerView.ViewHolder,%20float,%20float,%20int,%20boolean)"></a>
+             *
+             * <p>
+             * Этот метод так же вызывается, когда элемент сдвинут, палец убран, но список плавно "задвигает" сдвинутый элемент.
+             * При этом viewHolder.getAdapterPosition() дает -1
+             * </p>
+             *
+             * @param c {@link Canvas}, на котором RecyclerView рисует то, что ему скажут
+             * @param recyclerView {@link RecyclerView}, к которому прикрепляется наш {@link ItemTouchHelper}
+             * @param viewHolder {@link RecyclerView.ViewHolder}, который анимируется из-за действий пользователя, или сам по себе
+             * @param dX Величина горизонтального смещения (отностительно "нормальной" позиции элемента), вызванного действием пользователя
+             * @param dY Величина вертикального смещения (отностительно "нормальной" позиции элемента), вызванного действием пользователя
+             * @param actionState Тип взаимодействия во View. Это может быть ACTION_STATE_DRAG или ACTION_STATE_SWIPE.
+             * @param isCurrentlyActive True, когда анимация вызвана дейсвтиями юзера и False, когда анимация работает "сама по себе"
+             */
             @Override
             public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
                 View itemView = viewHolder.itemView;
 
-                // not sure why, but this method get's called for viewholder that are already swiped away
+                // Этот if сработает, когда элемент сдвинут, палец убран, но список плавно "задвигает" сдвинутый элемент
                 if (viewHolder.getAdapterPosition() == -1) {
                     // not interested in those
                     return;
                 }
 
+                // Проверка на то, были ли инииализированы графические ресурсы для рисования фона и прочего
                 if (!initiated) {
                     init();
                 }
 
-                // draw red background
+                // Рисуем красный фон
                 background.setBounds(itemView.getRight() + (int) dX, itemView.getTop(), itemView.getRight(), itemView.getBottom());
                 background.draw(c);
 
@@ -251,8 +263,9 @@ public class ShoppingCartFragment extends Fragment {
                     init();
                 }
 
+                // Вырезан из-за сложностей с отладкой
                 // only if animation is in progress
-                if (parent.getItemAnimator().isRunning()) {
+                /*if (parent.getItemAnimator().isRunning()) {
 
                     // some items might be animating down and some items might be animating up to close the gap left by the removed item
                     // this is not exclusive, both movement can be happening at the same time
@@ -305,7 +318,7 @@ public class ShoppingCartFragment extends Fragment {
                     background.setBounds(left, top, right, bottom);
                     background.draw(c);
 
-                }
+                }*/
                 super.onDraw(c, parent, state);
             }
 

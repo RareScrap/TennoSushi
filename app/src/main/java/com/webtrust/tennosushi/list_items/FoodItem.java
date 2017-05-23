@@ -33,4 +33,17 @@ public class FoodItem {
         this.picURL = picURL;
         this.category = category;
     }
+
+    /**
+     * Коструктор, копирующий уже существующий FoodItem, но без метаинформации
+     * @param foodItem
+     */
+    public FoodItem(FoodItem foodItem) {
+        this.name = foodItem.name;
+        this.price = foodItem.price;
+        this.components = foodItem.components;
+        this.weight = foodItem.weight;
+        this.picURL = foodItem.picURL;
+        this.category = foodItem.category;
+    }
 }

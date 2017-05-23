@@ -293,11 +293,15 @@ public class FoodListFragment extends MenuListFragment {
          */
         @Override
         public void onClick(View view) {
-            int asd = Integer.parseInt( view.getTag().toString(), 10 );
-            FoodItem clickedFoodView = foodItemList.get( asd );
+            int position = Integer.parseInt( view.getTag().toString(), 10 );
+            FoodItem clickedFoodView = foodItemList.get( position );
+
+            // Использется констуктор копирования для создания объекта с такими же полями, но без метаифомации
+            // Элементы с одинаковой метаинформацией в списке ShoppingCartFragment при свайпах приводят к непредсказуемому поведеию элеметов списка
+            FoodItem newFoodItem = new FoodItem(clickedFoodView);
 
             // Добавляет выбранное блюдо в корзину
-            ShoppingCartFragment.addedFoodList.add(clickedFoodView);
+            ShoppingCartFragment.addedFoodList.add(newFoodItem);
 
             // Отобразать уведомление о добавлении
             Snackbar.make(getView(), "Добавлено в корзину ;)", Snackbar.LENGTH_SHORT).show();
