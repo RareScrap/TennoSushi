@@ -7,4 +7,5 @@
     <dimen name="shopping_cart_cardview_padding">5dp</dimen>
     <dimen name="shopping_cart_item_name_margin">5dp</dimen>
     <dimen name="undo_button_margin">10dp</dimen>
+    <dimen name="empty_cart_pic_margin">100dp</dimen>
 </resources>

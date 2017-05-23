@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.webtrust.tennosushi.CartListSwipeDetector;
 import com.webtrust.tennosushi.R;
+import com.webtrust.tennosushi.fragments.ShoppingCartFragment;
 import com.webtrust.tennosushi.list_items.FoodItem;
 
 import java.util.ArrayList;
@@ -188,6 +189,7 @@ public class ShoppingCartItemRecyclerViewAdapter
                 @Override
                 public void run() {
                     remove(items.indexOf(item));
+                    ShoppingCartFragment.shoppingCartFragmentRef.changeCartUI(items);
                 }
             };
             handler.postDelayed(pendingRemovalRunnable, PENDING_REMOVAL_TIMEOUT);

@@ -21,6 +21,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 
 import com.webtrust.tennosushi.CartListSwipeDetector;
 import com.webtrust.tennosushi.R;
@@ -67,6 +68,9 @@ public class ShoppingCartFragment extends Fragment {
      * c {@link ShoppingCartFragment#listLayoutManager}*/
     public ShoppingCartItemRecyclerViewAdapter rvAdapter;
 
+    // ЭТО ПИЗДЕЦ КАКАЯ ЕБАЛА
+    public static ShoppingCartFragment shoppingCartFragmentRef;
+
     /**
      * Необходимый пустой публичный конструктор.
      *
@@ -84,6 +88,7 @@ public class ShoppingCartFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true); // у фрагмента имеются команды меню
+        shoppingCartFragmentRef = this;
     }
 
     @Override
@@ -95,6 +100,8 @@ public class ShoppingCartFragment extends Fragment {
     public void onViewCreated (View view, Bundle savedInstanceState) {
         // Получение ссылки на recyclerView
         recyclerView = (RecyclerView) getView().findViewById(R.id.cart_list_recyclerView);
+
+        changeCartUI(addedFoodList);
 
         /*
         Новый экзмепляр LayoutManager'ов создается при возрате к этому фрагменту
@@ -238,6 +245,22 @@ public class ShoppingCartFragment extends Fragment {
         };
         ItemTouchHelper mItemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
         mItemTouchHelper.attachToRecyclerView(recyclerView);
+    }
+
+    /**
+     * Скрывает список и показывает картинку о том, что корзина пуста
+     * @param list Список, по которому определяется пустая ли корзина или нет.
+     */
+    public void changeCartUI(List list) {
+        if (list.isEmpty()) {
+            getView().findViewById(R.id.empty_cart_pic).setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+            getView().findViewById(R.id.buy_button_container).setVisibility(View.GONE);
+        } else {
+            getView().findViewById(R.id.empty_cart_pic).setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+            getView().findViewById(R.id.buy_button_container).setVisibility(View.VISIBLE);
+        }
     }
 
     /**
