@@ -24,28 +24,31 @@ import java.util.List;
  * Created by rares on 03.05.2017.
  */
 
-public class ShoppingCartItemRecyclerViewAdapter
-        extends RecyclerView.Adapter<ShoppingCartItemRecyclerViewAdapter.ViewHolder> {
+public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<ShoppingCartItemRecyclerViewAdapter.ViewHolder> {
     /** Список для хранения данных элементов RecyclerView */
     private final List<FoodItem> items;
-
-
-
+    /** Время, пока кнопка Undo Все еще доступна*/
     private static final int PENDING_REMOVAL_TIMEOUT = 3000; // 3sec
-
-    List<FoodItem> itemsPendingRemoval;
-    int lastInsertedIndex; // so we can add some more items for testing purposes
+    /** Список элеметов, ожидающих удаление */
+    private List<FoodItem> itemsPendingRemoval;
+    /** Флаг, определяющий возможность отменить последствия удаления свайпом */
     public boolean undoOn = true; // is undo on, you can turn it on from the toolbar menu
-
-
-
+    /** Обработчик действий объектов {@link Runnable}, которые объявляются как внутренние классы
+     * в {@link ShoppingCartItemRecyclerViewAdapter#pendingRemoval(int)} */
     private Handler handler = new Handler(); // hanlder for running delayed runnables
-    HashMap<FoodItem, Runnable> pendingRunnables = new HashMap<>(); // map of items to pending runnables, so we can cancel a removal if need be
-
+    /** Хранилище, связывающее удаляемый элемент {@link FoodItem} с удаляющим его объектом
+     * {@link Runnable}, который определяется в {@link ShoppingCartItemRecyclerViewAdapter#pendingRemoval(int)} */
+    private HashMap<FoodItem, Runnable> pendingRunnables = new HashMap<>(); // map of items to pending runnables, so we can cancel a removal if need be
 
     /** Слушатель нажатия на фотографию блюда */
     //private final View.OnTouchListener touchListener;
 
+    /**
+     * Конструктор, инициализирующий поля слушателя клика по фотографии и списка элементов в корзине. Так же
+     * инициализует поле {@link ShoppingCartItemRecyclerViewAdapter#itemsPendingRemoval} пустым списком.
+     * @param addedFoodList Список товаров {@link FoodItem}, на основе которых инициализируется адаптер
+     * @param touchListener Слушатель кликов по картинке блюда
+     */
     public ShoppingCartItemRecyclerViewAdapter(List<FoodItem> addedFoodList/*, View.OnTouchListener touchListener*/) {
         this.items = addedFoodList;
         //this.touchListener = touchListener;
@@ -178,6 +181,11 @@ public class ShoppingCartItemRecyclerViewAdapter
         return items.size();
     }
 
+    /**
+     * Помещает элемент с указанной позицией в очередь на удаление. Пока этот элемент находится в очереди, пользователю
+     * доступнка кнопка Undo
+     * @param position Позиция элемента в списке товаров, которые помещается в очередь к удалению.
+     */
     public void pendingRemoval(int position) {
         final FoodItem item = items.get(position);
         if (!itemsPendingRemoval.contains(item)) {
@@ -189,6 +197,8 @@ public class ShoppingCartItemRecyclerViewAdapter
                 @Override
                 public void run() {
                     remove(items.indexOf(item));
+
+                    // TODO: В идеале, строка ниже должа быть в методе, который вызывается в момент полного окочаия анимации в itemToucherHelper
                     ShoppingCartFragment.shoppingCartFragmentRef.changeCartUI(items);
                 }
             };
@@ -197,6 +207,11 @@ public class ShoppingCartItemRecyclerViewAdapter
         }
     }
 
+    /**
+     * Удаляет элемент с заданной позицией из списка товаров в корзине и списка товаров,
+     * которые стоят в очереди к удалению.
+     * @param position Позиция элемента в списке товаров, который следует полностью удалить
+     */
     public void remove(int position) {
         FoodItem item = items.get(position);
         if (itemsPendingRemoval.contains(item)) {
@@ -208,6 +223,11 @@ public class ShoppingCartItemRecyclerViewAdapter
         }
     }
 
+    /**
+     * Проверяет, находится ли элемет с указанной позицией в очереди к удалеию
+     * @param position Позиция элемета, который следует проверить на наличие его в очереди к удалению
+     * @return true, если элемент находится в очереди к удалению
+     */
     public boolean isPendingRemoval(int position) {
         FoodItem item = items.get(position);
         return itemsPendingRemoval.contains(item);

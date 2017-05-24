@@ -68,7 +68,8 @@ public class ShoppingCartFragment extends Fragment {
      * c {@link ShoppingCartFragment#listLayoutManager}*/
     public ShoppingCartItemRecyclerViewAdapter rvAdapter;
 
-    // ЭТО ПИЗДЕЦ КАКАЯ ЕБАЛА
+    // TODO: МНЕ КАЖЕТСЯ, ЧТО ЭТО ПИЗДЕЦ КАКАЯ ЕБАЛА
+    /** Ссылка на свой последний созданный экземпляр*/
     public static ShoppingCartFragment shoppingCartFragmentRef;
 
     /**
@@ -193,6 +194,13 @@ public class ShoppingCartFragment extends Fragment {
                 return super.getSwipeDirs(recyclerView, viewHolder);
             }
 
+            /**
+             * Вызывается когда свайп доведен до конца и палец юзера убран с экрана.
+             * Помещает в очередь на удаление или удаляет элемет списка в зависимости от
+             * значения флага {@link ShoppingCartItemRecyclerViewAdapter#undoOn}.
+             * @param viewHolder
+             * @param swipeDir
+             */
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
                 int swipedPosition = viewHolder.getAdapterPosition();
@@ -267,6 +275,10 @@ public class ShoppingCartFragment extends Fragment {
      * We're gonna setup another ItemDecorator that will draw the red background in the empty space while the items are animating to thier new positions
      * after an item is removed.
      */
+    /**
+     * Иниализирует {@link android.support.v7.widget.RecyclerView.ItemDecoration} для
+     * {@link ShoppingCartFragment#recyclerView}
+     */
     private void setUpAnimationDecoratorHelper() {
         recyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
 
@@ -286,7 +298,7 @@ public class ShoppingCartFragment extends Fragment {
                     init();
                 }
 
-                // Вырезан из-за сложностей с отладкой
+                // TODO: Вырезан из-за сложностей с отладкой
                 // only if animation is in progress
                 /*if (parent.getItemAnimator().isRunning()) {
 
