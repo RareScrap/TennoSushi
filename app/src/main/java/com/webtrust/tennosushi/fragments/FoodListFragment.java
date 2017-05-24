@@ -253,12 +253,12 @@ public class FoodListFragment extends MenuListFragment {
 
     /**
      * Обрабатывает события клика по элементам списка {@link FoodListFragment#foodItemList},
-     * кроме кнопки "добавить  корзину".
+     * кроме кнопки "добавить в корзину".
      * Вызывает подробную информацию о блюде, открывая {@link DetailFoodFragment}.
      */
     private final View.OnClickListener itemClickListener = new View.OnClickListener() {
         /**
-         * Вызывается когда по кноке "добавить в корзину" произошел клик.
+         * Вызывается когда по кнопке "добавить в корзину" произошел клик.
          * Открывает {@link DetailFoodFragment}.
          * @param view {@link View}, по которому был сделан клик
          */

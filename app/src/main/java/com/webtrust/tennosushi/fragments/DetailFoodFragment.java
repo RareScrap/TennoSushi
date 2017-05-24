@@ -1,12 +1,17 @@
 package com.webtrust.tennosushi.fragments;
 
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
+import com.webtrust.tennosushi.MainActivity;
 import com.webtrust.tennosushi.R;
 import com.webtrust.tennosushi.list_items.FoodItem;
 
@@ -48,6 +53,12 @@ public class DetailFoodFragment extends Fragment {
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true); // у фрагмента имеются команды меню
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true); // У фрагмента имеются команды меню
         View returnedView = inflater.inflate(R.layout.detail_food_fragment, container, false);
@@ -56,11 +67,13 @@ public class DetailFoodFragment extends Fragment {
         TextView priceTextView = (TextView) returnedView.findViewById(R.id.food_price_textField);
         TextView weightTextView = (TextView) returnedView.findViewById(R.id.food_weight_textField);
         TextView componentsTextView = (TextView) returnedView.findViewById(R.id.components_textField);
+        TextView addButton = (Button) returnedView.findViewById(R.id.addToBusketButton);
 
         // Назначение даных элементам GUI
         priceTextView.setText(foodItem.price + " \u20BD");
         weightTextView.setText(foodItem.weight + " Г");
         componentsTextView.setText(foodItem.components);
+        addButton.setOnClickListener(buyItemClickListener);
 
         if (foodItem.category.equals("pizza")) {
             returnedView.findViewById(R.id.pizza_options_container).setVisibility(View.VISIBLE);
@@ -70,4 +83,56 @@ public class DetailFoodFragment extends Fragment {
 
         return returnedView;
     }
+
+    /**
+     * Отображение команд меню фрагмента.
+     * @param menu Меню
+     * @param inflater Инфлатер для меню
+     */
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.detail_list_menu, menu);
+    }
+
+    /**
+     * Обработка выбора команд меню.
+     * @param item Выбранный итем на панели действий (не путать этот параметр с MenuItem, обозначающий элемент списка
+     * @return Показатель успешность обработки события
+     */
+    @Override
+    public boolean onOptionsItemSelected(android.view.MenuItem item) {
+        // Выбор в зависимости от идентификатора MenuItem
+        switch (item.getItemId()) {
+            case R.id.shopping_cart:
+                ((MainActivity) getActivity()).displayShoppingCartFragment(R.id.fragment_menu_container);
+                return true; // Событие меню обработано
+        }
+        return super.onOptionsItemSelected(item); //TODO: Разобраться зачем вообще тут нужен супер
+    }
+
+    /**
+     * Обрабатывает события клика по кнопке "добавить в корзину" для элементов списка
+     * {@link FoodListFragment#foodItemList}, вызывая подробную информацию о блюде,
+     * открывая {@link DetailFoodFragment}.
+     */
+    private final View.OnClickListener buyItemClickListener = new View.OnClickListener() {
+        /**
+         * Вызывается когда по кнопке "добавить в корзину" произошел клик.
+         * Показывает уведомление при нажатии и добавляет .
+         * @param view {@link View}, по которому был сделан клик
+         */
+        @Override
+        public void onClick(View view) {
+            // Использется констуктор копирования для создания объекта с такими же полями, но без метаифомации
+            // Элементы с одинаковой метаинформацией в списке ShoppingCartFragment при свайпах приводят к непредсказуемому поведеию элеметов списка
+            FoodItem newFoodItem = new FoodItem(foodItem);
+
+            // Добавляет выбранное блюдо в корзину
+            ShoppingCartFragment.addedFoodList.add(newFoodItem);
+
+            // Отобразать уведомление о добавлении
+            Snackbar.make(getView(), "Добавлено в корзину ;)", Snackbar.LENGTH_SHORT).show();
+        }
+    };
 }
