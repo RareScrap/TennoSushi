@@ -22,9 +22,11 @@
             android:layout_centerVertical="true"
             android:layout_gravity="end|center_vertical"
             android:layout_margin="@dimen/undo_button_margin"
+            android:drawableLeft="@drawable/ic_undo_24dp"
             android:text="@string/button_undo"
             android:textAllCaps="true"
-            android:textColor="@android:color/white" />
+            android:textColor="@android:color/white"
+            android:visibility="invisible" />
 
         <RelativeLayout
             android:id="@+id/main_container"

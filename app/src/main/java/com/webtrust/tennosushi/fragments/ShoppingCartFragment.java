@@ -6,24 +6,15 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.view.animation.TranslateAnimation;
-import android.widget.AdapterView;
-import android.widget.ImageView;
 
-import com.webtrust.tennosushi.CartListSwipeDetector;
 import com.webtrust.tennosushi.R;
 import com.webtrust.tennosushi.adapters.ShoppingCartItemRecyclerViewAdapter;
 import com.webtrust.tennosushi.list_items.FoodItem;
@@ -32,29 +23,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <p> Фрагмент, реализующий список блюд, которей пользователь добавил в корзину для покупки. </p>
+ * <p> Фрагмент, реализующий список блюд, которые пользователь добавил в корзину для покупки. </p>
  *
- * <p>
- * {@link ShoppingCartFragment} являетяся простым наследником класса {@link Fragment}.
- * Активити, которые содержат этот фрагмент должно реализовывать
- * интерфейс {@link MenuListFragment.OnFragmentInteractionListener}
- * (не реализованно т.к. пока не изучено) для обработки событий
- * взаимодействия между активностью и фрагментом.
- * </p>
+ * <h2 id="BestPractice">Best Practice</h2>
+ * <ol>
+ *  <li>
+ *      Для обработки событий взаимодействия между этим фрагментом и активити (или между другими фрагментами),
+ *      активити, которые содержат этот фрагмент, должны реализовывать интерфейс
+ *      {@link #OnFragmentInteractionListener}.
+ *  </li>
  *
- * <p>
- * Используйте фабричный метод {@link ShoppingCartFragment#newInstance} для
- * создания экземпляра этого фрагмента. Избегайте создания конструкторов с
- * параметрами для любых наследников класса {@link Fragment}.
- * Подробнее о конструкторе фрагментов на странице
- * <a href="https://developer.android.com/reference/android/app/Fragment.html#Fragment()">Google документации</a>.
- * </p>
+ *  <li>
+ *      Используйте фабричный метод {@link #newInstance} и его перегруженые версии
+ *      для создания экземпляра этого фрагмента (без и с параметрами соответствено). Не используйте
+ *      {@link #ShoppingCartFragment()} в качестве пустого конструктора, т.к. он предназначен только
+ *      для использования самой AndroidOS для обеспечения правильного хранения данных приложения в
+ *      свернутом состоянии. Кроме того избегайте перегрузки {@link #ShoppingCartFragment()} для
+ *      создания конструкторов с параметрами для любых наследников класса {@link Fragment} по той же
+ *      причине.
+ *      Подробнее о конструкторе фрагментов на странице
+ *      <a href="https://developer.android.com/reference/android/app/Fragment.html#Fragment()">Google документации</a>.
+ *  </li>
+ * </ol>
  *
  * @author RareScrap
  */
-
 public class ShoppingCartFragment extends Fragment {
-    /** Список объектов {@link FoodItem}, представляющих добавленные в корзиу блюда */
+    /** Список объектов {@link FoodItem}, представляющие добавленные в корзину блюда */
     public static List<FoodItem> addedFoodList = new ArrayList<>();
     /** Итоговая цена всех заказанных блюд */
     public double totalPrice;
@@ -64,57 +59,84 @@ public class ShoppingCartFragment extends Fragment {
     /** LayoutManager для отображения в виде списка */
     private RecyclerView.LayoutManager listLayoutManager;
 
-    /** Адаптер для связывания {@link ShoppingCartFragment#recyclerView}
-     * c {@link ShoppingCartFragment#listLayoutManager}*/
+    /** Адаптер для связывания {@link #recyclerView}
+     * c {@link ShoppingCartFragment#listLayoutManager} */
     public ShoppingCartItemRecyclerViewAdapter rvAdapter;
 
     // TODO: МНЕ КАЖЕТСЯ, ЧТО ЭТО ПИЗДЕЦ КАКАЯ ЕБАЛА
-    /** Ссылка на свой последний созданный экземпляр*/
+    /** Ссылка на свой последний созданный экземпляр */
     public static ShoppingCartFragment shoppingCartFragmentRef;
 
     /**
-     * Необходимый пустой публичный конструктор.
-     *
-     * <p>
-     * Используйте фабричный метод {@link ShoppingCartFragment#newInstance} для
-     * создания экземпляра этого фрагмента. Избегайте создания конструкторов с
-     * параметрами для любых наследников класса {@link Fragment}.
-     * Подробнее о конструкторе фрагментов на странице
-     * <a href="https://developer.android.com/reference/android/app/Fragment.html#Fragment()">Google документации</a>.
-     * </p>
+     * Необходимый пустой публичный конструктор. Предназачен для использованя только по нужде
+     * AndroidOS. Вместо него используйте {@link #newInstance()} (см. <a href="#BestPractice">Best Practice</a>).
      */
-    public ShoppingCartFragment() {}
+    public ShoppingCartFragment() {
+        shoppingCartFragmentRef = this; // Обновление ссылки, когда OS вызывет конструктор в свернутом приложении
+    }
 
+    /**
+     * Для создания новых экземпляров этого фрагмента без дополнительных параметров используйте этот
+     * фабричный метод и его перегруженные версии в случае, когда вам нужно использовать конструктор с
+     * параметрами (см. <a href="#BestPractice">Best Practice</a>)
+     * @return Новый объект фрагмента {@link ShoppingCartFragment}.
+     */
+    public static ShoppingCartFragment newInstance() {
+        return new ShoppingCartFragment();
+    }
+
+    /**
+     * Задает начальная кофигурацию фрагменту (напирмер, определяет наличие команд меню).
+     * @param savedInstanceState Если фрагмент восстанавливается из предыдущего сохраненного состояния,
+     *                           это и есть его предыдущее состояние.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true); // у фрагмента имеются команды меню
-        shoppingCartFragmentRef = this;
     }
 
+    /**
+     * Инициализирует UI фрагмента
+     * @param inflater Инфлаттер для вызова самых разых View, которые могут пригодиться во фрагменте
+     * @param container Если не равно NULL, это родительский ViewGroup, к которому должен
+     *                  быть присоединен UI фрагмента. Это может быть использовано для получение
+     *                  LayoutParams родительского элемента. ВАЖНО: Фрагмент не должен самостоятельно
+     *                  добавлять сюда свой View!
+     * @param savedInstanceState Если не равно NULL, то фрагмент восстановился из предыдущего
+     *                           сохраненного состояния. Этот объект  и есть его предыдущее состояние.
+     * @return UI фрагмента.
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_shopping_cart, (ViewGroup) this.getView(), false); // Inflate the layout for this fragment
     }
 
+    /**
+     * Задает значения полям, хранящие ссылки на элементы GUI (например, для {@link #recyclerView})
+     * @param view UI, которое вернул метод {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}
+     * @param savedInstanceState Если не равно NULL, то фрагмент восстановился из предыдущего
+     *                           сохраненного состояния. Этот объект  и есть его предыдущее состояние.
+     */
     @Override
     public void onViewCreated (View view, Bundle savedInstanceState) {
         // Получение ссылки на recyclerView
         recyclerView = (RecyclerView) getView().findViewById(R.id.cart_list_recyclerView);
 
-        changeCartUI(addedFoodList);
+        // Создать RecyclerView.Adapter для связывания элементов FoodItem с RecyclerView
+        rvAdapter = new ShoppingCartItemRecyclerViewAdapter(addedFoodList);
+        recyclerView.setAdapter(rvAdapter);
 
         /*
-        Новый экзмепляр LayoutManager'ов создается при возрате к этому фрагменту
+        Новый экзмепляр LayoutManager'а создается при возрате к этому фрагменту
         через BackStack во избежания исключения "LayoutManager is already attached
         to a RecyclerView”
          */
         listLayoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(listLayoutManager);
 
-        // Создать RecyclerView.Adapter для связывания элементов FoodItem с RecyclerView
-        rvAdapter = new ShoppingCartItemRecyclerViewAdapter(addedFoodList);
-        recyclerView.setAdapter(rvAdapter);
+        // На основании переданного списка определяет что показать: список покупок или картинку пустой корзины
+        changeCartUI(addedFoodList);
 
         // Слушатель кликов, открывающий подробное описание блюда
         /*recyclerView.setOnClickListener( new RecyclerView.Adapter<ShoppingCartItemRecyclerViewAdapter.ViewHolder>);
@@ -127,22 +149,24 @@ public class ShoppingCartFragment extends Fragment {
 
         // Запрос на получение данных
         try {
-            // тут картинка должна браться картинка из кеша
+            // TODO: Тут картинка должна браться картинка из кеша
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        setUpItemTouchHelper();
-        setUpAnimationDecoratorHelper();
+        setUpItemTouchHelper(); // Инициализация движка свайпов и сопутствующего функционала
+        //setUpAnimationDecoratorHelper(); // Установка дополнительных графических эффектов для свайпов
     }
 
     /**
-     * Обработка выбора команд меню.
-     * @param item Выбранный итем на панели действий (не путать этот параметр с MenuItem, обозначающий элемент списка
-     * @return Показатель успешность обработки события
+     * Обрабатывает события выбора команд меню.
+     * @param item Выбранный элемент на панели действий (не путать этот параметр с MenuItem,
+     *             обозначающий элемент списка)
+     * @return True, если событие обработано успешо
      */
     @Override
     public boolean onOptionsItemSelected(android.view.MenuItem item) {
+        // TODO: Добавить кнопку очистки корзины
         // Выбор в зависимости от идентификатора MenuItem
         /*switch (item.getItemId()) {
             case R.id.clean_cart:
@@ -153,24 +177,40 @@ public class ShoppingCartFragment extends Fragment {
     }
 
     /**
-     * Подготавливает объект {@link ItemTouchHelper} и его колбэк {@link android.support.v7.widget.helper.ItemTouchHelper.SimpleCallback}
-     * для прослушивания свайпов
+     * Подготавливает объект {@link ItemTouchHelper} и его колбэк
+     * {@link android.support.v7.widget.helper.ItemTouchHelper.SimpleCallback} для прослушивания
+     * свайпов и реализации основных графических эфектов свайпов (например, таких как красный фон
+     * позади элемента, сдвигаемого свайпом)
      */
     private void setUpItemTouchHelper() {
         ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
-            // мы хотим кешировать это и не распределять ничего повторно в методе onChildDraw TODO: ЯННП
             /** Фон, который показывается "за" элеметом при свайпе */
             Drawable background;
+            /** Рисунок, информирующей пользователя, что сделаый иим свайп приведет к удалеию элемета */
+            Drawable deleteMark;
+            /** Отступы {@link #deleteMark}'а */
+            int xMarkMargin;
             /** Флаг того, что метод {@link #init()} был вызван */
             boolean initiated;
 
             /** Инициализирует ресурсы графики, требуемые для свайпа. Например, {@link #background} */
             private void init() {
                 background = new ColorDrawable(Color.RED);
+                deleteMark = ContextCompat.getDrawable(getActivity(), R.drawable.ic_delete_24dp); // Получение ресурса "мусорной корзины"
+                deleteMark.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP); // Фильтр, которй делает корзину белой
+                xMarkMargin = (int) getActivity().getResources().getDimension(R.dimen.swipe_delete_mark_margin);
                 initiated = true;
             }
 
-            // not important, we don't want drag & drop
+            /**
+             * Метод, обязательный для реализации, но не использующийся в данном приложении.
+             * Нужен для реализации "drag & drop".
+             * @param recyclerView RecyclerView, к которому прикрепляется нащ ItemTouchHelper
+             * @param viewHolder ViewHolder (т.е. элемент списка), который подвергается перетаскиванию
+             *                   по инициативе пользователя
+             * @param target ViewHolder, над которым перетаскивается текущий активный элемент
+             * @return True, если viewHolder перемещен в позицию адаптера элемета target.
+             */
             @Override
             public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
                 return false;
@@ -185,6 +225,7 @@ public class ShoppingCartFragment extends Fragment {
              */
             @Override
             public int getSwipeDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+                // Порядковый номер элемента, по которому пользователь хочет сделать свайп
                 int position = viewHolder.getAdapterPosition();
 
                 // Запретить свайп, если появился красный фон, ожидающий нажатие кнопки Undo
@@ -195,7 +236,7 @@ public class ShoppingCartFragment extends Fragment {
             }
 
             /**
-             * Вызывается когда свайп доведен до конца и палец юзера убран с экрана.
+             * Вызывается когда свайп доведен до конца и палец пользователя убран с экрана.
              * Помещает в очередь на удаление или удаляет элемет списка в зависимости от
              * значения флага {@link ShoppingCartItemRecyclerViewAdapter#undoOn}.
              * @param viewHolder
@@ -203,21 +244,23 @@ public class ShoppingCartFragment extends Fragment {
              */
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
+                // Порядковый номер элемента, по которому был сделан свайп
                 int swipedPosition = viewHolder.getAdapterPosition();
                 if (rvAdapter.undoOn) {
                     rvAdapter.pendingRemoval(swipedPosition); // Добавить элемент в список элементов, ожидающих удаление
                 } else {
-                    rvAdapter.remove(swipedPosition);
+                    rvAdapter.remove(swipedPosition); // Просто удалить элемент
                 }
             }
 
             /**
-             * Вызывается для отрисовки всех элеметов позади элемента, который сдвинули свайпом. Подробнее:
+             * Вызывается для отрисовки всех объектов позади элемента списка, который сдвинули свайпом.
+             * Подробнее:
              * <a href="https://developer.android.com/reference/android/support/v7/widget/helper/ItemTouchHelper.Callback.html#onChildDraw(android.graphics.Canvas,%20android.support.v7.widget.RecyclerView,%20android.support.v7.widget.RecyclerView.ViewHolder,%20float,%20float,%20int,%20boolean)"></a>
              *
              * <p>
-             * Этот метод так же вызывается, когда элемент сдвинут, палец убран, но список плавно "задвигает" сдвинутый элемент.
-             * При этом viewHolder.getAdapterPosition() дает -1
+             * Этот метод так же вызывается, когда элемент сдвинут, палец убран, но список плавно
+             * "задвигает" сдвинутый элемент. При этом viewHolder.getAdapterPosition() дает -1.
              * </p>
              *
              * @param c {@link Canvas}, на котором RecyclerView рисует то, что ему скажут
@@ -230,6 +273,7 @@ public class ShoppingCartFragment extends Fragment {
              */
             @Override
             public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+                // View, по которому был сделан свайп
                 View itemView = viewHolder.itemView;
 
                 // Этот if сработает, когда элемент сдвинут, палец убран, но список плавно "задвигает" сдвинутый элемент
@@ -238,7 +282,7 @@ public class ShoppingCartFragment extends Fragment {
                     return;
                 }
 
-                // Проверка на то, были ли инииализированы графические ресурсы для рисования фона и прочего
+                // Проверка на то, были ли инииализированы графические ресурсы для рисования фона и прочих объектов
                 if (!initiated) {
                     init();
                 }
@@ -246,6 +290,22 @@ public class ShoppingCartFragment extends Fragment {
                 // Рисуем красный фон
                 background.setBounds(itemView.getRight() + (int) dX, itemView.getTop(), itemView.getRight(), itemView.getBottom());
                 background.draw(c);
+
+                // Замер элемета, по которому был сдела свайп
+                int itemHeight = itemView.getBottom() - itemView.getTop(); // Растояние в пикселях!
+                // Замер размеов иконки удаления
+                int intrinsicWidth = deleteMark.getIntrinsicWidth(); // Слово "Intrinsic" можно просто отбросить
+                int intrinsicHeight = deleteMark.getIntrinsicWidth();
+
+                // Определение позиции икоки на красном фоне
+                int xMarkLeft = itemView.getRight() - xMarkMargin - intrinsicWidth;
+                int xMarkRight = itemView.getRight() - xMarkMargin;
+                int xMarkTop = itemView.getTop() + (itemHeight - intrinsicHeight)/2;
+                int xMarkBottom = xMarkTop + intrinsicHeight;
+
+                // Определяет размеры квадратой области за сдвинутым элеметом, где будет нарисован xMark
+                deleteMark.setBounds(xMarkLeft, xMarkTop, xMarkRight, xMarkBottom);
+                deleteMark.draw(c); // Рисует икоку удалеия
 
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
             }
@@ -260,37 +320,47 @@ public class ShoppingCartFragment extends Fragment {
      * @param list Список, по которому определяется пустая ли корзина или нет.
      */
     public void changeCartUI(List list) {
-        if (list.isEmpty()) {
+        if (list.isEmpty()) { // Показать картинку пустой корзины
             getView().findViewById(R.id.empty_cart_pic).setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
             getView().findViewById(R.id.buy_button_container).setVisibility(View.GONE);
-        } else {
+        } else { // Показать элеметы корзиы
             getView().findViewById(R.id.empty_cart_pic).setVisibility(View.GONE);
             recyclerView.setVisibility(View.VISIBLE);
             getView().findViewById(R.id.buy_button_container).setVisibility(View.VISIBLE);
         }
     }
 
-    /**
-     * We're gonna setup another ItemDecorator that will draw the red background in the empty space while the items are animating to thier new positions
-     * after an item is removed.
-     */
+    // TODO: Я не могу отследить воздействие этого метода, однако он был в учебном проекте "recycler-view-swipe-to-delete"
     /**
      * Иниализирует {@link android.support.v7.widget.RecyclerView.ItemDecoration} для
-     * {@link ShoppingCartFragment#recyclerView}
+     * {@link ShoppingCartFragment#recyclerView}, обеспечивая особый графический эффект, пока
+     * активны другие анимации. Этот графический эффект будет рисовать красный фон на пустом пространстве,
+     * которое оставил сдвинутый свайпом элемент, пока другие элеметы списка сдвигаются к их новым позициям,
+     * заполяя таким образом появившуюся пустоту.
      */
     private void setUpAnimationDecoratorHelper() {
         recyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
-
-            // we want to cache this and not allocate anything repeatedly in the onDraw method
+            /** Фон, который показывается "за" элеметом при свайпе */
             Drawable background;
+            /** Флаг того, что метод {@link #init()} был вызван */
             boolean initiated;
 
+            /** Инициализирует ресурсы графики, требуемые для свайпа. Например, {@link #background} */
             private void init() {
                 background = new ColorDrawable(Color.RED);
                 initiated = true;
             }
 
+            /**
+             * Отрисовывает красный фон на пустом пространстве, которое оставил сдвинутый свайпом
+             * элемент, пока другие элеметы списка сдвигаются к их новым позициям, заполяя таким
+             * образом появившуюся пустоту
+             * @param c {@link Canvas}, на котором отрисовывается необходимый графический эффект
+             * @param parent {@link RecyclerView}, чей {@link android.support.v7.widget.RecyclerView.ItemDecoration}
+             *                                   рисует на холсте "c"
+             * @param state Текущее состояние {@link RecyclerView}
+             */
             @Override
             public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
 
@@ -298,14 +368,15 @@ public class ShoppingCartFragment extends Fragment {
                     init();
                 }
 
-                // TODO: Вырезан из-за сложностей с отладкой
+                // TODO: Руссифицировать комментарии
                 // only if animation is in progress
-                /*if (parent.getItemAnimator().isRunning()) {
-
-                    // some items might be animating down and some items might be animating up to close the gap left by the removed item
-                    // this is not exclusive, both movement can be happening at the same time
-                    // to reproduce this leave just enough items so the first one and the last one would be just a little off screen
-                    // then remove one from the middle
+                if (parent.getItemAnimator().isRunning()) {
+                    /*
+                    Некоторые элементы могуть быть анимированы вниз, а некоторые анимированы вверх, чтобы закрыть место, оставленно предварительно удаленным элементом.
+                    Не исключено, что оба движения могут происходить одновременно.
+                    Чтобы воспроизвести это, достаточно одновременно удалить два элемента (очень удобно, если поддерживает мультитач. Еще, это будет лучше заметно, если одновременно удалить два соседних элемента).
+                    Так же это можно воспроизвести, удалив два элемета, между которыми есть еще один элемет, а затем удалив и этот самый элемет посередине.
+                     */
 
                     // find first child with translationY > 0
                     // and last one with translationY < 0
@@ -353,7 +424,7 @@ public class ShoppingCartFragment extends Fragment {
                     background.setBounds(left, top, right, bottom);
                     background.draw(c);
 
-                }*/
+                }
                 super.onDraw(c, parent, state);
             }
 

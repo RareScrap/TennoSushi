@@ -11,7 +11,6 @@ import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.webtrust.tennosushi.CartListSwipeDetector;
 import com.webtrust.tennosushi.R;
 import com.webtrust.tennosushi.fragments.ShoppingCartFragment;
 import com.webtrust.tennosushi.list_items.FoodItem;
@@ -20,9 +19,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-/**
- * Created by rares on 03.05.2017.
- */
 
 public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<ShoppingCartItemRecyclerViewAdapter.ViewHolder> {
     /** Список для хранения данных элементов RecyclerView */
@@ -56,6 +52,10 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
         itemsPendingRemoval = new ArrayList<>();
     }
 
+    /**
+     * ViewHolder для элементов View'шек элементов {@link FoodItem}
+     * @author RareScrap
+     */
     public class ViewHolder extends RecyclerView.ViewHolder {
         /** Ссылка на элемент GUI, представляющий название блюда */
         public final TextView nameTextView;
@@ -103,13 +103,13 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
 
     // TODO: Нихера не понял где что "упаковывается". Разобраться
     /**
-     * Создает новый элемент списка и его объект ViewHolder.
+     * Создание нового элемента списка и его объекта ViewHolder.
      *
      * <p>
      * Компонент RecyclerView вызывает метод onCreateViewHolder
      * своего объекта RecyclerView.Adapter для
      * заполнения макета каждого элемента RecyclerView
-     * и упаковки его в объект субкласса RecyclerView.ViewHolder с именем ViewHolder.
+     * и упаковки (сохранения) его в объект субкласса RecyclerView.ViewHolder с именем ViewHolder.
      * Новый объект ViewHolder возвращается RecyclerView для отображения.
      * </p>
      *
@@ -129,6 +129,14 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
         return (new ViewHolder(view/*, touchListener*/));
     }
 
+    /**
+     * RecyclerView вызывает этот метод для отображения данных в элемете списка в указанной позиции.
+     * Этот метод должен обновлять содержимое itemView (своей View'хи, которая-то и отображается в
+     * списке), чтобы отразить элемент в данной позиции.
+     * @param holder ViewHolder, который должен быть обновлен для представления контента элемента
+     *               в данной позиции в наборе данных.
+     * @param position Позиция элемента в списке элементов (наборе данных) адаптера.
+     */
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         // Получение объекта FoodItem для заданной позиции ListView
@@ -143,8 +151,6 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
         holder.priceTextView.setText( String.valueOf(foodItem.price) + " \u20BD" );
         holder.weightTextView.setText("Вес: " + foodItem.weight + " Г");
 
-
-
         ViewHolder viewHolder = (ViewHolder) holder;
         final FoodItem item = items.get(position);
 
@@ -155,6 +161,10 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
             viewHolder.gridLayout.setVisibility(View.GONE);
             viewHolder.undoButton.setVisibility(View.VISIBLE);
             viewHolder.undoButton.setOnClickListener(new View.OnClickListener() {
+                /**
+                 * Реализует клик, приводящий к отмене удаления элемета
+                 * @param v View'ха, ажатие на которую привело к отмене удаления элемента из списка
+                 */
                 @Override
                 public void onClick(View v) {
                     // user wants to undo the removal, let's cancel the pending task
