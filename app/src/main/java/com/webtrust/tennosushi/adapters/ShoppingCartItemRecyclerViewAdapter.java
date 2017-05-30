@@ -24,11 +24,11 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
     /** Список для хранения данных элементов RecyclerView */
     private final List<FoodItem> items;
     /** Время, пока кнопка Undo Все еще доступна*/
-    private static final int PENDING_REMOVAL_TIMEOUT = 3000; // 3sec
+    private static final int PENDING_REMOVAL_TIMEOUT = 10000; // 3sec
     /** Список элеметов, ожидающих удаление */
     private List<FoodItem> itemsPendingRemoval;
     /** Флаг, определяющий возможность отменить последствия удаления свайпом */
-    public boolean undoOn = true; // is undo on, you can turn it on from the toolbar menu
+    public boolean undoOn = true;
     /** Обработчик действий объектов {@link Runnable}, которые объявляются как внутренние классы
      * в {@link ShoppingCartItemRecyclerViewAdapter#pendingRemoval(int)} */
     private Handler handler = new Handler(); // hanlder for running delayed runnables
@@ -67,8 +67,9 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
         public final TextView weightTextView;
         /** Ссылка на элемент GUI, представляющий кнопку undo */
         public final Button undoButton;
-
+        /** Ссылка на элемент GUI, представляющий контейнер для основной части элемента списка (т.е. без обций блюда) */
         public final RelativeLayout relativeLayout;
+        /** Ссылка на элемент GUI, представляющий контейнер для опций блюд */
         public final GridLayout gridLayout;
 
         /**
@@ -85,7 +86,6 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
             priceTextView = (TextView) itemView.findViewById(R.id.price);
             weightTextView = (TextView) itemView.findViewById(R.id.weight);
             undoButton = (Button) itemView.findViewById(R.id.undo_button);
-
             relativeLayout = (RelativeLayout) itemView.findViewById(R.id.main_container);
             gridLayout = (GridLayout) itemView.findViewById(R.id.pizza_options);
 
@@ -186,6 +186,10 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
         }
     }
 
+    /**
+     * Обязательный для переобпределения метод, возвращающий количество элементов в списке корзины
+     * @return Количество элементов в списке корзины
+     */
     @Override
     public int getItemCount() {
         return items.size();
