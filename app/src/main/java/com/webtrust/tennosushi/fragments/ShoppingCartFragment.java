@@ -7,6 +7,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -124,7 +125,7 @@ public class ShoppingCartFragment extends Fragment {
         recyclerView = (RecyclerView) getView().findViewById(R.id.cart_list_recyclerView);
 
         // Создать RecyclerView.Adapter для связывания элементов FoodItem с RecyclerView
-        rvAdapter = new ShoppingCartItemRecyclerViewAdapter(addedFoodList);
+        rvAdapter = new ShoppingCartItemRecyclerViewAdapter(addedFoodList, pictureClickListener);
         recyclerView.setAdapter(rvAdapter);
 
         /*
@@ -430,4 +431,38 @@ public class ShoppingCartFragment extends Fragment {
 
         });
     }
+
+    /**
+     * Обрабатывает события клика по картинке блюда для открытия фрагмента
+     * {@link DetailFoodFragment} с подробной информацей о нем
+     */
+    private final View.OnClickListener pictureClickListener = new View.OnClickListener() {
+        /**
+         * Вызывается когда по картинке блюда произошел клик.
+         * Открывает {@link DetailFoodFragment} с подробной информацей о блюде
+         * @param view {@link View}, по которому был сделан клик
+         */
+        @Override
+        public void onClick(View view) {
+            // Получение порядкового номера элемета в списке
+            ShoppingCartItemRecyclerViewAdapter.ViewHolder viewHolder =
+                    (ShoppingCartItemRecyclerViewAdapter.ViewHolder) recyclerView.getChildViewHolder(/*(View)*/ getActivity().findViewById(R.id.root_card_view)/*getParent().getParent().getParent()*/);
+            int position = viewHolder.getAdapterPosition();
+            FoodItem clickedFoodView = addedFoodList.get( position ); // Получение сответствующего FoodItem'а
+
+            // Использется констуктор копирования для создания объекта с такими же полями, но без метаифомации
+            // Элементы с одинаковой метаинформацией в списках при различых операциях приводят к непредсказуемому поведеию элеметов списка
+            FoodItem newFoodItem = new FoodItem(clickedFoodView);
+
+            // Открытие фрагмета с детальой информацией о блюде
+            FragmentTransaction fTrans = getFragmentManager().beginTransaction();
+            DetailFoodFragment detailFoodFragment = DetailFoodFragment.newInstance(newFoodItem);
+            fTrans.addToBackStack(null);
+            fTrans.replace(R.id.fragment_menu_container, detailFoodFragment);
+            fTrans.commit();
+
+            // TODO: При первом запуске приложения без этой строки можно обойтись, но после изменения currentMode, без этой строки не стирается прдыдущий view
+            ( (ViewGroup) getActivity().findViewById(R.id.fragment_menu_container) ).removeAllViews();
+        }
+    };
 }

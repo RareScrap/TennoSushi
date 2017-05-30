@@ -37,17 +37,17 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
     private HashMap<FoodItem, Runnable> pendingRunnables = new HashMap<>(); // map of items to pending runnables, so we can cancel a removal if need be
 
     /** Слушатель нажатия на фотографию блюда */
-    //private final View.OnTouchListener touchListener;
+    private final View.OnClickListener clickListener;
 
     /**
      * Конструктор, инициализирующий поля слушателя клика по фотографии и списка элементов в корзине. Так же
      * инициализует поле {@link ShoppingCartItemRecyclerViewAdapter#itemsPendingRemoval} пустым списком.
      * @param addedFoodList Список товаров {@link FoodItem}, на основе которых инициализируется адаптер
-     * @param touchListener Слушатель кликов по картинке блюда
+     * @param clickListener Слушатель кликов по картинке блюда
      */
-    public ShoppingCartItemRecyclerViewAdapter(List<FoodItem> addedFoodList/*, View.OnTouchListener touchListener*/) {
+    public ShoppingCartItemRecyclerViewAdapter(List<FoodItem> addedFoodList, View.OnClickListener clickListener) {
         this.items = addedFoodList;
-        //this.touchListener = touchListener;
+        this.clickListener = clickListener;
 
         itemsPendingRemoval = new ArrayList<>();
     }
@@ -76,7 +76,7 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
          * @param itemView Представление одного элемента списка
          * @param clickListener Слушатель для этого элемента
          */
-        public ViewHolder(View itemView) {
+        public ViewHolder(View itemView, View.OnClickListener clickListener) {
             super(itemView);
 
             // Получение ссылок на элементы GUI в представлении
@@ -88,6 +88,9 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
 
             relativeLayout = (RelativeLayout) itemView.findViewById(R.id.main_container);
             gridLayout = (GridLayout) itemView.findViewById(R.id.pizza_options);
+
+            // Связывание слушателя кликов со изображением блюда
+            itemView.findViewById(R.id.picture).setOnClickListener(clickListener);
 
             // // Связывание слушателя со всеми элеметами списка, кроме кнопки "Добавить в корзину"
             //itemView.setOnTouchListener(touchListener);
@@ -126,7 +129,7 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
         View view = LayoutInflater.from( parent.getContext() ).inflate(R.layout.shopping_cart_item, parent, false);
 
         // Создание ViewHolder для текущего элемента
-        return (new ViewHolder(view/*, touchListener*/));
+        return (new ViewHolder(view, clickListener));
     }
 
     /**
