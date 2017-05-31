@@ -3,6 +3,7 @@ package com.webtrust.tennosushi.fragments;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar; // Для вывода названия и категории блюда в ActionBar
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -41,14 +42,13 @@ public class DetailFoodFragment extends Fragment {
      * Используйте этот фабричный метод для создания новых экземпляров
      * этого фрагмента с использованием предоставленных параментров
      *
-     * @param foodItem Объект блюда, по которому кликнул пользователь
+     * @param foodItem Объект блюда, по которому кликнул пользователь. Определяет какими даными
+     *                 заполнится фрагмет {@link DetailFoodFragment}.
      * @return Новый объект фрагмента {@link DetailFoodFragment}.
      */
     public static DetailFoodFragment newInstance(FoodItem foodItem) {
         DetailFoodFragment fragment = new DetailFoodFragment();
-
         fragment.foodItem = foodItem;
-
         return fragment;
     }
 
@@ -58,6 +58,15 @@ public class DetailFoodFragment extends Fragment {
         setHasOptionsMenu(true); // у фрагмента имеются команды меню
     }
 
+    /**
+     * Получает ссылки на элеметы GUI и инициализирует ими поля класс {@link DetailFoodFragment}.
+     * Так же создает View графического интерфейса макета.
+     * @param inflater Инфлаттер для UI фрагмета. Используется для создания View из XML-файла разметки
+     * @param container Родительский контейнер, в котором развернется UI фрагмента
+     * @param savedInstanceState Если фрагмент восстанавливается из предыдущего сохраненного состояния,
+     *                           это и есть его предыдущее состояние.
+     * @return UI фрагмента, пригодное для показа на экране
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true); // У фрагмента имеются команды меню
@@ -68,13 +77,17 @@ public class DetailFoodFragment extends Fragment {
         TextView weightTextView = (TextView) returnedView.findViewById(R.id.food_weight_textField);
         TextView componentsTextView = (TextView) returnedView.findViewById(R.id.components_textField);
         TextView addButton = (Button) returnedView.findViewById(R.id.addToBusketButton);
+        ActionBar ab = ((MainActivity) this.getActivity()).getSupportActionBar();
 
         // Назначение даных элементам GUI
         priceTextView.setText(foodItem.price + " \u20BD");
         weightTextView.setText(foodItem.weight + " Г");
         componentsTextView.setText(foodItem.components);
         addButton.setOnClickListener(buyItemClickListener);
+        ab.setTitle(foodItem.name); // Вывести в титульую строку название блюда
+        ab.setSubtitle(foodItem.categoryName); // Вывести в подстроку категорию люда
 
+        // Включить дополнительные опции, в зависимости от категории блюда
         if (foodItem.category.equals("pizza")) {
             returnedView.findViewById(R.id.pizza_options_container).setVisibility(View.VISIBLE);
         } else if (foodItem.category.equals("wok")) {

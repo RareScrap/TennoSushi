@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBar; // Для вывода названия блюда в ActionBar
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -16,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.webtrust.tennosushi.MainActivity; // Для доступа к компонентам активити
 import com.webtrust.tennosushi.R;
 import com.webtrust.tennosushi.adapters.ShoppingCartItemRecyclerViewAdapter;
 import com.webtrust.tennosushi.list_items.FoodItem;
@@ -138,6 +140,11 @@ public class ShoppingCartFragment extends Fragment {
 
         // На основании переданного списка определяет что показать: список покупок или картинку пустой корзины
         changeCartUI(addedFoodList);
+
+        // Названичение текста actionBar'у
+        ActionBar ab = ((MainActivity) this.getActivity()).getSupportActionBar();
+        ab.setTitle( getResources().getString(R.string.shopping_cart) );
+        ab.setSubtitle(""); // Стереть подстроку
 
         // Слушатель кликов, открывающий подробное описание блюда
         /*recyclerView.setOnClickListener( new RecyclerView.Adapter<ShoppingCartItemRecyclerViewAdapter.ViewHolder>);
