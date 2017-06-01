@@ -151,14 +151,16 @@ public class ShoppingCartFragment extends Fragment {
              * @return True, если позже ожидается (запрашивается) вызов {@link #runPendingAnimations()}, иначе - false
              */
             @Override
-            public boolean animateChange(RecyclerView.ViewHolder oldHolder, RecyclerView.ViewHolder newHolder, int fromX, int fromY, int toX, int toY) {
+            public boolean animateChange(RecyclerView.ViewHolder oldHolder, RecyclerView.ViewHolder newHolder,
+                                         int fromX, int fromY, int toX, int toY) {
                 // Получение ссылок на элемет CardView в oldHolder и newHolder
                 CardView oldHolderCardView = (CardView) oldHolder.itemView.findViewById(R.id.root_card_view);
                 CardView newHolderCardView = (CardView) newHolder.itemView.findViewById(R.id.root_card_view);
 
                 // Сохранение старых значение elevation (на свякий случай)
-                float oldHolderElevation = oldHolderCardView.getCardElevation();
-                float newHolderElevation = newHolderCardView.getCardElevation();
+                // СОХРАНЕНИЕ СТАРЫХ ЗНАЧЕНИЙ И ПОСЛЕДУЮЩЕЕ ИХ ИСПОЛЬЗОВАНИЕ ВЕДЕТ ТОМУ, ЧТО ТЕНЬ НЕ БУДЕТ УБИРАТЬСЯ!
+                //float oldHolderElevation = oldHolderCardView.getCardElevation();
+                //float newHolderElevation = newHolderCardView.getCardElevation();
 
                 // Убираем тень при выдвижении кнопки Undo
                 oldHolderCardView.setCardElevation(0);
@@ -168,8 +170,8 @@ public class ShoppingCartFragment extends Fragment {
                 boolean returnedBool = super.animateChange(oldHolder, newHolder, fromX, fromY, toX, toY);
 
                 // Возвращаем стандартных elevation
-                oldHolderCardView.setCardElevation(oldHolderElevation);
-                newHolderCardView.setCardElevation(newHolderElevation);
+                //oldHolderCardView.setCardElevation(oldHolderElevation);
+                //newHolderCardView.setCardElevation(newHolderElevation);
 
                 // Возвращем результат стандартной анимации
                 return returnedBool;
@@ -351,7 +353,7 @@ public class ShoppingCartFragment extends Fragment {
 
                 // Определяет размеры квадратой области за сдвинутым элеметом, где будет нарисован xMark
                 deleteMark.setBounds(xMarkLeft, xMarkTop, xMarkRight, xMarkBottom);
-                deleteMark.draw(c); // Рисует икоку удалеия
+                deleteMark.draw(c); // Рисует иконку удалеия
 
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
             }
