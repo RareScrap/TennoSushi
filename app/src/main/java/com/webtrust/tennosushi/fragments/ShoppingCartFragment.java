@@ -10,6 +10,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar; // Для вывода названия блюда в ActionBar
+import android.support.v7.widget.CardView; // Для получение ссылки на элемет списка
+import android.support.v7.widget.DefaultItemAnimator; // Для переопределения стандартной анимации "выдвижения" кнопки Undo в свайпах
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -137,6 +139,42 @@ public class ShoppingCartFragment extends Fragment {
          */
         listLayoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(listLayoutManager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator() {
+            /**
+             * Отвечает за анимацию "выдвижения" кнопки Undo (и, возможно, за что-то еще)
+             * @param oldHolder Элемент списка, который подвергся изменению
+             * @param newHolder Элемент списка, который получился из-за произошедших изменений
+             * @param fromX Левый край oldHolder
+             * @param fromY Вверхий край oldHolder
+             * @param toX Левый край newHolder
+             * @param toY Вверхий край newHolder
+             * @return True, если позже ожидается (запрашивается) вызов {@link #runPendingAnimations()}, иначе - false
+             */
+            @Override
+            public boolean animateChange(RecyclerView.ViewHolder oldHolder, RecyclerView.ViewHolder newHolder, int fromX, int fromY, int toX, int toY) {
+                // Получение ссылок на элемет CardView в oldHolder и newHolder
+                CardView oldHolderCardView = (CardView) oldHolder.itemView.findViewById(R.id.root_card_view);
+                CardView newHolderCardView = (CardView) newHolder.itemView.findViewById(R.id.root_card_view);
+
+                // Сохранение старых значение elevation (на свякий случай)
+                float oldHolderElevation = oldHolderCardView.getCardElevation();
+                float newHolderElevation = newHolderCardView.getCardElevation();
+
+                // Убираем тень при выдвижении кнопки Undo
+                oldHolderCardView.setCardElevation(0);
+                newHolderCardView.setCardElevation(0);
+
+                // Запускаем стандартную анимацию
+                boolean returnedBool = super.animateChange(oldHolder, newHolder, fromX, fromY, toX, toY);
+
+                // Возвращаем стандартных elevation
+                oldHolderCardView.setCardElevation(oldHolderElevation);
+                newHolderCardView.setCardElevation(newHolderElevation);
+
+                // Возвращем результат стандартной анимации
+                return returnedBool;
+            }
+        });
 
         // На основании переданного списка определяет что показать: список покупок или картинку пустой корзины
         changeCartUI(addedFoodList);
