@@ -62,13 +62,6 @@ public class ShoppingCartFragment extends Fragment {
     /** Итоговая цена всех заказанных блюд */
     public double totalPrice;
 
-    public boolean isUndoAnimationActive = false;
-
-    int finalHeight = 0;
-    int a1;
-    int a2;
-    long d;
-
     /** Элемент GUI, реализующий функции отображения списка */
     private RecyclerView recyclerView;
     /** LayoutManager для отображения в виде списка */
@@ -139,7 +132,7 @@ public class ShoppingCartFragment extends Fragment {
         recyclerView = (RecyclerView) getView().findViewById(R.id.cart_list_recyclerView);
 
         // Создать RecyclerView.Adapter для связывания элементов FoodItem с RecyclerView
-        rvAdapter = new ShoppingCartItemRecyclerViewAdapter(addedFoodList, pictureClickListener);
+        rvAdapter = new ShoppingCartItemRecyclerViewAdapter(addedFoodList, pictureClickListener); // Второй аргмент - слушатель кликов по картинке блюда
         recyclerView.setAdapter(rvAdapter);
 
         /*
@@ -167,21 +160,6 @@ public class ShoppingCartFragment extends Fragment {
                 CardView oldHolderCardView = (CardView) oldHolder.itemView.findViewById(R.id.root_card_view);
                 CardView newHolderCardView = (CardView) newHolder.itemView.findViewById(R.id.root_card_view);
 
-                isUndoAnimationActive = true;
-
-                Log.d( String.valueOf(oldHolder.itemView.getHeight()), String.valueOf(newHolder.itemView.getHeight()) );
-
-                a1 = oldHolder.itemView.getHeight();
-                a2 = newHolder.itemView.getHeight();
-                finalHeight = newHolder.itemView.getHeight()+20+6;
-                /*draw
-                Canvas c = new Canvas();
-                Paint p = new Paint();
-                Drawable background = new ColorDrawable(Color.GREEN);
-                background.setBounds(10, 10, 10, 10);
-                background.draw(c);
-                c.drawRect(10, 10, 10, 10, p);*/
-
                 // Сохранение старых значение elevation (на свякий случай)
                 // СОХРАНЕНИЕ СТАРЫХ ЗНАЧЕНИЙ И ПОСЛЕДУЮЩЕЕ ИХ ИСПОЛЬЗОВАНИЕ ВЕДЕТ ТОМУ, ЧТО ТЕНЬ НЕ БУДЕТ УБИРАТЬСЯ!
                 //float oldHolderElevation = oldHolderCardView.getCardElevation();
@@ -199,19 +177,13 @@ public class ShoppingCartFragment extends Fragment {
                 //newHolderCardView.setCardElevation(newHolderElevation);
 
                 // Возвращем результат стандартной анимации
-                //isUndoAnimationActive = false;
                 return returnedBool;
-            }
-
-            @Override
-            public boolean animateMove(RecyclerView.ViewHolder holder, int fromX, int fromY, int toX, int toY) {
-                return super.animateMove(holder, fromX, fromY, toX, toY);
             }
         });
 
         // Отвечает за скорость "задвигания" элеметов, закрывающих пустоту после удаления элемета из середины
         // recyclerView.getItemAnimator().setMoveDuration(6000);
-        d = recyclerView.getItemAnimator().getMoveDuration();
+        // int d = recyclerView.getItemAnimator().getMoveDuration();
 
         // На основании переданного списка определяет что показать: список покупок или картинку пустой корзины
         changeCartUI(addedFoodList);
@@ -220,15 +192,6 @@ public class ShoppingCartFragment extends Fragment {
         ActionBar ab = ((MainActivity) this.getActivity()).getSupportActionBar();
         ab.setTitle( getResources().getString(R.string.shopping_cart) );
         ab.setSubtitle(""); // Стереть подстроку
-
-        // Слушатель кликов, открывающий подробное описание блюда
-        /*recyclerView.setOnClickListener( new RecyclerView.Adapter<ShoppingCartItemRecyclerViewAdapter.ViewHolder>);
-        recyclerView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-            }
-        });*/
 
         // Запрос на получение данных
         try {
@@ -275,9 +238,6 @@ public class ShoppingCartFragment extends Fragment {
             int xMarkMargin;
             /** Флаг того, что метод {@link #init()} был вызван */
             boolean initiated;
-
-            int localfinalHeight;
-            double delta;
 
             /** Инициализирует ресурсы графики, требуемые для свайпа. Например, {@link #background} */
             private void init() {
@@ -363,10 +323,6 @@ public class ShoppingCartFragment extends Fragment {
                 View itemView = viewHolder.itemView;
                 int pos = viewHolder.getLayoutPosition(); // TODO: getAdapterPosition()
 
-                // Отладочные логи
-                //Log.d( "a", String.valueOf(viewHolder.itemView.getHeight()) );
-                //Log.d( "a", String.valueOf( viewHolder.itemView.findViewById(R.id.undo_button).getVisibility()) );
-
                 // Этот if сработает, когда элемент сдвинут, палец убран, но список плавно "задвигает" сдвинутый элемент
                 if (viewHolder.getAdapterPosition() == -1) {
                     // not interested in those
@@ -376,25 +332,17 @@ public class ShoppingCartFragment extends Fragment {
                 // Проверка на то, были ли инииализированы графические ресурсы для рисования фона и прочих объектов
                 if (!initiated) {
                     init();
-                    localfinalHeight = itemView.getBottom();
                 }
 
+                // Вьюха предыдущего элемента (null, если ее абсолютно нет на экране)
+                View previousView = recyclerView.getLayoutManager().findViewByPosition(pos-1);
                 // Вьюха следующего элемента (null, если ее абсолютно нет на экране)
-                View previousView = recyclerView.getLayoutManager().findViewByPosition(pos-1); // Вьюха предыдущего элемента
-                View nextView = recyclerView.getLayoutManager().findViewByPosition(pos+1); // Вьюха следующего элемента
-                //delta = (a1-a2)/ ( (int) d);
-                // Рисуем красный фон
-                //background.setBounds(itemView.getRight() + (int) dX, itemView.getTop(), itemView.getRight(), itemView.getBottom());
-                //int a = viewHolder.itemView.findViewById(R.id.undo_button).getVisibility();
-                //if (a == View.VISIBLE) {
-                    //c.drawColor(Color.WHITE);
-                    //background.setBounds(0, itemView.getTop(), itemView.getRight(), localfinalHeight/=2);
-                //} else {
+                View nextView = recyclerView.getLayoutManager().findViewByPosition(pos+1);
 
-                // Получение координат этой и следующей вьюъх элементов списка
-                int[] nextViewLocation = new int[2];
-                int[] itemViewLocation = new int[2];
-                int[] previousViewLocation = new int[2];
+                // Получение координат вьюх элементов списка
+                int[] nextViewLocation = new int[2]; // Координаты следующей (за свайпнутой) вьюхи
+                int[] itemViewLocation = new int[2];  // Координаты свайпнутой вьюхи
+                int[] previousViewLocation = new int[2];  // Координаты предыдущей вьюхи
                 ViewGroup.MarginLayoutParams lp1 = null; // Инициализация отступов для следующей ...
                 ViewGroup.MarginLayoutParams lp2 = null; // ... и предыдущей вьюхи
 
@@ -438,14 +386,8 @@ public class ShoppingCartFragment extends Fragment {
                     //Log.d( "a", "2");
                     cordBottom = itemView.getBottom(); // TODO: Учитывает ли getBottom отступы?
                 }
-                Log.d( "cordBottom", String.valueOf(nextViewLocation[1]));
 
-
-                //if (isUndoAnimationActive) {
-                   // background.setBounds(0, cordTop, itemView.getRight(), cordBottom);
-                //} else {
-                    background.setBounds(itemView.getRight() + (int) dX, cordTop, itemView.getRight(), cordBottom);
-                //}
+                background.setBounds(itemView.getRight() + (int) dX, cordTop, itemView.getRight(), cordBottom);
                 background.draw(c);
 
                 // Рисование иконки удаления
@@ -467,7 +409,6 @@ public class ShoppingCartFragment extends Fragment {
 
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
             }
-
         };
         ItemTouchHelper mItemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
         mItemTouchHelper.attachToRecyclerView(recyclerView);

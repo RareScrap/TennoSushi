@@ -3,10 +3,8 @@ package com.webtrust.tennosushi.adapters;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Handler;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.GridLayout;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,11 +36,12 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
     /** Хранилище, связывающее удаляемый элемент {@link FoodItem} с удаляющим его объектом
      * {@link Runnable}, который определяется в {@link ShoppingCartItemRecyclerViewAdapter#pendingRemoval(int)} */
     private HashMap<FoodItem, Runnable> pendingRunnables = new HashMap<>(); // map of items to pending runnables, so we can cancel a removal if need be
-
+    /** Объект контекста, получаемый в {@link #onCreateViewHolder(ViewGroup, int)}.
+     * Используется для доступа к ресурсам из разных частей адаптера
+     * (например, в {@link #onBindViewHolder(ViewHolder, int)} */
+    private Context context;
     /** Слушатель нажатия на фотографию блюда */
     private final View.OnClickListener clickListener;
-
-    private Context context;
 
     /**
      * Конструктор, инициализирующий поля слушателя клика по фотографии и списка элементов в корзине. Так же
@@ -72,8 +71,9 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
         public final TextView weightTextView;
         /** Ссылка на элемент GUI, представляющий кнопку undo */
         public final Button undoButton;
-
+        /** Ссылка на элемент GUI, представляющий основной контейнер заказа */
         public final RelativeLayout relativeLayout;
+        /** Ссылка на элемент GUI, представляющий контейнер опции пиццы заказа */
         public final GridLayout gridLayout;
 
         /**
@@ -90,22 +90,11 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
             priceTextView = (TextView) itemView.findViewById(R.id.price);
             weightTextView = (TextView) itemView.findViewById(R.id.weight);
             undoButton = (Button) itemView.findViewById(R.id.undo_button);
-
             relativeLayout = (RelativeLayout) itemView.findViewById(R.id.main_container);
             gridLayout = (GridLayout) itemView.findViewById(R.id.pizza_options);
 
             // Связывание слушателя кликов со изображением блюда
             itemView.findViewById(R.id.picture).setOnClickListener(clickListener);
-
-            // // Связывание слушателя со всеми элеметами списка, кроме кнопки "Добавить в корзину"
-            //itemView.setOnTouchListener(touchListener);
-
-            // Слушание свайпов
-            //nameTextView.getParent().setOnTouchListener(swipeDetector);
-
-            // // Связывание слушателя с кнопкой "Добавить в корзину"
-            //itemView.findViewById(R.id.addToCart_ImageButton).setOnClickListener(buyClickListener);
-
         }
     }
 
@@ -128,10 +117,11 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
      */
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        //ViewHolder.menuTextView = (TextView) convertView.findViewById(R.id.menu_text);
+        // TODO: Дает ли сохранение контекста в этом методе гарантию того, что объект контекста всегда будет актуален (и может ли он вообще быть неактуален). Или лучше получать его всего один раз в конструкторе адаптера?
+        // Сохранение объекта контеста
+        context = parent.getContext();
 
         // Заполнение макета list_item
-        context =  parent.getContext();
         View view = LayoutInflater.from(context).inflate(R.layout.shopping_cart_item, parent, false);
 
         // Создание ViewHolder для текущего элемента
@@ -149,35 +139,32 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         // Получение объекта FoodItem для заданной позиции ListView
-        FoodItem foodItem = items.get(position);
+        final FoodItem item = items.get(position);
 
         // Присвоении ID к View на основании его порядкого номера в списке
         holder.itemView.setTag(position);
 
         // Назначения текста элементам GUI
-        holder.nameTextView.setText(foodItem.name);
-        holder.componentsTextView.setText(foodItem.components);
-        holder.priceTextView.setText(String.valueOf(foodItem.price) + " \u20BD");
-        holder.weightTextView.setText("Вес: " + foodItem.weight + " Г");
+        holder.nameTextView.setText(item.name);
+        holder.componentsTextView.setText(item.components);
+        holder.priceTextView.setText(String.valueOf(item.price) + " \u20BD");
+        holder.weightTextView.setText("Вес: " + item.weight + " Г");
 
-        ViewHolder viewHolder = (ViewHolder) holder;
-        final FoodItem item = items.get(position);
-
+        // Инициализация объекта, хранящего отступы элемента, по которому был сделан свайп
         ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) holder.itemView.getLayoutParams();
+
+        // Опредляет, какое состояние элемента показать: обычное или состояние с кнопкой Undo
         if (itemsPendingRemoval.contains(item)) {
+            // Убираем левый отступ, чтобы красный фон соприкасался с левым краем экрана (так красиво)
+            lp.setMargins(0, lp.topMargin, lp.rightMargin, lp.bottomMargin);
+            holder.itemView.setLayoutParams(lp);
+
             // we need to show the "undo" state of the row
-            viewHolder.itemView.setBackgroundColor(Color.RED);
-
-            //Log.d("a", String.valueOf(viewHolder.itemView.getX()));
-            //if (viewHolder.itemView.getX() <= 0) {
-                lp.setMargins(0, lp.topMargin, lp.rightMargin, lp.bottomMargin);
-                viewHolder.itemView.setLayoutParams(lp);
-            //}
-
-                viewHolder.relativeLayout.setVisibility(View.GONE);
-                viewHolder.gridLayout.setVisibility(View.GONE);
-                viewHolder.undoButton.setVisibility(View.VISIBLE);
-                viewHolder.undoButton.setOnClickListener(new View.OnClickListener() {
+            holder.itemView.setBackgroundColor(Color.RED);
+            holder.relativeLayout.setVisibility(View.GONE);
+            holder.gridLayout.setVisibility(View.GONE);
+            holder.undoButton.setVisibility(View.VISIBLE);
+            holder.undoButton.setOnClickListener(new View.OnClickListener() {
                     /**
                      * Реализует клик, приводящий к отмене удаления элемета
                      *
@@ -195,18 +182,23 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
                         notifyItemChanged(items.indexOf(item));
                     }
                 });
-            } else {
-                lp.setMargins((int) context.getResources().getDimension(R.dimen.shopping_cart_cardview_margin), lp.topMargin, lp.rightMargin, lp.bottomMargin);
-                viewHolder.itemView.setLayoutParams(lp);
+        } else {
+            // we need to show the "normal" state
+            holder.itemView.setBackgroundColor(Color.WHITE);
+            holder.relativeLayout.setVisibility(View.VISIBLE);
+            holder.gridLayout.setVisibility(View.VISIBLE);
+            holder.undoButton.setVisibility(View.GONE);
+            holder.undoButton.setOnClickListener(null);
 
-                // we need to show the "normal" state
-                viewHolder.itemView.setBackgroundColor(Color.WHITE);
-                viewHolder.relativeLayout.setVisibility(View.VISIBLE);
-                viewHolder.gridLayout.setVisibility(View.VISIBLE);
-                viewHolder.undoButton.setVisibility(View.GONE);
-                viewHolder.undoButton.setOnClickListener(null);
-            }
+            // TODO: Нужен ли тут if для проверки на то, отличен ли текущий левый отступ от shopping_cart_cardview_margin?
+            // Возвращаем отступы, которые были изначально
+            lp.setMargins((int) context.getResources().getDimension(R.dimen.shopping_cart_cardview_margin),
+                    lp.topMargin,
+                    lp.rightMargin,
+                    lp.bottomMargin);
+            holder.itemView.setLayoutParams(lp);
         }
+    }
 
     @Override
     public int getItemCount() {
