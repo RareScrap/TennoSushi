@@ -2,6 +2,7 @@ package com.webtrust.tennosushi.fragments;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -12,9 +13,11 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar; // Для вывода названия блюда в ActionBar
 import android.support.v7.widget.CardView; // Для получение ссылки на элемет списка
 import android.support.v7.widget.DefaultItemAnimator; // Для переопределения стандартной анимации "выдвижения" кнопки Undo в свайпах
+import android.support.v7.widget.DrawableUtils;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -58,6 +61,13 @@ public class ShoppingCartFragment extends Fragment {
     public static List<FoodItem> addedFoodList = new ArrayList<>();
     /** Итоговая цена всех заказанных блюд */
     public double totalPrice;
+
+    public boolean isUndoAnimationActive = false;
+
+    int finalHeight = 0;
+    int a1;
+    int a2;
+    long d;
 
     /** Элемент GUI, реализующий функции отображения списка */
     private RecyclerView recyclerView;
@@ -157,6 +167,21 @@ public class ShoppingCartFragment extends Fragment {
                 CardView oldHolderCardView = (CardView) oldHolder.itemView.findViewById(R.id.root_card_view);
                 CardView newHolderCardView = (CardView) newHolder.itemView.findViewById(R.id.root_card_view);
 
+                isUndoAnimationActive = true;
+
+                Log.d( String.valueOf(oldHolder.itemView.getHeight()), String.valueOf(newHolder.itemView.getHeight()) );
+
+                a1 = oldHolder.itemView.getHeight();
+                a2 = newHolder.itemView.getHeight();
+                finalHeight = newHolder.itemView.getHeight()+20+6;
+                /*draw
+                Canvas c = new Canvas();
+                Paint p = new Paint();
+                Drawable background = new ColorDrawable(Color.GREEN);
+                background.setBounds(10, 10, 10, 10);
+                background.draw(c);
+                c.drawRect(10, 10, 10, 10, p);*/
+
                 // Сохранение старых значение elevation (на свякий случай)
                 // СОХРАНЕНИЕ СТАРЫХ ЗНАЧЕНИЙ И ПОСЛЕДУЮЩЕЕ ИХ ИСПОЛЬЗОВАНИЕ ВЕДЕТ ТОМУ, ЧТО ТЕНЬ НЕ БУДЕТ УБИРАТЬСЯ!
                 //float oldHolderElevation = oldHolderCardView.getCardElevation();
@@ -174,9 +199,19 @@ public class ShoppingCartFragment extends Fragment {
                 //newHolderCardView.setCardElevation(newHolderElevation);
 
                 // Возвращем результат стандартной анимации
+                //isUndoAnimationActive = false;
                 return returnedBool;
             }
+
+            @Override
+            public boolean animateMove(RecyclerView.ViewHolder holder, int fromX, int fromY, int toX, int toY) {
+                return super.animateMove(holder, fromX, fromY, toX, toY);
+            }
         });
+
+        // Отвечает за скорость "задвигания" элеметов, закрывающих пустоту после удаления элемета из середины
+        // recyclerView.getItemAnimator().setMoveDuration(6000);
+        d = recyclerView.getItemAnimator().getMoveDuration();
 
         // На основании переданного списка определяет что показать: список покупок или картинку пустой корзины
         changeCartUI(addedFoodList);
@@ -240,6 +275,9 @@ public class ShoppingCartFragment extends Fragment {
             int xMarkMargin;
             /** Флаг того, что метод {@link #init()} был вызван */
             boolean initiated;
+
+            int localfinalHeight;
+            double delta;
 
             /** Инициализирует ресурсы графики, требуемые для свайпа. Например, {@link #background} */
             private void init() {
@@ -323,6 +361,11 @@ public class ShoppingCartFragment extends Fragment {
             public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
                 // View, по которому был сделан свайп
                 View itemView = viewHolder.itemView;
+                int pos = viewHolder.getLayoutPosition(); // TODO: getAdapterPosition()
+
+                // Отладочные логи
+                //Log.d( "a", String.valueOf(viewHolder.itemView.getHeight()) );
+                //Log.d( "a", String.valueOf( viewHolder.itemView.findViewById(R.id.undo_button).getVisibility()) );
 
                 // Этот if сработает, когда элемент сдвинут, палец убран, но список плавно "задвигает" сдвинутый элемент
                 if (viewHolder.getAdapterPosition() == -1) {
@@ -333,12 +376,79 @@ public class ShoppingCartFragment extends Fragment {
                 // Проверка на то, были ли инииализированы графические ресурсы для рисования фона и прочих объектов
                 if (!initiated) {
                     init();
+                    localfinalHeight = itemView.getBottom();
                 }
 
+                // Вьюха следующего элемента (null, если ее абсолютно нет на экране)
+                View previousView = recyclerView.getLayoutManager().findViewByPosition(pos-1); // Вьюха предыдущего элемента
+                View nextView = recyclerView.getLayoutManager().findViewByPosition(pos+1); // Вьюха следующего элемента
+                //delta = (a1-a2)/ ( (int) d);
                 // Рисуем красный фон
-                background.setBounds(itemView.getRight() + (int) dX, itemView.getTop(), itemView.getRight(), itemView.getBottom());
+                //background.setBounds(itemView.getRight() + (int) dX, itemView.getTop(), itemView.getRight(), itemView.getBottom());
+                //int a = viewHolder.itemView.findViewById(R.id.undo_button).getVisibility();
+                //if (a == View.VISIBLE) {
+                    //c.drawColor(Color.WHITE);
+                    //background.setBounds(0, itemView.getTop(), itemView.getRight(), localfinalHeight/=2);
+                //} else {
+
+                // Получение координат этой и следующей вьюъх элементов списка
+                int[] nextViewLocation = new int[2];
+                int[] itemViewLocation = new int[2];
+                int[] previousViewLocation = new int[2];
+                ViewGroup.MarginLayoutParams lp1 = null; // Инициализация отступов для следующей ...
+                ViewGroup.MarginLayoutParams lp2 = null; // ... и предыдущей вьюхи
+
+                if (itemView != null) // Если элемент есть на экране
+                    itemView.getLocationInWindow(itemViewLocation); // TODO: Как будет вести себя этот кусок кода, если анимации в процессе, а вьюхи нет на экране. Этого можно досич если во время анимации пролистать список вниз
+                if (previousView != null) { // Если предыдущей элемент есть на экране (хотя бы частично)
+                    previousView.getLocationInWindow(previousViewLocation); // Получить координаты предыдущего элемента
+                    lp2 = (ViewGroup.MarginLayoutParams) previousView.getLayoutParams(); // Получить отступы предыдущего элемента
+                }
+                if (nextView != null) { // Если следущющий элемент есть на экране (хотя бы частично)
+                    nextView.getLocationInWindow(nextViewLocation); // Получить координаты следующего элемента
+                    lp1 = (ViewGroup.MarginLayoutParams) nextView.getLayoutParams(); // Получить отступы следующего элемента
+                }
+
+                // Вычисления координат высот элеметов
+                int cordTop;
+                int cordBottom;
+                ActionBar ab = ((MainActivity) getActivity()).getSupportActionBar();
+
+                // Вычисление высоты статус бара и action бара
+                // TODO: Не зннаю как будет работать для полноэкранного режима. Имеет смысл добавить проверку в if ниже
+                int resultStatusBar = 0;
+                int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+                if (resourceId > 0) {
+                    resultStatusBar = getResources().getDimensionPixelSize(resourceId);
+                }
+                int barsOffset = resultStatusBar+ab.getHeight(); // Смещение для канвы по оси Y
+
+                if (previousView != null) {
+                    cordTop = previousViewLocation[1]+previousView.getHeight()- barsOffset+lp2.topMargin+lp2.bottomMargin;
+                    //Log.d( String.valueOf( previousView.getTop() ), String.valueOf( cordTop ));
+                } else {
+                    cordTop = itemView.getTop();
+                }
+
+                if (nextView != null) {
+                    //Log.d( String.valueOf( nextView.getTop() ), String.valueOf( nextViewLocation[1] ));
+                    //Log.d( "a", "1");
+                    cordBottom = nextViewLocation[1] - barsOffset-lp1.topMargin-lp1.bottomMargin;
+                } else {
+                    //Log.d( "a", "2");
+                    cordBottom = itemView.getBottom(); // TODO: Учитывает ли getBottom отступы?
+                }
+                Log.d( "cordBottom", String.valueOf(nextViewLocation[1]));
+
+
+                //if (isUndoAnimationActive) {
+                   // background.setBounds(0, cordTop, itemView.getRight(), cordBottom);
+                //} else {
+                    background.setBounds(itemView.getRight() + (int) dX, cordTop, itemView.getRight(), cordBottom);
+                //}
                 background.draw(c);
 
+                // Рисование иконки удаления
                 // Замер элемета, по которому был сдела свайп
                 int itemHeight = itemView.getBottom() - itemView.getTop(); // Растояние в пикселях!
                 // Замер размеов иконки удаления
@@ -353,7 +463,7 @@ public class ShoppingCartFragment extends Fragment {
 
                 // Определяет размеры квадратой области за сдвинутым элеметом, где будет нарисован xMark
                 deleteMark.setBounds(xMarkLeft, xMarkTop, xMarkRight, xMarkBottom);
-                deleteMark.draw(c); // Рисует иконку удалеия
+                deleteMark.draw(c); // Рисует иконку удаления
 
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
             }

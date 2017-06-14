@@ -1,9 +1,12 @@
 package com.webtrust.tennosushi.adapters;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Handler;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.GridLayout;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,6 +41,8 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
 
     /** Слушатель нажатия на фотографию блюда */
     private final View.OnClickListener clickListener;
+
+    private Context context;
 
     /**
      * Конструктор, инициализирующий поля слушателя клика по фотографии и списка элементов в корзине. Так же
@@ -126,7 +131,8 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
         //ViewHolder.menuTextView = (TextView) convertView.findViewById(R.id.menu_text);
 
         // Заполнение макета list_item
-        View view = LayoutInflater.from( parent.getContext() ).inflate(R.layout.shopping_cart_item, parent, false);
+        context =  parent.getContext();
+        View view = LayoutInflater.from(context).inflate(R.layout.shopping_cart_item, parent, false);
 
         // Создание ViewHolder для текущего элемента
         return (new ViewHolder(view, clickListener));
@@ -151,43 +157,56 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
         // Назначения текста элементам GUI
         holder.nameTextView.setText(foodItem.name);
         holder.componentsTextView.setText(foodItem.components);
-        holder.priceTextView.setText( String.valueOf(foodItem.price) + " \u20BD" );
+        holder.priceTextView.setText(String.valueOf(foodItem.price) + " \u20BD");
         holder.weightTextView.setText("Вес: " + foodItem.weight + " Г");
 
         ViewHolder viewHolder = (ViewHolder) holder;
         final FoodItem item = items.get(position);
 
+        ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) holder.itemView.getLayoutParams();
         if (itemsPendingRemoval.contains(item)) {
             // we need to show the "undo" state of the row
             viewHolder.itemView.setBackgroundColor(Color.RED);
-            viewHolder.relativeLayout.setVisibility(View.GONE);
-            viewHolder.gridLayout.setVisibility(View.GONE);
-            viewHolder.undoButton.setVisibility(View.VISIBLE);
-            viewHolder.undoButton.setOnClickListener(new View.OnClickListener() {
-                /**
-                 * Реализует клик, приводящий к отмене удаления элемета
-                 * @param v View'ха, ажатие на которую привело к отмене удаления элемента из списка
-                 */
-                @Override
-                public void onClick(View v) {
-                    // user wants to undo the removal, let's cancel the pending task
-                    Runnable pendingRemovalRunnable = pendingRunnables.get(item);
-                    pendingRunnables.remove(item);
-                    if (pendingRemovalRunnable != null) handler.removeCallbacks(pendingRemovalRunnable);
-                    itemsPendingRemoval.remove(item);
-                    // this will rebind the row in "normal" state
-                    notifyItemChanged(items.indexOf(item));
-                }
-            });
-        } else {
-            // we need to show the "normal" state
-            viewHolder.itemView.setBackgroundColor(Color.WHITE);
-            viewHolder.relativeLayout.setVisibility(View.VISIBLE);
-            viewHolder.gridLayout.setVisibility(View.VISIBLE);
-            viewHolder.undoButton.setVisibility(View.GONE);
-            viewHolder.undoButton.setOnClickListener(null);
+
+            //Log.d("a", String.valueOf(viewHolder.itemView.getX()));
+            //if (viewHolder.itemView.getX() <= 0) {
+                lp.setMargins(0, lp.topMargin, lp.rightMargin, lp.bottomMargin);
+                viewHolder.itemView.setLayoutParams(lp);
+            //}
+
+                viewHolder.relativeLayout.setVisibility(View.GONE);
+                viewHolder.gridLayout.setVisibility(View.GONE);
+                viewHolder.undoButton.setVisibility(View.VISIBLE);
+                viewHolder.undoButton.setOnClickListener(new View.OnClickListener() {
+                    /**
+                     * Реализует клик, приводящий к отмене удаления элемета
+                     *
+                     * @param v View'ха, нажатие на которую привело к отмене удаления элемента из списка
+                     */
+                    @Override
+                    public void onClick(View v) {
+                        // user wants to undo the removal, let's cancel the pending task
+                        Runnable pendingRemovalRunnable = pendingRunnables.get(item);
+                        pendingRunnables.remove(item);
+                        if (pendingRemovalRunnable != null)
+                            handler.removeCallbacks(pendingRemovalRunnable);
+                        itemsPendingRemoval.remove(item);
+                        // this will rebind the row in "normal" state
+                        notifyItemChanged(items.indexOf(item));
+                    }
+                });
+            } else {
+                lp.setMargins((int) context.getResources().getDimension(R.dimen.shopping_cart_cardview_margin), lp.topMargin, lp.rightMargin, lp.bottomMargin);
+                viewHolder.itemView.setLayoutParams(lp);
+
+                // we need to show the "normal" state
+                viewHolder.itemView.setBackgroundColor(Color.WHITE);
+                viewHolder.relativeLayout.setVisibility(View.VISIBLE);
+                viewHolder.gridLayout.setVisibility(View.VISIBLE);
+                viewHolder.undoButton.setVisibility(View.GONE);
+                viewHolder.undoButton.setOnClickListener(null);
+            }
         }
-    }
 
     @Override
     public int getItemCount() {
