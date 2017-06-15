@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar; // Для вывода названия приложения в ActionBar
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -15,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.GridView;
 import android.widget.ListView;
 
+import com.webtrust.tennosushi.MainActivity;
 import com.webtrust.tennosushi.R;
 import com.webtrust.tennosushi.adapters.MenuItemArrayAdapter;
 import com.webtrust.tennosushi.list_items.MenuItem;
@@ -110,7 +112,7 @@ public class MenuListFragment extends Fragment {
      * Необходимый пустой публичный конструктор.
      *
      * <p>
-     * Используйте фабричный метод {@link MenuListFragment#newInstance} для
+     * Используйте фабричный метод {@link MenuListFragment#newInstance(int)} для
      * создания экземпляра этого фрагмента. Избегайте создания конструкторов с
      * параметрами для любых наследников класса {@link Fragment}.
      * Подробнее о конструкторе фрагментов на странице
@@ -192,6 +194,11 @@ public class MenuListFragment extends Fragment {
             menuItemListGridView = (GridView) getView().findViewById(R.id.platesList);
             menuItemListGridView.setAdapter(menuItemArrayAdapter);
         }
+
+        // Названичение текста actionBar'у
+        ActionBar ab = ((MainActivity) this.getActivity()).getSupportActionBar();
+        ab.setTitle( getResources().getString(R.string.app_name) ); // Назачить титульной строке название приложения
+        ab.setSubtitle(""); // Стереть подстроку
     }
 
     @Override
@@ -238,6 +245,7 @@ public class MenuListFragment extends Fragment {
         // Выбор в зависимости от идентификатора MenuItem
         switch (item.getItemId()) {
             case R.id.shopping_cart:
+                ((MainActivity) getActivity()).displayShoppingCartFragment(R.id.fragment_menu_container);
                 return true; // Событие меню обработано
             case R.id.sort:
                 // Получение ссылки для ViewGroup контейнера фрагментов
@@ -442,13 +450,13 @@ public class MenuListFragment extends Fragment {
 
             TODO: Разберись, как решить задачу мульти клик листенера наилучшым образом
              */
-
-            String viewCathgory = menuItemList.get( view.getId() ).category;
+            String viewCategoryName = menuItemList.get( view.getId() ).name;
+            String viewCategory = menuItemList.get( view.getId() ).category;
 
             // В теге передаваемого View ПО-ХОРОШЕМУ ДОЛЖНА хранится ID-категории блюда, которое используется для поиска соответствующих блюд
-            FoodListFragment asd_test = FoodListFragment.newInstance(viewCathgory, currentMode);
+            FoodListFragment foodListFragment = FoodListFragment.newInstance(viewCategory, viewCategoryName, currentMode);
             fTrans.addToBackStack(null);
-            fTrans.replace(R.id.fragment_menu_container, asd_test);
+            fTrans.replace(R.id.fragment_menu_container, foodListFragment);
             fTrans.commit();
 
             // TODO: При первом запуске приложения без этой строки можно обойтись, но после изменения currentMode, без этой строки не стирается прдыдущий view

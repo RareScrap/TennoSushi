@@ -2,8 +2,10 @@ package com.webtrust.tennosushi.fragments;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment; // Подлючается для использования в javadoc
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar; // Для вывода категорий меню в ActionBar
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -11,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.webtrust.tennosushi.MainActivity;
 import com.webtrust.tennosushi.R;
 import com.webtrust.tennosushi.adapters.FoodItemRecyclerViewAdapter;
 import com.webtrust.tennosushi.list_items.FoodItem;
@@ -53,19 +56,20 @@ import java.util.List;
 public class FoodListFragment extends MenuListFragment {
     /** Список объектов FoodItem, представляющих элементы меню (блюда) */
     private List<FoodItem> foodItemList = new ArrayList<>();
-
-    private String foodCategory;
+    /** Название категории меню */
+    private String foodCategoryName;
 
     /** Элемент GUI, реализующий функции отображения списка */
     private RecyclerView recyclerView;
-    /** LayoutManager для списка в виде карточек */
+    // TODO: Нужно ли вообще сохранять ссылки на LayoutManager'ы? Пока сохраняю их "на всякий случай"
+    /** Ссылка на последний исползуемый фрагментом LayoutManager для списка в виде карточек */
     private RecyclerView.LayoutManager listLayoutManager;
-    /** LayoutManager для табличного списка */
+    /** Ссылка на последний исползуемый фрагментом LayoutManager для табличного списка */
     private RecyclerView.LayoutManager gridLayoutManager;
 
     /** Адаптер для связывания {@link FoodListFragment#recyclerView} c {@link FoodListFragment#listLayoutManager}
      * или {@link FoodListFragment#gridLayoutManager} (в зависимости от значения {@link MenuListFragment#currentMode}.*/
-    FoodItemRecyclerViewAdapter rvAdapter; // Адаптер
+    private FoodItemRecyclerViewAdapter rvAdapter; // Адаптер
 
     /**
      * Необходимый пустой публичный конструктор.
@@ -80,10 +84,6 @@ public class FoodListFragment extends MenuListFragment {
      */
     public FoodListFragment() {
         super(); // Вызов супера, определяющий режим отображения по умолчанию
-
-        // Определение LayoutManager'ов
-        listLayoutManager = new LinearLayoutManager(getContext());
-        gridLayoutManager = new GridLayoutManager(getContext(), 2); // Количество колонок в таблице;
     }
 
     /**
@@ -92,17 +92,24 @@ public class FoodListFragment extends MenuListFragment {
      *
      * @param foodCategory Строка, представляющая собой категорию блюд, определенную в JSON Файле.
      *                     На основании этой строки выбираются элементы для отображения в списке.
+     * @param foodCategoryName Строка, представляющая собой НАЗВАНИЕ категории блюд, определенную в JSON Файле.
      * @param currentMode Режим отображения списка
      * @return Новый объект фрагмента {@link FoodListFragment}.
      */
-    public static FoodListFragment newInstance(String foodCategory, int currentMode) {
+    public static FoodListFragment newInstance(String foodCategory, String foodCategoryName, int currentMode) {
         FoodListFragment fragment = new FoodListFragment();
 
-        // TODO: ХЗ, выполняет ли код ниже что-то полезное
+        /*
+        Альтеративное сохраение аргументов. Отличительая черта - не использование поле класса, как для
+        foodCategoryName. Позже можо будет получить foodCategory, используя getArguments()
+         */
         Bundle args = new Bundle();
         args.putString("foodCategory", foodCategory);
         args.putInt("currentMode", currentMode);
         fragment.setArguments(args);
+
+        // Традиционное сохранение аргумента
+        fragment.foodCategoryName = foodCategoryName;
 
         return fragment;
     }
@@ -133,7 +140,7 @@ public class FoodListFragment extends MenuListFragment {
         recyclerView = (RecyclerView) getView().findViewById(R.id.recyclerView);
 
         /*
-        Получить LayoutManager для определенного вида списка.
+        Инициализировать LayoutManager для определенного вида списка.
         Новый экзмепляр LayoutManager'ов создается при возрате к этому фрагменту
         через BackStack во избежания исключения "LayoutManager is already attached
         to a RecyclerView”
@@ -146,9 +153,14 @@ public class FoodListFragment extends MenuListFragment {
             recyclerView.setLayoutManager(gridLayoutManager); // Для плиточного списка
         }
 
-        // Создать RecyclerView.Adapter для связывания тегов с RecyclerView
-        rvAdapter = new FoodItemRecyclerViewAdapter(foodItemList, itemClickListener);
+        // Создать RecyclerView.Adapter для связывания элементов списка foodItemList с RecyclerView
+        rvAdapter = new FoodItemRecyclerViewAdapter(foodItemList, itemClickListener, buyItemClickListener);
         recyclerView.setAdapter(rvAdapter);
+
+        // Названичение текста actionBar'у
+        ActionBar ab = ((MainActivity) this.getActivity()).getSupportActionBar();
+        ab.setTitle(foodCategoryName); // Вывести в титульую строку название блюда
+        ab.setSubtitle(""); // Стереть подстроку
 
         // Запрос на получение данных
         try {
@@ -169,14 +181,17 @@ public class FoodListFragment extends MenuListFragment {
         // Выбор в зависимости от идентификатора MenuItem
         switch (item.getItemId()) {
             case R.id.shopping_cart:
+                ((MainActivity) getActivity()).displayShoppingCartFragment(R.id.fragment_menu_container);
                 return true; // Событие меню обработано
             case R.id.sort:
                 // Замена одной разметки списка на другую
                 if (MenuListFragment.getCurrentMode() == CARD_MODE) {
                     MenuListFragment.setCurrentMode(PLATE_MODE); // Изменяет текущий способ отображеия списка
+                    gridLayoutManager = new GridLayoutManager(getContext(), 2);
                     recyclerView.setLayoutManager(gridLayoutManager); // Для плиточного списка
                 } else { // currentMode == PLATE_MODE
                     MenuListFragment.setCurrentMode(CARD_MODE); // Изменяет текущий способ отображеия списка
+                    listLayoutManager = new LinearLayoutManager(getContext());
                     recyclerView.setLayoutManager(listLayoutManager); // Для карточного списка
                 }
 
@@ -229,10 +244,9 @@ public class FoodListFragment extends MenuListFragment {
 
             list = list.getJSONObject(categoryIndex).getJSONArray("food");
 
-            // Преобразовать каждый элемент списка в объект Weather
+            // Преобразовать каждый элемент списка в объект FoodItem
             for (int i = 0; i < list.length(); ++i) {
-                JSONObject deash = list.getJSONObject(i); // Данные за день
-                // Получить JSONObject с температурами дня ("temp")
+                JSONObject deash = list.getJSONObject(i);
                 String name = deash.getString("name");
                 String components = deash.getString("components");
                 String price = deash.getString("price");
@@ -240,7 +254,7 @@ public class FoodListFragment extends MenuListFragment {
                 String picURL = deash.getString("picURL"); // Получить URL на картинку с блюдом
 
                 // Добавить новый объект FoodItem в foodItemList
-                foodItemList.add( new FoodItem(name, Double.parseDouble(price), components, weight, picURL, findName));
+                foodItemList.add( new FoodItem(name, Double.parseDouble(price), components, weight, picURL, findName, foodCategoryName));
             }
         }
         catch (JSONException e) {
@@ -249,11 +263,16 @@ public class FoodListFragment extends MenuListFragment {
     }
 
     /**
-     * Обрабатывает события клика по элементам списка
-     * {@link FoodListFragment#foodItemList}, вызывая подробную информацию о блюде.
+     * Обрабатывает события клика по элементам списка {@link FoodListFragment#foodItemList},
+     * кроме кнопки "добавить в корзину".
+     * Вызывает подробную информацию о блюде, открывая {@link DetailFoodFragment}.
      */
     private final View.OnClickListener itemClickListener = new View.OnClickListener() {
-        // Клик по элементу
+        /**
+         * Вызывается когда по кнопке "добавить в корзину" произошел клик.
+         * Открывает {@link DetailFoodFragment}.
+         * @param view {@link View}, по которому был сделан клик
+         */
         @Override
         public void onClick(View view) {
             FragmentTransaction fTrans = getFragmentManager().beginTransaction();
@@ -269,6 +288,34 @@ public class FoodListFragment extends MenuListFragment {
 
             // TODO: При первом запуске приложения без этой строки можно обойтись, но после изменения currentMode, без этой строки не стирается прдыдущий view
             ( (ViewGroup) getActivity().findViewById(R.id.fragment_menu_container) ).removeAllViews();
+        }
+    };
+
+    /**
+     * Обрабатывает события клика по кнопке "добавить корзину" для элементов списка
+     * {@link FoodListFragment#foodItemList}, вызывая подробную информацию о блюде,
+     * открывая {@link DetailFoodFragment}.
+     */
+    private final View.OnClickListener buyItemClickListener = new View.OnClickListener() {
+        /**
+         * Вызывается когда по кноке "добавить в корзину" произошел клик.
+         * Показывает уведомление при нажатии и добавляет .
+         * @param view {@link View}, по которому был сделан клик
+         */
+        @Override
+        public void onClick(View view) {
+            int position = Integer.parseInt( view.getTag().toString(), 10 );
+            FoodItem clickedFoodView = foodItemList.get( position );
+
+            // Использется констуктор копирования для создания объекта с такими же полями, но без метаифомации
+            // Элементы с одинаковой метаинформацией в списке ShoppingCartFragment при свайпах приводят к непредсказуемому поведеию элеметов списка
+            FoodItem newFoodItem = new FoodItem(clickedFoodView);
+
+            // Добавляет выбранное блюдо в корзину
+            ShoppingCartFragment.addedFoodList.add(newFoodItem);
+
+            // Отобразать уведомление о добавлении
+            Snackbar.make(getView(), "Добавлено в корзину ;)", Snackbar.LENGTH_SHORT).show();
         }
     };
 }

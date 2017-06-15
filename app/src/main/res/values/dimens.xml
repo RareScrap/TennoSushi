@@ -4,4 +4,10 @@
     <dimen name="shader_up_value">200dp</dimen>
     <dimen name="cardview_content_margin">20dp</dimen>
     <dimen name="cardview_margin">4dp</dimen>
+    <dimen name="shopping_cart_cardview_padding">5dp</dimen>
+    <dimen name="shopping_cart_item_name_margin">5dp</dimen>
+    <dimen name="shopping_cart_cardview_margin">10dp</dimen>
+    <dimen name="undo_button_margin">10dp</dimen>
+    <dimen name="empty_cart_pic_margin">100dp</dimen>
+    <dimen name="swipe_delete_mark_margin">16dp</dimen>
 </resources>
