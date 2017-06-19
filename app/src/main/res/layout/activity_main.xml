@@ -10,15 +10,37 @@
     tools:openDrawer="start">
 
     <RelativeLayout
-        android:id="@+id/activity_root_relative_layout"
+        android:id="@+id/ActivityContent_withoutNavigationView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
 
-        <FrameLayout
-            android:id="@+id/fragment_menu_container"
-            android:name="com.webtrust.tennosushi.MenuListFragment"
+        <android.support.design.widget.AppBarLayout
+            android:id="@+id/ToolbarLayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="?attr/actionBarSize"
+            android:theme="@style/AppTheme.AppBarOverlay">
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorPrimary"
+                app:popupTheme="@style/AppTheme.PopupOverlay" />
+
+        </android.support.design.widget.AppBarLayout>
+
+        <RelativeLayout
+            android:id="@+id/activity_root_relative_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/ToolbarLayout">
+
+            <FrameLayout
+                android:id="@+id/fragment_menu_container"
+                android:name="com.webtrust.tennosushi.MenuListFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </RelativeLayout>
     </RelativeLayout>
 
     <android.support.design.widget.NavigationView

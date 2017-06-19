@@ -32,6 +32,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        /*
+        Чтобы меню NavigationDrawer'а рисовалось поверх тулбара - в иерархии View тубар следует распологать
+        выше меню NavigationDrawer'а. Чтобы иметь возможность задавать свое местоположение тулбара,
+        мы определяем его в разметке и вытаскиваем через findViewById()
+         */
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         // Создание фрагмента корзины, который будет хранится в памяти на все время работы приложения
         shoppingCartFragment = new ShoppingCartFragment();
         // TODO: Стоит ли тут делать обновление адаптера ShoppingCartFragment? Решил что нет
