@@ -7,4 +7,5 @@
     <string name="sort_list">Sort List</string>
     <string name="noConnection_useCashe">There is no Internet connection! App is using local cashe.</string>
     <string name="button_undo">Undo</string>
+    <string name="title_activity_maps">Where can we deliver your order?</string>
 </resources>
