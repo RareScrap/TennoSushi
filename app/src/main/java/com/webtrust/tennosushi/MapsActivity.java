@@ -10,7 +10,9 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.view.ContextThemeWrapper;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -102,7 +104,9 @@ public class MapsActivity extends FragmentActivity
             @Override
             // Return null here, so that getInfoContents() is called next.
             public View getInfoWindow(Marker arg0) {
-                return null;
+                //ContextThemeWrapper wrapper = new ContextThemeWrapper(getApplicationContext(), R.style.TransparentBackground);
+                LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+                return inflater.inflate(R.layout.custom_info_contents, null);
             }
 
             @Override
@@ -118,6 +122,19 @@ public class MapsActivity extends FragmentActivity
                 snippet.setText(marker.getSnippet());
 
                 return infoWindow;
+            }
+        });
+
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            /**
+             * Добавляется метку в точку клика на карте
+             * @param point Точка, в которой был сделан клик
+             */
+            @Override
+            public void onMapClick(LatLng point) {
+                mMap.clear();
+                Marker marker =  mMap.addMarker(new MarkerOptions().position(point));
+                marker.showInfoWindow();
             }
         });
 
@@ -244,9 +261,10 @@ public class MapsActivity extends FragmentActivity
         } else {
             // Add a default marker, because the user hasn't selected a place.
             mMap.addMarker(new MarkerOptions()
-                    .title(getString(R.string.default_info_title))
+                    //.title(getString(R.string.default_info_title))
                     .position(mDefaultLocation)
-                    .snippet(getString(R.string.default_info_snippet)));
+                    //.snippet(getString(R.string.default_info_snippet))
+                    );
         }
     }
 
@@ -280,7 +298,7 @@ public class MapsActivity extends FragmentActivity
 
         // Display the dialog.
         AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle(R.string.pick_place)
+                //.setTitle(R.string.pick_place)
                 .setItems(mLikelyPlaceNames, listener)
                 .show();
     }
