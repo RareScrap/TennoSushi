@@ -9,6 +9,7 @@
     <string name="button_undo">Undo</string>
     <string name="title_activity_maps">Where can we deliver your order?</string>
     <string name="delivery_option">Choose the shipping method</string>
+    <string name="delivery_option_title">Delivery options</string>
     <string name="courier_delivery">Courier delivery</string>
     <string name="self_delivery">Self-delivery</string>
     <string name="address">Address</string>

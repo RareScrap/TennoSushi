@@ -12,4 +12,5 @@
     <string name="porch_number">Номер подъезда</string>
     <string name="hello_blank_fragment">Номер подъезда</string>
     <string name="telephone_number">Номер телефона</string>
+    <string name="delivery_option_title">Способы доставки</string>
 </resources>
