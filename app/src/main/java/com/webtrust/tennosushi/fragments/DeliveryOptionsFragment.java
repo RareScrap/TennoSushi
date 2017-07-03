@@ -1,5 +1,6 @@
 package com.webtrust.tennosushi.fragments;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -13,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 
@@ -27,6 +29,7 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.webtrust.tennosushi.MainActivity;
+import com.webtrust.tennosushi.MapsActivity;
 import com.webtrust.tennosushi.R;
 
 /**
@@ -43,31 +46,36 @@ public class DeliveryOptionsFragment extends Fragment
         GoogleApiClient.OnConnectionFailedListener {
    
     /** Элемент GUI, представляющий собой радио-кнопку курьерской доставки */
-    RadioButton courierDelivery;
+    private RadioButton courierDelivery;
     /** Элемент GUI, представляющий собой радио-кнопку доставки самовывозом */
-    RadioButton selfDelivery;
+    private RadioButton selfDelivery;
     
     /** Элемент GUI, представляющий собой контейнер текстовых полей, в которых записывается адрес доставки */
-    LinearLayout addressContainer;
+    private LinearLayout addressContainer;
     /** Элемент GUI, представляющий собой контейнер карты, которая отображает пункт самовывоза */
-    FrameLayout mapContainer;
+    private FrameLayout mapContainer;
     
     /** Элемент GUI, представляющий собой текстовое поле адреса доставки */
-    EditText address;
+    private EditText address;
     /** Элемент GUI, представляющий собой номер квартиры получателя */
-    EditText apartmentNumber;
+    private EditText apartmentNumber;
     /** Элемент GUI, представляющий собой номер подъезда получателя */
-    EditText porchNumber;
+    private EditText porchNumber;
     /** Элемент GUI, представляющий собой номер телефона получателя */
-    EditText telephoneNumber;
+    private EditText telephoneNumber;
+    /** Элемент GUI, представляющий собой кнопку выбора места на карте с заполнением поля адреса */
+    private ImageButton button;
     
     /** Элемент GUI, представляющий собой View'ху Google карты  */
-    MapView mapView;
+    private MapView mapView;
     /** Элемент GUI, представляющий собой объект Google карты */
-    GoogleMap map;
+    private GoogleMap map;
 
     /** Элемент GUI, представляющий собой {@link ActionBar} фрагмета */
-    ActionBar ab;
+    private ActionBar ab;
+
+    /** Содержит адрес, возвращаемый MapsActivity после выбора места доставки */
+    public static String adr;
 
     /** Метоположение пункта самовывоза */
     private final LatLng selfDeliveryLocation = new LatLng(52.291128, 104.2490896);
@@ -121,6 +129,7 @@ public class DeliveryOptionsFragment extends Fragment
         telephoneNumber = (EditText) returnedView.findViewById(R.id.telephone_number_EditText);
         mapView = (MapView) returnedView.findViewById(R.id.map_view);
         ab = ((MainActivity) this.getActivity()).getSupportActionBar();
+        button = (ImageButton) returnedView.findViewById(R.id.set_on_map);
 
         // Создаем View карты
         mapView.onCreate(savedInstanceState);
@@ -128,6 +137,18 @@ public class DeliveryOptionsFragment extends Fragment
         // Установка слушателей на радиокнопки
         courierDelivery.setOnClickListener(this);
         selfDelivery.setOnClickListener(this);
+        button.setOnClickListener(new View.OnClickListener() {
+            /**
+             * При клике на кнопку, запускает активити с картой для выбора адреса
+             * @param v {@link View}, по которой был сдела клик для вызова этого метода (т.е. сама кнопка)
+             */
+            @Override
+            public void onClick(View v)  {
+                Intent intent = new Intent(getActivity(), MapsActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            }
+        });
 
         // Инициализация клиента Play services для использования в Fused Location Provider и Places API.
         // Используйте метод addApi() для запроса Places API и Fused Location Provider.
@@ -249,6 +270,7 @@ public class DeliveryOptionsFragment extends Fragment
     @Override
     public void onResume() {
         mapView.onResume();
+        address.setText(adr); // Устанавливает адрес, который был выбран в MapActivity
         super.onResume();
     }
 
@@ -260,4 +282,6 @@ public class DeliveryOptionsFragment extends Fragment
         super.onLowMemory();
         mapView.onLowMemory();
     }
+
+
 }

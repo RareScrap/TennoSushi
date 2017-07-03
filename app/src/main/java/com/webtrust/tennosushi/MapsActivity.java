@@ -2,16 +2,14 @@ package com.webtrust.tennosushi;
 
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
-import android.location.Location;
+import android.location.Address;
+import android.location.Geocoder;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.view.ContextThemeWrapper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -33,7 +31,17 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.webtrust.tennosushi.fragments.DeliveryOptionsFragment;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
+/**
+ * Активити, предоставляющая пользователю возможость выбрать адрес доставки
+ * @author RareScrap
+ */
 public class MapsActivity extends FragmentActivity
         implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
@@ -43,20 +51,17 @@ public class MapsActivity extends FragmentActivity
     private GoogleMap mMap;
     private CameraPosition mCameraPosition;
 
-    // The entry point to Google Play services, used by the Places API and Fused Location Provider.
+    /** Точка входа в Google Play services, используемая Places API и Fused Location Provider */
     private GoogleApiClient mGoogleApiClient;
 
     /** Метоположение по умолчанию */
     private final LatLng mDefaultLocation = new LatLng(-33.8523341, 151.2106085);
     /** Зум карты по умолчанию */
     private static final int DEFAULT_ZOOM = 15;
+    /** Код, обозачающий успешое предоставление разрешения определения местоположения */
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     /** True, если пользователь предоставил разрешение для геоданных. Иначе, false.*/
     private boolean mLocationPermissionGranted;
-
-    // Keys for storing activity state.
-    private static final String KEY_CAMERA_POSITION = "camera_position";
-    private static final String KEY_LOCATION = "location";
 
     // Used for selecting the current place.
     private final int mMaxEntries = 5;
@@ -81,8 +86,13 @@ public class MapsActivity extends FragmentActivity
                 .addApi(Places.PLACE_DETECTION_API)
                 .build();
         mGoogleApiClient.connect();
+
+        geocoder = new Geocoder(this, Locale.getDefault());
     }
 
+    private Marker marker;
+    Geocoder geocoder;
+    String address_g;
 
     /**
      * Manipulates the map once available.
@@ -106,7 +116,9 @@ public class MapsActivity extends FragmentActivity
             public View getInfoWindow(Marker arg0) {
                 //ContextThemeWrapper wrapper = new ContextThemeWrapper(getApplicationContext(), R.style.TransparentBackground);
                 LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-                return inflater.inflate(R.layout.custom_info_contents, null);
+                View returnedView = inflater.inflate(R.layout.custom_info_contents, null);
+                ( (TextView) returnedView.findViewById(R.id.snippet) ).setText(address_g);
+                return returnedView;
             }
 
             @Override
@@ -124,6 +136,13 @@ public class MapsActivity extends FragmentActivity
                 return infoWindow;
             }
         });
+        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                DeliveryOptionsFragment.adr = address_g;
+                finish();
+            }
+        });
 
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             /**
@@ -132,8 +151,35 @@ public class MapsActivity extends FragmentActivity
              */
             @Override
             public void onMapClick(LatLng point) {
+                List<Address> addresses = new ArrayList<>();
+                try {
+                    addresses = geocoder.getFromLocation(point.latitude, point.longitude,1);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                android.location.Address address = addresses.get(0);
+
+                if (address != null) {
+                    StringBuilder sb = new StringBuilder();
+                    /*for (int i = 0; i < address.getMaxAddressLineIndex(); i++){
+                        sb.append(address.getAddressLine(i) + "\n");
+                    }*/
+                    sb.append(address.getThoroughfare() + ", ");
+                    sb.append(address.getSubThoroughfare());
+                    address_g = sb.toString();
+                    //( (TextView) findViewById(R.id.snippet) ).setText(sb.toString());
+                    //Toast.makeText(MapsActivity.this, sb.toString(), Toast.LENGTH_LONG).show();
+                }
+
+                //remove previously placed Marker
+                if (marker != null) {
+                    marker.remove();
+                }
+
                 mMap.clear();
-                Marker marker =  mMap.addMarker(new MarkerOptions().position(point));
+                //place marker where user just clicked
+                marker = mMap.addMarker(new MarkerOptions().position(point));
                 marker.showInfoWindow();
             }
         });
