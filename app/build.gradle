@@ -10,7 +10,10 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        multiDexEnabled true  // this line will solve this problem
+
+        multiDexEnabled true  // this line will solve this problem (Без него вроде как идут ошибки на эмуляторе при испльзовании гугл карт)
+        aaptOptions.cruncherEnabled = false // 2 линии для совместимости с дженкинсом
+        aaptOptions.useNewCruncher = false
     }
     buildTypes {
         release {
