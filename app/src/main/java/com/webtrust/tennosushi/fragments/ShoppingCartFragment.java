@@ -2,7 +2,6 @@ package com.webtrust.tennosushi.fragments;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -13,14 +12,13 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar; // Для вывода названия блюда в ActionBar
 import android.support.v7.widget.CardView; // Для получение ссылки на элемет списка
 import android.support.v7.widget.DefaultItemAnimator; // Для переопределения стандартной анимации "выдвижения" кнопки Undo в свайпах
-import android.support.v7.widget.DrawableUtils;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import com.webtrust.tennosushi.MainActivity; // Для доступа к компонентам активити
 import com.webtrust.tennosushi.R;
@@ -64,6 +62,8 @@ public class ShoppingCartFragment extends Fragment {
 
     /** Элемент GUI, реализующий функции отображения списка */
     private RecyclerView recyclerView;
+    /** Элемент GUI, реализующий функции кнопки "купить" */
+    private Button buyButton;
     /** LayoutManager для отображения в виде списка */
     private RecyclerView.LayoutManager listLayoutManager;
 
@@ -112,7 +112,7 @@ public class ShoppingCartFragment extends Fragment {
      *                  LayoutParams родительского элемента. ВАЖНО: Фрагмент не должен самостоятельно
      *                  добавлять сюда свой View!
      * @param savedInstanceState Если не равно NULL, то фрагмент восстановился из предыдущего
-     *                           сохраненного состояния. Этот объект  и есть его предыдущее состояние.
+     *                           сохраненного состояния. Этот объект и есть его предыдущее состояние.
      * @return UI фрагмента.
      */
     @Override
@@ -130,6 +130,11 @@ public class ShoppingCartFragment extends Fragment {
     public void onViewCreated (View view, Bundle savedInstanceState) {
         // Получение ссылки на recyclerView
         recyclerView = (RecyclerView) getView().findViewById(R.id.cart_list_recyclerView);
+
+        // Получение ссылки на кнопку "купить"
+        buyButton = (Button) getView().findViewById(R.id.buy_button);
+        // Установка слушателя для кнопки "купить"
+        buyButton.setOnClickListener(buyClickListener);
 
         // Создать RecyclerView.Adapter для связывания элементов FoodItem с RecyclerView
         rvAdapter = new ShoppingCartItemRecyclerViewAdapter(addedFoodList, pictureClickListener); // Второй аргмент - слушатель кликов по картинке блюда
@@ -557,6 +562,29 @@ public class ShoppingCartFragment extends Fragment {
             DetailFoodFragment detailFoodFragment = DetailFoodFragment.newInstance(newFoodItem);
             fTrans.addToBackStack(null);
             fTrans.replace(R.id.fragment_menu_container, detailFoodFragment);
+            fTrans.commit();
+
+            // TODO: При первом запуске приложения без этой строки можно обойтись, но после изменения currentMode, без этой строки не стирается прдыдущий view
+            ( (ViewGroup) getActivity().findViewById(R.id.fragment_menu_container) ).removeAllViews();
+        }
+    };
+
+    /**
+     * Обрабатывает события клика по кнопке "купить", открывая {@link DeliveryOptionsFragment}
+     */
+    private final View.OnClickListener buyClickListener = new View.OnClickListener() {
+        /**
+         * Вызывается когда по кнопке "купить" произошел клик.
+         * Открывает {@link DeliveryOptionsFragment} с выбором способа доставки.
+         * @param view {@link View}, по которому был сделан клик
+         */
+        @Override
+        public void onClick(View view) {
+            // Открытие фрагмета с выбором способа доставки
+            FragmentTransaction fTrans = getFragmentManager().beginTransaction();
+            DeliveryOptionsFragment deliveryOptionsFragment = new DeliveryOptionsFragment();
+            fTrans.addToBackStack(null);
+            fTrans.replace(R.id.fragment_menu_container, deliveryOptionsFragment);
             fTrans.commit();
 
             // TODO: При первом запуске приложения без этой строки можно обойтись, но после изменения currentMode, без этой строки не стирается прдыдущий view

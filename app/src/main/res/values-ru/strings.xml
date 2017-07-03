@@ -3,6 +3,15 @@
     <string name="app_name">TennoSushi</string>
     <string name="shopping_cart">Корзина</string>
     <string name="button_undo">Отменить</string>
+    <string name="title_activity_maps">Куда нам доставить ваш заказ?</string>
+    <string name="delivery_option">Выберете способ доставки</string>
+    <string name="courier_delivery">Доставка курьером</string>
+    <string name="self_delivery">Самовывоз</string>
+    <string name="address">Адрес</string>
+    <string name="apartment_number">Номер квартиры</string>
+    <string name="porch_number">Номер подъезда</string>
+    <string name="telephone_number">Номер телефона</string>
+    <string name="delivery_option_title">Способы доставки</string>
     <string name="hello_blank_fragment">Экран фрагмента приветствия</string>
     <string name="sort_list">Изменить вид списка</string>
     <string name="noConnection_useCashe">Нет соединения. ПРиложение использует локальный кеш</string>
