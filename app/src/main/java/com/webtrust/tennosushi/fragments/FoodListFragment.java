@@ -55,7 +55,7 @@ import java.util.List;
  */
 public class FoodListFragment extends MenuListFragment {
     /** Список объектов FoodItem, представляющих элементы меню (блюда) */
-    private List<FoodItem> foodItemList = new ArrayList<>();
+    public List<FoodItem> foodItemList = new ArrayList<>();
     /** Название категории меню */
     private String foodCategoryName;
 
@@ -96,7 +96,7 @@ public class FoodListFragment extends MenuListFragment {
      * @param currentMode Режим отображения списка
      * @return Новый объект фрагмента {@link FoodListFragment}.
      */
-    public static FoodListFragment newInstance(String foodCategory, String foodCategoryName, int currentMode) {
+    public static FoodListFragment newInstance(int foodCategory, String foodCategoryName, int currentMode) {
         FoodListFragment fragment = new FoodListFragment();
 
         /*
@@ -104,7 +104,7 @@ public class FoodListFragment extends MenuListFragment {
         foodCategoryName. Позже можо будет получить foodCategory, используя getArguments()
          */
         Bundle args = new Bundle();
-        args.putString("foodCategory", foodCategory);
+        args.putInt("foodCategory", foodCategory);
         args.putInt("currentMode", currentMode);
         fragment.setArguments(args);
 
@@ -162,10 +162,13 @@ public class FoodListFragment extends MenuListFragment {
         ab.setTitle(foodCategoryName); // Вывести в титульую строку название блюда
         ab.setSubtitle(""); // Стереть подстроку
 
-        // Запрос на получение данных
+        // Получение данных из DataProvider
         try {
-            GetDataTask getLocalDataTask = new GetDataTask();
-            getLocalDataTask.execute( getArguments().getString("foodCategory") );
+            ArrayList<FoodItem> downloadedFoodItemListLink = ((MainActivity) getActivity()).getDataProvider().downloadedFoodItemList;
+            for (int i = 0; i < downloadedFoodItemListLink.size(); ++i ) {
+                if (downloadedFoodItemListLink.get(i).categoryId == getArguments().getInt("foodCategory"))
+                    foodItemList.add(downloadedFoodItemListLink.get(i));
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -200,66 +203,6 @@ public class FoodListFragment extends MenuListFragment {
         }
 
         return super.onOptionsItemSelected(item); //TODO: Разобраться зачем вообще тут нужен супер
-    }
-
-    /**
-     * Внутренний класс {@link AsyncTask} для получения данных из
-     * скачанного в {@link MenuListFragment} файла JSON.
-     *
-     * @author RareScrap
-     */
-    private class GetDataTask extends AsyncTask<String, Void, String> {
-        @Override
-        protected String doInBackground(String... params) {
-            return params[0];
-        }
-
-        @Override
-        protected void onPostExecute(String findName) {
-            convertJSONtoArrayList(MenuListFragment.downloadedJSON, findName ); // Заполнение weatherList
-            rvAdapter.notifyDataSetChanged(); // Связать с ListView
-
-            // Прокрутить до верха
-            recyclerView.smoothScrollToPosition(0);
-        }
-    }
-
-    /**
-     * Заполняет {@link FoodListFragment#foodItemList} блюдами с категорией findName.
-     * @param jsonObject JSON файл данных, в котором будет происходить поиск
-     * @param findName Категория, блюда из которой следует искать
-     */
-    private void convertJSONtoArrayList(JSONObject jsonObject, String findName) {
-        foodItemList.clear(); // Стирание старых данных
-
-        try {
-            // Получение свойства "list" JSONArray
-            JSONArray list = jsonObject.getJSONArray("categories");
-
-            int categoryIndex = 0;
-            for (; categoryIndex < list.length(); ++categoryIndex) {
-                if ( list.getJSONObject(categoryIndex).getString("category") == findName )
-                    break;
-            }
-
-            list = list.getJSONObject(categoryIndex).getJSONArray("food");
-
-            // Преобразовать каждый элемент списка в объект FoodItem
-            for (int i = 0; i < list.length(); ++i) {
-                JSONObject deash = list.getJSONObject(i);
-                String name = deash.getString("name");
-                String components = deash.getString("components");
-                String price = deash.getString("price");
-                int weight = deash.getInt("weight");
-                String picURL = deash.getString("picURL"); // Получить URL на картинку с блюдом
-
-                // Добавить новый объект FoodItem в foodItemList
-                foodItemList.add( new FoodItem(name, Double.parseDouble(price), components, weight, picURL, findName, foodCategoryName));
-            }
-        }
-        catch (JSONException e) {
-            e.printStackTrace();
-        }
     }
 
     /**

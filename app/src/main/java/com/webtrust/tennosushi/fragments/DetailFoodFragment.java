@@ -85,14 +85,16 @@ public class DetailFoodFragment extends Fragment {
         componentsTextView.setText(foodItem.components);
         addButton.setOnClickListener(buyItemClickListener);
         ab.setTitle(foodItem.name); // Вывести в титульую строку название блюда
-        ab.setSubtitle(foodItem.categoryName); // Вывести в подстроку категорию люда
+        ab.setSubtitle( ((MainActivity) getActivity()).getDataProvider().downloadedMenuItemList.
+                get(foodItem.categoryId).name); // Вывести в подстроку категорию люда
+
 
         // Включить дополнительные опции, в зависимости от категории блюда
-        if (foodItem.category.equals("pizza")) {
+        /*if (foodItem.category.equals("pizza")) {
             returnedView.findViewById(R.id.pizza_options_container).setVisibility(View.VISIBLE);
         } else if (foodItem.category.equals("wok")) {
             returnedView.findViewById(R.id.wok_options_container).setVisibility(View.VISIBLE);
-        }
+        }*/
 
         return returnedView;
     }
