@@ -36,7 +36,9 @@ import java.util.List;
  * Основная активити приложения
  * @author RareScrap
  */
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity
+        implements NavigationView.OnNavigationItemSelectedListener,
+        DataProvider.DataReady {
     /** Фрагмет корзины, который будет доступен на все время работы приложения */
     public ShoppingCartFragment shoppingCartFragment;
     /** Хранилище загруженных из сети данных в виде готовых для работы объектов */
@@ -53,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             e.printStackTrace();
             /* По хорошему, тут должна показываться надпись "Ошибка в приложении. Сообщить разработчикам?",
             но я думаю, что это будет очень плохо смотреться */
-            this.showConnectionErrorDialog(); // Показать ошибку сети
+            this.onDownloadError(); // Показать ошибку сети
         }
         if (dataProvider != null)
            dataProvider.startDownloadData(); // Начинаем загрузку данных
@@ -152,7 +154,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    public void showConnectionErrorDialog() {
+    /**
+     * Отображает самый первый фрагмент приложения, как только данные готовы к использованию
+     */
+    @Override
+    public void onDataReady() {
+        // Создание экземпляра MenuListFragment и назначение ему режим отображения элементов в виде карточек
+        MenuListFragment startFragment = MenuListFragment.newInstance(MenuListFragment.CARD_MODE);
+
+        // Показываем самый первый фрагмент, с которого пльзователь начиает работу в приложеии
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.add(R.id.fragment_menu_container, startFragment); // startFragment заменяет контейнер лдя фрагментов "fragment_menu_container"
+        transaction.commit(); // Завершить транзакцию и отобразить фрагмент
+    }
+
+    /**
+     * Показывает диалоговое окно, если подготовка данных завершилась с ошибкой
+     */
+    @Override
+    public void onDownloadError() {
         AlertDialog.Builder adBuilder = new AlertDialog.Builder(this);
 
         // Назначить сообщение AlertDialog
@@ -168,15 +188,5 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // Отображение диалогового окна
         adBuilder.create().show();
-    }
-
-    public void dataDownloaded() {
-        // Создание экземпляра MenuListFragment и назначение ему режим отображения элементов в виде карточек
-        MenuListFragment startFragment = MenuListFragment.newInstance(MenuListFragment.CARD_MODE);
-
-        // Показываем самый первый фрагмент, с которого пльзователь начиает работу в приложеии
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.add(R.id.fragment_menu_container, startFragment); // startFragment заменяет контейнер лдя фрагментов "fragment_menu_container"
-        transaction.commit(); // Завершить транзакцию и отобразить фрагмент
     }
 }

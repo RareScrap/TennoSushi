@@ -27,6 +27,12 @@ import java.util.List;
  */
 
 public class DataProvider {
+    /** Вызывается, когда данные скачаны и распарсены */
+    public interface DataReady {
+        /*public*/ void onDataReady();
+        void onDownloadError();
+    }
+
     /** Адрес, откуда будет скачан JSON с данными */
     public URL jsonURL;
     /** Хранилище для загруженных данных в формате JSON */
@@ -41,17 +47,17 @@ public class DataProvider {
     /** Список опций блюда, полученных парсингом JSON'а */
     public ArrayList<FoodOptions> downloadedFoodOptionsList = new ArrayList<>();
 
-    /** Ссылка на {@link MainActivity}, для операций, взаимодействующих с этой активити */
-    private MainActivity mainActivityLink;
+    /** Объект реализации интерфейса. Приходит из вне */
+    public DataReady dataReady;
 
     /**
      * Конструктор, инициализирующий свои поля
-     * @param mainActivityLink Ссылка на {@link MainActivity}, для операций, взаимодействующих с
-     *                         этой активити
+     * @param dataReady Реализация интерфейса, метод которого вызывается, когда данные распарсены
+     *                  и готовы к работе
      * @param url Адрес, откуда будет скачан JSON с данными
      */
-    public DataProvider(MainActivity mainActivityLink, URL url) {
-        this.mainActivityLink = mainActivityLink;
+    public DataProvider(DataReady dataReady, URL url) {
+        this.dataReady = dataReady;
         this.jsonURL = url;
     }
 
@@ -140,8 +146,8 @@ public class DataProvider {
                 }else { // currentMode == PLATE_MODE
                     menuItemListGridView.smoothScrollToPosition(0);
                 }*/
-            } else { // Вывод алерта в случае, если данные не дошли
-                mainActivityLink.showConnectionErrorDialog();
+            } else { // Информировать в случае, если данные не дошли
+                dataReady.onDownloadError();
             }
         }
     }
@@ -258,7 +264,7 @@ public class DataProvider {
                 // Получаем опции из категории-родителя
                 JSONArray optionsJSON = productJSONObject.getJSONArray("custom_options");
                 ArrayList<FoodOptions> options = new ArrayList<>();
-                for (int j = 0; j < categoryOptionsJSON.length(); ++j) {
+                for (int j = 0; j < optionsJSON.length(); ++j) {
                     customOptions.add(downloadedFoodOptionsList.get( categoryOptionsJSON.getInt(j) ));
                 }
 
@@ -266,14 +272,11 @@ public class DataProvider {
                 downloadedFoodItemList.add(new FoodItem(id, categoryId, name, components, foodTags, customOptions,
                         position, price, weight, picURL, options));
             }
-
-
-
-            //TODO: Тут следует сделать кастомный onDataDownloaded метод
-            mainActivityLink.dataDownloaded();
         }
         catch (JSONException e) {
             e.printStackTrace();
         }
+        // Инормировать, что данные готовы к использованию
+        dataReady.onDataReady();
     }
 }
