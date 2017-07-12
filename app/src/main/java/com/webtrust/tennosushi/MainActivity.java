@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -13,6 +14,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 
 import com.webtrust.tennosushi.fragments.MenuListFragment;
@@ -95,7 +97,6 @@ public class MainActivity extends AppCompatActivity
         transaction.add(R.id.fragment_menu_container, startFragment); // startFragment заменяет контейнер лдя фрагментов "fragment_menu_container"
         transaction.commit(); // Завершить транзакцию и отобразить фрагмент
         */
-
     }
 
     /* Обычно я не испльзую геттер для получения поля без преобразования типа, но я чувствую,
@@ -124,8 +125,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        if (MenuListFragment.menu.size() == 1) ShoppingCartIconGenerator.generate(this, 0);
-        else ShoppingCartIconGenerator.generate(this, 1);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);

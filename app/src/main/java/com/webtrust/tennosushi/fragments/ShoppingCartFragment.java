@@ -1,5 +1,6 @@
 package com.webtrust.tennosushi.fragments;
 
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -15,6 +16,7 @@ import android.support.v7.widget.DefaultItemAnimator; // Для переопре
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +30,7 @@ import com.webtrust.tennosushi.utils.ShoppingCartIconGenerator;
 
 import java.security.spec.ECField;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -207,6 +210,24 @@ public class ShoppingCartFragment extends Fragment {
 
         setUpItemTouchHelper(); // Инициализация движка свайпов и сопутствующего функционала
         //setUpAnimationDecoratorHelper(); // Установка дополнительных графических эффектов для свайпов
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+
+        // ПРИНУДИТЕЛЬНО ВЫЗВАТЬ ВСЁ, ЧТО ЕСТЬ В ПЛАНИРОВЩИКЕ АДАПТЕРА
+        for (HashMap.Entry<FoodItem, Runnable> pair: rvAdapter.pendingRunnables.entrySet()) {
+            try {
+                rvAdapter.handler.removeCallbacks(pair.getValue());
+                pair.getValue().run();
+            } catch (Exception ex) { ex.printStackTrace(); }
+        }
     }
 
     /**

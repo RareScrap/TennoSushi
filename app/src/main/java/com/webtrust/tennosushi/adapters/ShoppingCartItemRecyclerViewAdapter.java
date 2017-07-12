@@ -5,7 +5,9 @@ import android.graphics.Color;
 import android.os.Handler;
 import android.support.v7.widget.GridLayout;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -13,8 +15,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.webtrust.tennosushi.R;
+import com.webtrust.tennosushi.fragments.MenuListFragment;
 import com.webtrust.tennosushi.fragments.ShoppingCartFragment;
 import com.webtrust.tennosushi.list_items.FoodItem;
+import com.webtrust.tennosushi.utils.ShoppingCartIconGenerator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,10 +36,10 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
     public boolean undoOn = true; // is undo on, you can turn it on from the toolbar menu
     /** Обработчик действий объектов {@link Runnable}, которые объявляются как внутренние классы
      * в {@link ShoppingCartItemRecyclerViewAdapter#pendingRemoval(int)} */
-    private Handler handler = new Handler(); // hanlder for running delayed runnables
+    public Handler handler = new Handler(); // hanlder for running delayed runnables
     /** Хранилище, связывающее удаляемый элемент {@link FoodItem} с удаляющим его объектом
      * {@link Runnable}, который определяется в {@link ShoppingCartItemRecyclerViewAdapter#pendingRemoval(int)} */
-    private HashMap<FoodItem, Runnable> pendingRunnables = new HashMap<>(); // map of items to pending runnables, so we can cancel a removal if need be
+    public HashMap<FoodItem, Runnable> pendingRunnables = new HashMap<>(); // map of items to pending runnables, so we can cancel a removal if need be
     /** Объект контекста, получаемый в {@link #onCreateViewHolder(ViewGroup, int)}.
      * Используется для доступа к ресурсам из разных частей адаптера
      * (например, в {@link #onBindViewHolder(ViewHolder, int)} */
@@ -221,13 +225,18 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
             // this will redraw row in "undo" state
             notifyItemChanged(position);
             // let's create, store and post a runnable to remove the item
-            Runnable pendingRemovalRunnable = new Runnable() {
+            final Runnable pendingRemovalRunnable = new Runnable() {
                 @Override
                 public void run() {
                     remove(items.indexOf(item));
 
                     // TODO: В идеале, строка ниже должа быть в методе, который вызывается в момент полного окочаия анимации в itemToucherHelper
                     ShoppingCartFragment.shoppingCartFragmentRef.changeCartUI(items);
+
+                    Log.d("Menus", "Total count: " + String.valueOf(MenuListFragment.menu.size()));
+                    Log.d("Menus", "Total price: " + String.valueOf(ShoppingCartFragment.getTotalPrice()));
+                    if (MenuListFragment.menu.size() != 0)
+                        ShoppingCartIconGenerator.generate(context, MenuListFragment.menu.size() - 1);
                 }
             };
             handler.postDelayed(pendingRemovalRunnable, PENDING_REMOVAL_TIMEOUT);
@@ -249,6 +258,8 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
             items.remove(position);
             notifyItemRemoved(position);
         }
+
+
     }
 
     /**
