@@ -1,22 +1,10 @@
 package com.webtrust.tennosushi.fragments;
 
 import android.content.Context;
-import android.content.DialogInterface;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.ActionBar; // Для вывода названия приложения в ActionBar
-import android.support.v7.app.AlertDialog;
-import android.util.Log;
+import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -28,19 +16,9 @@ import android.widget.ListView;
 import com.webtrust.tennosushi.MainActivity;
 import com.webtrust.tennosushi.R;
 import com.webtrust.tennosushi.adapters.MenuItemArrayAdapter;
-import com.webtrust.tennosushi.list_items.FoodItem;
 import com.webtrust.tennosushi.list_items.MenuItem;
 import com.webtrust.tennosushi.utils.ShoppingCartIconGenerator;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 

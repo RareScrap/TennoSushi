@@ -1,31 +1,20 @@
 package com.webtrust.tennosushi.utils;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.os.Environment;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.widget.AppCompatDrawableManager;
-import android.util.Log;
-import android.widget.Toast;
 
-import com.webtrust.tennosushi.MainActivity;
 import com.webtrust.tennosushi.R;
 import com.webtrust.tennosushi.fragments.MenuListFragment;
 import com.webtrust.tennosushi.fragments.ShoppingCartFragment;
-import com.webtrust.tennosushi.list_items.FoodItem;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.text.DecimalFormat;
 
 // Хуёвина, которая генеритует иконку корзины с

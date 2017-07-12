@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,9 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.webtrust.tennosushi.R;
-import com.webtrust.tennosushi.fragments.MenuListFragment;
 import com.webtrust.tennosushi.list_items.FoodItem;
-import com.webtrust.tennosushi.utils.ShoppingCartIconGenerator;
 
 import java.io.FileOutputStream;
 import java.io.InputStream;

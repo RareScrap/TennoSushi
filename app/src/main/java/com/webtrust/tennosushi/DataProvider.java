@@ -1,8 +1,6 @@
 package com.webtrust.tennosushi;
 
-import android.content.DialogInterface;
 import android.os.AsyncTask;
-import android.support.v7.app.AlertDialog;
 
 import com.webtrust.tennosushi.list_items.FoodItem;
 import com.webtrust.tennosushi.list_items.MenuItem;

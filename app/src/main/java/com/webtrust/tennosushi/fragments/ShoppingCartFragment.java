@@ -10,25 +10,22 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.ActionBar; // Для вывода названия блюда в ActionBar
-import android.support.v7.widget.CardView; // Для получение ссылки на элемет списка
-import android.support.v7.widget.DefaultItemAnimator; // Для переопределения стандартной анимации "выдвижения" кнопки Undo в свайпах
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.CardView;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import com.webtrust.tennosushi.MainActivity; // Для доступа к компонентам активити
+import com.webtrust.tennosushi.MainActivity;
 import com.webtrust.tennosushi.R;
 import com.webtrust.tennosushi.adapters.ShoppingCartItemRecyclerViewAdapter;
 import com.webtrust.tennosushi.list_items.FoodItem;
-import com.webtrust.tennosushi.utils.ShoppingCartIconGenerator;
 
-import java.security.spec.ECField;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

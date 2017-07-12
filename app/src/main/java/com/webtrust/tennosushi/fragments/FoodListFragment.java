@@ -1,15 +1,13 @@
 package com.webtrust.tennosushi.fragments;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment; // Подлючается для использования в javadoc
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBar; // Для вывода категорий меню в ActionBar
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,10 +19,6 @@ import com.webtrust.tennosushi.R;
 import com.webtrust.tennosushi.adapters.FoodItemRecyclerViewAdapter;
 import com.webtrust.tennosushi.list_items.FoodItem;
 import com.webtrust.tennosushi.utils.ShoppingCartIconGenerator;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
