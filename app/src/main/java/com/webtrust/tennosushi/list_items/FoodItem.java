@@ -35,6 +35,9 @@ public class FoodItem {
     /** Опции блюд, доступные для данной категории (в JSON'е берется из родительской категории) */
     public final ArrayList<FoodOptions> options;
 
+    /** Количество, которое будет заказано. */
+    public int count = 1;
+
     /**
      * Коструктор, копирующий уже существующий FoodItem, но без метаинформации
      * @param foodItem
@@ -52,6 +55,7 @@ public class FoodItem {
         this.picURL = foodItem.picURL;
 
         this.options = foodItem.options;
+        this.count = 1;
     }
 
     /**
@@ -83,5 +87,12 @@ public class FoodItem {
         this.picURL = picURL;
 
         this.options = options; // Это не берется из JSON-части блюда. Это берется из его категории-родителя
+        this.count = 1;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj.getClass() != FoodItem.class) return false;
+        return id == ((FoodItem) obj).id;
     }
 }

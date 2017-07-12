@@ -69,6 +69,8 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
         public final TextView priceTextView;
         /** Ссылка на элемент GUI, представляющий вес порции блюда */
         public final TextView weightTextView;
+        /** Ссылка на элемент GUI, представляющий количество порций блюда */
+        public final TextView numberOfDeashesTextView;
         /** Ссылка на элемент GUI, представляющий кнопку undo */
         public final Button undoButton;
         /** Ссылка на элемент GUI, представляющий основной контейнер заказа */
@@ -89,6 +91,7 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
             componentsTextView = (TextView) itemView.findViewById(R.id.comonents);
             priceTextView = (TextView) itemView.findViewById(R.id.price);
             weightTextView = (TextView) itemView.findViewById(R.id.weight);
+            numberOfDeashesTextView = (TextView) itemView.findViewById(R.id.number_of_deashes);
             undoButton = (Button) itemView.findViewById(R.id.undo_button);
             relativeLayout = (RelativeLayout) itemView.findViewById(R.id.main_container);
             gridLayout = (GridLayout) itemView.findViewById(R.id.pizza_options);
@@ -149,6 +152,7 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
         holder.componentsTextView.setText(item.components);
         holder.priceTextView.setText(String.valueOf(item.price) + " \u20BD");
         holder.weightTextView.setText("Вес: " + item.weight + " Г");
+        holder.numberOfDeashesTextView.setText(String.valueOf(item.count));
 
         // Инициализация объекта, хранящего отступы элемента, по которому был сделан свайп
         ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) holder.itemView.getLayoutParams();

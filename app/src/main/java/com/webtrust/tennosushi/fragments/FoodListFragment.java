@@ -254,11 +254,29 @@ public class FoodListFragment extends MenuListFragment {
             // Элементы с одинаковой метаинформацией в списке ShoppingCartFragment при свайпах приводят к непредсказуемому поведеию элеметов списка
             FoodItem newFoodItem = new FoodItem(clickedFoodView);
 
-            // Добавляет выбранное блюдо в корзину
-            ShoppingCartFragment.addedFoodList.add(newFoodItem);
+            // Ищем такое же блюдо-хуюдо в корзине
+            FoodItem foodItemInShoppingCart = getExistFoodItem(newFoodItem);
+            if (foodItemInShoppingCart != null)
+                // если такое уже есть, просто добавляем единицу к кол-ву порций
+                foodItemInShoppingCart.count++;
+            else
+                // иначе, добавляем выбранное блюдо в корзину
+                ShoppingCartFragment.addedFoodList.add(newFoodItem);
 
             // Отобразать уведомление о добавлении
             Snackbar.make(getView(), "Добавлено в корзину ;)", Snackbar.LENGTH_SHORT).show();
         }
     };
+
+    /**
+     * Ищет уже имеющийся FoodItem, добавленный в корзину, чтобы в дальнейшем просто
+     * инкрементировать значение порций.
+     * @param fi Объект поиска.
+     * @return Найденный FoodItem.
+     */
+    private FoodItem getExistFoodItem(FoodItem fi) {
+        for (FoodItem fi2: ShoppingCartFragment.addedFoodList)
+            if (fi2.equals(fi)) return fi2;
+        return null;
+    }
 }
