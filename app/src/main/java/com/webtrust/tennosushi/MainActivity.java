@@ -44,13 +44,17 @@ public class MainActivity extends AppCompatActivity
     /** Хранилище загруженных из сети данных в виде готовых для работы объектов */
     private DataProvider dataProvider;
 
+    /** Адрес сервера */
+    // private final String SERVER_URL = "http://192.168.0.102/index2.php";
+    private final String SERVER_URL = "http://romhacking.pw/index2.php";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // Подготавливаем DataProvider для загрузки данных
         try {
-            dataProvider = new DataProvider(this, new URL("http://192.168.0.102/index2.php"));
+            dataProvider = new DataProvider(this, new URL(SERVER_URL));
         } catch (MalformedURLException e) {
             e.printStackTrace();
             /* По хорошему, тут должна показываться надпись "Ошибка в приложении. Сообщить разработчикам?",

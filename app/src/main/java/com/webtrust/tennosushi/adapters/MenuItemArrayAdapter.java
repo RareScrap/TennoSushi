@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,9 @@ import android.widget.TextView;
 import com.webtrust.tennosushi.R;
 import com.webtrust.tennosushi.list_items.MenuItem;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -154,6 +158,11 @@ public class MenuItemArrayAdapter extends ArrayAdapter<MenuItem> {
             try {
                 URL url = new URL(params[0]); // Создать URL для изображения
 
+                // Ищем картинку в кэше
+                bitmap = getCacheData(getFileNameFromPath(url.getFile()));
+                if (bitmap != null) return bitmap;  // картинка найдена? тогда уходим.
+
+
                 // Открыть объект HttpURLConnection, получить InputStream
                 // и загрузить изображение
                 connection = (HttpURLConnection) url.openConnection(); // Преобразование типа необходимо, потому что метод возвращает URLConnection
@@ -161,6 +170,10 @@ public class MenuItemArrayAdapter extends ArrayAdapter<MenuItem> {
                 try (InputStream inputStream = connection.getInputStream()) {
                     bitmap = BitmapFactory.decodeStream(inputStream);
                     bitmaps.put(params[0], bitmap); // Кэширование
+
+                    FileOutputStream fos = getContext().openFileOutput(getFileNameFromPath(url.getFile()), Context.MODE_PRIVATE);
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                    fos.close();
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -170,10 +183,38 @@ public class MenuItemArrayAdapter extends ArrayAdapter<MenuItem> {
                 e.printStackTrace();
             }
             finally { // Этот участок кода будет выполняться независимо от того, какие исключения были возбуждены и перехвачены
-                connection.disconnect(); // Закрыть HttpURLConnection
+                // чтобы не слопать пачку хуйцов, проверим, было ли создано соединение вообще
+                // ПОЧЕМУ ЭТО НИКТО НЕ СДЕЛАЛ ДО МЕНЯ?! ВЕДЬ ДАЖЕ СТУДИЯ ОБ ЭТО ГОВОРИЛА!!
+                if (connection != null) connection.disconnect(); // Закрыть HttpURLConnection
             }
 
             return bitmap;
+        }
+
+        /**
+         * Ищет файл в кэше.
+         * @param fileName Имя Файла.
+         * @return Найденный файл в кэше. (null, если файл в кэше не найден)
+         */
+        private Bitmap getCacheData(final String fileName) {
+            File filesDir = getContext().getFilesDir();
+            File[] files = filesDir.listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String name) { return name.equals(fileName); }
+            });
+            if (files.length == 0) return null;
+            return BitmapFactory.decodeFile(files[0].getPath());
+        }
+
+        /**
+         * Отсекает название файла из пути.
+         * (я не стал проверять работу класса File для решения этой задачи)
+         * @param path Путь до файла.
+         * @return Имя файла.
+         */
+        private String getFileNameFromPath(String path) {
+            try { return path.substring(path.lastIndexOf("/") + 1); }
+            catch (Exception ignored) { return null; }
         }
 
         /**
