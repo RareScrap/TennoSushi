@@ -24,7 +24,9 @@ import com.webtrust.tennosushi.MainActivity; // Для доступа к ком�
 import com.webtrust.tennosushi.R;
 import com.webtrust.tennosushi.adapters.ShoppingCartItemRecyclerViewAdapter;
 import com.webtrust.tennosushi.list_items.FoodItem;
+import com.webtrust.tennosushi.utils.ShoppingCartIconGenerator;
 
+import java.security.spec.ECField;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,8 +59,6 @@ import java.util.List;
 public class ShoppingCartFragment extends Fragment {
     /** Список объектов {@link FoodItem}, представляющие добавленные в корзину блюда */
     public static List<FoodItem> addedFoodList = new ArrayList<>();
-    /** Итоговая цена всех заказанных блюд */
-    public double totalPrice;
 
     /** Элемент GUI, реализующий функции отображения списка */
     private RecyclerView recyclerView;
@@ -424,14 +424,26 @@ public class ShoppingCartFragment extends Fragment {
      * @param list Список, по которому определяется пустая ли корзина или нет.
      */
     public void changeCartUI(List list) {
+        View emptyCartPic = null;
+        try { emptyCartPic = getView().findViewById(R.id.empty_cart_pic); }
+        catch (Exception ex) { ex.printStackTrace(); }
+
+        View buyButtonController = null;
+        try { buyButtonController = getView().findViewById(R.id.buy_button_container); }
+        catch (Exception ex) { ex.printStackTrace(); }
+
         if (list.isEmpty()) { // Показать картинку пустой корзины
-            getView().findViewById(R.id.empty_cart_pic).setVisibility(View.VISIBLE);
+            if (emptyCartPic != null)
+                emptyCartPic.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
-            getView().findViewById(R.id.buy_button_container).setVisibility(View.GONE);
+            if (buyButtonController != null)
+                buyButtonController.setVisibility(View.GONE);
         } else { // Показать элеметы корзиы
-            getView().findViewById(R.id.empty_cart_pic).setVisibility(View.GONE);
+            if (emptyCartPic != null)
+                emptyCartPic.setVisibility(View.GONE);
             recyclerView.setVisibility(View.VISIBLE);
-            getView().findViewById(R.id.buy_button_container).setVisibility(View.VISIBLE);
+            if (buyButtonController != null)
+                buyButtonController.setVisibility(View.VISIBLE);
         }
     }
 
@@ -591,4 +603,11 @@ public class ShoppingCartFragment extends Fragment {
             ( (ViewGroup) getActivity().findViewById(R.id.fragment_menu_container) ).removeAllViews();
         }
     };
+
+    public static double getTotalPrice() {
+        double totalPrice = 0;
+        for (FoodItem fi: addedFoodList)
+            totalPrice += fi.price * fi.count;
+        return totalPrice;
+    }
 }

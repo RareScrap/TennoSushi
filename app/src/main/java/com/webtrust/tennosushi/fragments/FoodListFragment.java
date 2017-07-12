@@ -10,6 +10,8 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -17,6 +19,7 @@ import com.webtrust.tennosushi.MainActivity;
 import com.webtrust.tennosushi.R;
 import com.webtrust.tennosushi.adapters.FoodItemRecyclerViewAdapter;
 import com.webtrust.tennosushi.list_items.FoodItem;
+import com.webtrust.tennosushi.utils.ShoppingCartIconGenerator;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -154,7 +157,7 @@ public class FoodListFragment extends MenuListFragment {
         }
 
         // Создать RecyclerView.Adapter для связывания элементов списка foodItemList с RecyclerView
-        rvAdapter = new FoodItemRecyclerViewAdapter(foodItemList, itemClickListener, buyItemClickListener);
+        rvAdapter = new FoodItemRecyclerViewAdapter(foodItemList, itemClickListener, buyItemClickListener, getContext());
         recyclerView.setAdapter(rvAdapter);
 
         // Названичение текста actionBar'у
@@ -172,6 +175,20 @@ public class FoodListFragment extends MenuListFragment {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Отображение команд меню фрагмента.
+     * @param menu Меню
+     * @param inflater Инфлатер для меню
+     */
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        MenuListFragment.menu = menu;
+        menu.clear(); // предотвращает дублирование элементов меню
+        inflater.inflate(R.menu.menu_list_menu, menu);
+        ShoppingCartIconGenerator.generate(getContext(), 1);
     }
 
     /**
@@ -265,6 +282,8 @@ public class FoodListFragment extends MenuListFragment {
 
             // Отобразать уведомление о добавлении
             Snackbar.make(getView(), "Добавлено в корзину ;)", Snackbar.LENGTH_SHORT).show();
+            ShoppingCartIconGenerator.generate(getContext(), 1);
+
         }
     };
 
@@ -274,7 +293,7 @@ public class FoodListFragment extends MenuListFragment {
      * @param fi Объект поиска.
      * @return Найденный FoodItem.
      */
-    private FoodItem getExistFoodItem(FoodItem fi) {
+    public static FoodItem getExistFoodItem(FoodItem fi) {
         for (FoodItem fi2: ShoppingCartFragment.addedFoodList)
             if (fi2.equals(fi)) return fi2;
         return null;

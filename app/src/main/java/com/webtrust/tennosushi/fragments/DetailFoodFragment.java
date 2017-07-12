@@ -15,6 +15,9 @@ import android.widget.TextView;
 import com.webtrust.tennosushi.MainActivity;
 import com.webtrust.tennosushi.R;
 import com.webtrust.tennosushi.list_items.FoodItem;
+import com.webtrust.tennosushi.utils.ShoppingCartIconGenerator;
+
+import static com.webtrust.tennosushi.fragments.FoodListFragment.getExistFoodItem;
 
 /**
  * Фрагмент, отображающий подробную информацию о блюде, по которумы был
@@ -108,6 +111,7 @@ public class DetailFoodFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.detail_list_menu, menu);
+        ShoppingCartIconGenerator.generate(getContext(), 0);
     }
 
     /**
@@ -143,11 +147,18 @@ public class DetailFoodFragment extends Fragment {
             // Элементы с одинаковой метаинформацией в списке ShoppingCartFragment при свайпах приводят к непредсказуемому поведеию элеметов списка
             FoodItem newFoodItem = new FoodItem(foodItem);
 
-            // Добавляет выбранное блюдо в корзину
-            ShoppingCartFragment.addedFoodList.add(newFoodItem);
+            // Ищем такое же блюдо-хуюдо в корзине
+            FoodItem foodItemInShoppingCart = getExistFoodItem(newFoodItem);
+            if (foodItemInShoppingCart != null)
+                // если такое уже есть, просто добавляем единицу к кол-ву порций
+                foodItemInShoppingCart.count++;
+            else
+                // иначе, добавляем выбранное блюдо в корзину
+                ShoppingCartFragment.addedFoodList.add(newFoodItem);
 
             // Отобразать уведомление о добавлении
             Snackbar.make(getView(), "Добавлено в корзину ;)", Snackbar.LENGTH_SHORT).show();
+            ShoppingCartIconGenerator.generate(getContext(), 0);
         }
     };
 }

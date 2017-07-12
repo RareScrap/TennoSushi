@@ -2,12 +2,21 @@ package com.webtrust.tennosushi.fragments;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar; // Для вывода названия приложения в ActionBar
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,6 +30,7 @@ import com.webtrust.tennosushi.R;
 import com.webtrust.tennosushi.adapters.MenuItemArrayAdapter;
 import com.webtrust.tennosushi.list_items.FoodItem;
 import com.webtrust.tennosushi.list_items.MenuItem;
+import com.webtrust.tennosushi.utils.ShoppingCartIconGenerator;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -89,6 +99,9 @@ public class MenuListFragment extends Fragment {
      * но его субклассы должны уметь получать к нему доступ (поэтому реализованы set и get методы).
      */
     private static int currentMode = 0; // Текущий режим отображения списка (карточками по умолчанию)
+
+    /** Используется для регенерации иконки корзины. */
+    public static Menu menu;
 
     /**
      * Set-метод для currentMode
@@ -219,11 +232,11 @@ public class MenuListFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
+        MenuListFragment.menu = menu;
         menu.clear(); // предотвращает дублирование элементов меню
         inflater.inflate(R.menu.menu_list_menu, menu);
+        ShoppingCartIconGenerator.generate(getContext(), 1);
     }
-
-    //
 
     /**
      * Обработка выбора команд меню.

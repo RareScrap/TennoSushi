@@ -18,6 +18,7 @@ import android.view.MenuItem;
 import com.webtrust.tennosushi.fragments.MenuListFragment;
 import com.webtrust.tennosushi.fragments.ShoppingCartFragment;
 import com.webtrust.tennosushi.list_items.FoodItem;
+import com.webtrust.tennosushi.utils.ShoppingCartIconGenerator;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -123,6 +124,8 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
+        if (MenuListFragment.menu.size() == 1) ShoppingCartIconGenerator.generate(this, 0);
+        else ShoppingCartIconGenerator.generate(this, 1);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);

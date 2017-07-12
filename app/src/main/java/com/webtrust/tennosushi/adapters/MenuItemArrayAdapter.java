@@ -25,6 +25,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.webtrust.tennosushi.utils.BitmapCacheProvider.getCacheData;
+import static com.webtrust.tennosushi.utils.BitmapCacheProvider.getFileNameFromPath;
+
 /**
  * Адаптер для списка меню, основанный на {@link ArrayAdapter}
  * @author RareScrap
@@ -159,7 +162,7 @@ public class MenuItemArrayAdapter extends ArrayAdapter<MenuItem> {
                 URL url = new URL(params[0]); // Создать URL для изображения
 
                 // Ищем картинку в кэше
-                bitmap = getCacheData(getFileNameFromPath(url.getFile()));
+                bitmap = getCacheData(getFileNameFromPath(url.getFile()), getContext());
                 if (bitmap != null) return bitmap;  // картинка найдена? тогда уходим.
 
 
@@ -189,32 +192,6 @@ public class MenuItemArrayAdapter extends ArrayAdapter<MenuItem> {
             }
 
             return bitmap;
-        }
-
-        /**
-         * Ищет файл в кэше.
-         * @param fileName Имя Файла.
-         * @return Найденный файл в кэше. (null, если файл в кэше не найден)
-         */
-        private Bitmap getCacheData(final String fileName) {
-            File filesDir = getContext().getFilesDir();
-            File[] files = filesDir.listFiles(new FilenameFilter() {
-                @Override
-                public boolean accept(File dir, String name) { return name.equals(fileName); }
-            });
-            if (files.length == 0) return null;
-            return BitmapFactory.decodeFile(files[0].getPath());
-        }
-
-        /**
-         * Отсекает название файла из пути.
-         * (я не стал проверять работу класса File для решения этой задачи)
-         * @param path Путь до файла.
-         * @return Имя файла.
-         */
-        private String getFileNameFromPath(String path) {
-            try { return path.substring(path.lastIndexOf("/") + 1); }
-            catch (Exception ignored) { return null; }
         }
 
         /**
