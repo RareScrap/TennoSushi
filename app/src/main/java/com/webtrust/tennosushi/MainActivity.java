@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -69,8 +71,6 @@ public class MainActivity extends AppCompatActivity
         // Создание фрагмента корзины, который будет хранится в памяти на все время работы приложения
         shoppingCartFragment = new ShoppingCartFragment();
         // TODO: Стоит ли тут делать обновление адаптера ShoppingCartFragment? Решил что нет
-
-
 
         /*
         // Создание экземпляра MenuListFragment и назначение ему режим отображения элементов в виде карточек

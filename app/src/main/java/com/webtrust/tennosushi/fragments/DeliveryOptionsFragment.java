@@ -1,5 +1,8 @@
 package com.webtrust.tennosushi.fragments;
 
+import android.app.Dialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -9,9 +12,11 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -31,6 +36,14 @@ import com.google.android.gms.maps.model.LatLng;
 import com.webtrust.tennosushi.MainActivity;
 import com.webtrust.tennosushi.MapsActivity;
 import com.webtrust.tennosushi.R;
+import com.webtrust.tennosushi.json_objects.OrderObject;
+
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.Scanner;
 
 /**
  * Фрагмент, предоставляющий возможность выбрать способ доставки: курьером или самовывозом.
@@ -65,6 +78,8 @@ public class DeliveryOptionsFragment extends Fragment
     private EditText telephoneNumber;
     /** Элемент GUI, представляющий собой кнопку выбора места на карте с заполнением поля адреса */
     private ImageButton button;
+    /** Элемент GUI, представляющий собой кнопку совершения заказа */
+    private Button orderButton;
     
     /** Элемент GUI, представляющий собой View'ху Google карты  */
     private MapView mapView;
@@ -116,7 +131,7 @@ public class DeliveryOptionsFragment extends Fragment
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         // Надуваем View из XML-разметки
-        View returnedView = inflater.inflate(R.layout.fragment_delivery_options, container, false);
+        final View returnedView = inflater.inflate(R.layout.fragment_delivery_options, container, false);
 
         // Получение ссылок на элементы GUI
         courierDelivery = (RadioButton) returnedView.findViewById(R.id.courier_delivery);
@@ -130,6 +145,7 @@ public class DeliveryOptionsFragment extends Fragment
         mapView = (MapView) returnedView.findViewById(R.id.map_view);
         ab = ((MainActivity) this.getActivity()).getSupportActionBar();
         button = (ImageButton) returnedView.findViewById(R.id.set_on_map);
+        orderButton = (Button) returnedView.findViewById(R.id.order_button);
 
         // Создаем View карты
         mapView.onCreate(savedInstanceState);
@@ -147,6 +163,141 @@ public class DeliveryOptionsFragment extends Fragment
                 Intent intent = new Intent(getActivity(), MapsActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
+            }
+        });
+
+        // Установка слушателя на кнопку заказа
+        orderButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                /* new AlertDialog.Builder(getContext()).setTitle("Hello World!")
+                        .setMessage("Hello! I'm little alert dialog!")
+                        .setCancelable(false)
+                        .setPositiveButton("OK, got it!", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) { }
+                        })
+                        .create().show(); */
+
+
+                // да начнётся адовый ПИЗДЕЦ!
+
+                // создаём диалог с загрузкой
+                final ProgressDialog d = new ProgressDialog(getContext());
+                d.setTitle(R.string.please_wait);
+                d.setMessage(getString(R.string.data_sending));
+                d.setCancelable(false);
+                d.show();
+
+                // выполняем все сетевые действия в отдельном потоке
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            // создаём объект заказа
+                            OrderObject oo = new OrderObject(selfDelivery.isChecked(), address.getText().toString(),
+                                                             Integer.parseInt(apartmentNumber.getText().toString()),
+                                                             Integer.parseInt(porchNumber.getText().toString()),
+                                                             telephoneNumber.getText().toString(), ShoppingCartFragment.addedFoodList);
+
+                            // устанавливаем соединение
+                            URL url = new URL("http://romhacking.pw:1234/makeOrder");
+                            HttpURLConnection http = (HttpURLConnection) url.openConnection();
+                            http.setRequestMethod("POST");
+
+                            // передаём объект заказа
+                            http.setDoOutput(true);
+                            OutputStream os = http.getOutputStream();
+                            os.write(oo.getJSON().getBytes("UTF-8"));
+
+                            /* Охуеть, но чтобы POST заработал, нужно ещё
+                               и считать данные, которые отсылает в ответ
+                               сервер. Какой-то пиздец, однако. */
+                            // считываем данные
+                            Scanner sc = new Scanner(http.getInputStream());
+                            if (sc.hasNext()) {
+                                if (sc.next().equals("ok!")) {
+                                    // всё ок
+                                    returnedView.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            d.hide();
+                                            new AlertDialog.Builder(getContext())
+                                                    .setIcon(R.drawable.ic_check)
+                                                    .setTitle(R.string.done)
+                                                    .setMessage(R.string.successful_order)
+                                                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(DialogInterface dialog, int which) { }
+                                                    })
+                                                    .create().show();
+                                        }
+                                    });
+                                } else {
+                                    // чёт произошло
+                                    returnedView.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            d.hide();
+                                            new AlertDialog.Builder(getContext())
+                                                    .setTitle(R.string.error_has_occured)
+                                                    .setMessage("Сервер вернул \"fail!\".")
+                                                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(DialogInterface dialog, int which) { }
+                                                    })
+                                                    .create().show();
+                                        }
+                                    });
+                                }
+                            } else {
+                                // ничего не пришло
+                                returnedView.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        d.hide();
+                                        new AlertDialog.Builder(getContext())
+                                                .setTitle(R.string.error_has_occured)
+                                                .setMessage("Сервер ничего не вернул.")
+                                                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which) { }
+                                                })
+                                                .create().show();
+                                    }
+                                });
+                            }
+
+                            // отключаемся
+                            http.disconnect();
+
+                            // убираем диалог
+                            returnedView.post(new Runnable() {
+                                @Override
+                                public void run() { d.hide(); }
+                            });
+                        } catch (Exception ex) {
+                            // убираем диалог и показываем стэк трейс в другом диалоге
+                            returnedView.post(new Runnable() {
+                                @Override
+                                public void run() { d.hide(); }
+                            });
+                            final StringWriter sw = new StringWriter();
+                            PrintWriter pw = new PrintWriter(sw);
+                            ex.printStackTrace(pw);
+                            pw.close();
+                            returnedView.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    new AlertDialog.Builder(getContext())
+                                            .setTitle(R.string.error_has_occured)
+                                            .setMessage(sw.toString())
+                                            .create().show();
+                                }
+                            });
+                        }
+                    }
+                }).start();
             }
         });
 

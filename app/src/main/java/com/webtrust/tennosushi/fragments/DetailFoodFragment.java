@@ -157,7 +157,10 @@ public class DetailFoodFragment extends Fragment {
                 ShoppingCartFragment.addedFoodList.add(newFoodItem);
 
             // Отобразать уведомление о добавлении
-            Snackbar.make(getView(), "Добавлено в корзину ;)", Snackbar.LENGTH_SHORT).show();
+            View v = getView();
+            if (v != null)
+                Snackbar.make(getView(), "Добавлено в корзину ;)", Snackbar.LENGTH_SHORT).show();
+
             ShoppingCartIconGenerator.generate(getContext(), 0);
         }
     };

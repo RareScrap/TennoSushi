@@ -31,12 +31,13 @@ public class FoodItem {
     public final int weight;
     /** Ссылка на картинку блюда */
     public final String picURL;
+    /** Количество, которое будет заказано. */
+    public int count = 1;
 
     /** Опции блюд, доступные для данной категории (в JSON'е берется из родительской категории) */
     public final ArrayList<FoodOptions> options;
 
-    /** Количество, которое будет заказано. */
-    public int count = 1;
+
 
     /**
      * Коструктор, копирующий уже существующий FoodItem, но без метаинформации

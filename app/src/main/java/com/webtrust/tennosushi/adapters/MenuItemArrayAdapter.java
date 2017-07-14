@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,7 +50,7 @@ public class MenuItemArrayAdapter extends ArrayAdapter<MenuItem> {
     private Map<String, Bitmap> bitmaps = new HashMap<>();
 
     /** Слушатель кликов по элементам списка */
-    View.OnClickListener clickListener;
+    private View.OnClickListener clickListener;
 
     /**
      * Конструктор для инициализации унаследованных членов суперкласса
@@ -81,8 +82,9 @@ public class MenuItemArrayAdapter extends ArrayAdapter<MenuItem> {
      * @param parent Родительский контейнер для списка
      * @return convertView класса View
      */
+    @NonNull
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(int position, View convertView, @NonNull ViewGroup parent) {
         // Получение объекта MenuItem для заданной позиции ListView
         MenuItem menuItem = getItem(position);
 
@@ -100,22 +102,25 @@ public class MenuItemArrayAdapter extends ArrayAdapter<MenuItem> {
             Извлечение ID-имени категории блюда из элемента menuItem
             (входные данные к адаптеру) и сохранение его во ViewHolder'е
             */
-            viewHolder.categoryID = menuItem.id;
+            if (menuItem != null) viewHolder.categoryID = menuItem.id;
+
             convertView.setTag(viewHolder);
         }else { // Cуществующий объект ViewHolder используется заново
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
         // Если картинка уже загружена, использовать ее; в противном случае загрузить в отдельном потоке
-        if (bitmaps.containsKey(menuItem.picURL)) {
-            viewHolder.menuImageView.setImageBitmap(bitmaps.get(menuItem.picURL));
-        }else { // Загрузить и вывести значок погодных условий
-            new LoadImageTask(viewHolder.menuImageView).execute(menuItem.picURL);
-        }
+        if (menuItem != null) {
+            if (bitmaps.containsKey(menuItem.picURL)) {
+                viewHolder.menuImageView.setImageBitmap(bitmaps.get(menuItem.picURL));
+            } else { // Загрузить и вывести значок погодных условий
+                new LoadImageTask(viewHolder.menuImageView).execute(menuItem.picURL);
+            }
 
-        // Получить данные из объекта MenuItem и заполнить представления
-        // Назначается текст компонентов TextView элемента ListView
-        viewHolder.menuTextView.setText(menuItem.name);
+            // Получить данные из объекта MenuItem и заполнить представления
+            // Назначается текст компонентов TextView элемента ListView
+            viewHolder.menuTextView.setText(menuItem.name);
+        }
 
         convertView.setOnClickListener(clickListener);
 

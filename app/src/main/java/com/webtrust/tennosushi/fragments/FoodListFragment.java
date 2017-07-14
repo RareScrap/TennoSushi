@@ -135,7 +135,8 @@ public class FoodListFragment extends MenuListFragment {
     @Override
     public void onViewCreated (View view, Bundle savedInstanceState) {
         // Получение ссылки на recyclerView
-        recyclerView = (RecyclerView) getView().findViewById(R.id.recyclerView);
+        try { recyclerView = (RecyclerView) getView().findViewById(R.id.recyclerView); }
+        catch (Exception ex) { ex.printStackTrace(); }
 
         /*
         Инициализировать LayoutManager для определенного вида списка.
