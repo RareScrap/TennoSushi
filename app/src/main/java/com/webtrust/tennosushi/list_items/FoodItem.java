@@ -84,4 +84,13 @@ public class FoodItem {
 
         this.options = options; // Это не берется из JSON-части блюда. Это берется из его категории-родителя
     }
+
+    /**
+     * Преобразует тег к строковому типу
+     * @return Возвращает только поле {@link #name}
+     */
+    @Override
+    public String toString() {
+        return name;
+    }
 }
