@@ -141,6 +141,12 @@ public class FoodListFragment extends MenuListFragment {
     }
 
     @Override
+    public void onStop() {
+        super.onStop();
+        rvAdapter.items.clear();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_item_recyclerview_test, (ViewGroup) this.getView(), false);
