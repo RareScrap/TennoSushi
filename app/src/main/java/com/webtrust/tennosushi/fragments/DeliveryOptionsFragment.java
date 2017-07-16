@@ -195,7 +195,11 @@ public class DeliveryOptionsFragment extends Fragment
                     public void run() {
                         try {
                             // создаём объект заказа
-                            OrderObject oo = new OrderObject(selfDelivery.isChecked(), address.getText().toString(),
+                            OrderObject oo;
+                            if (selfDelivery.isChecked())
+                                oo = new OrderObject(telephoneNumber.getText().toString(), ShoppingCartFragment.addedFoodList);
+                            else
+                                oo = new OrderObject(address.getText().toString(),
                                                              Integer.parseInt(apartmentNumber.getText().toString()),
                                                              Integer.parseInt(porchNumber.getText().toString()),
                                                              telephoneNumber.getText().toString(), ShoppingCartFragment.addedFoodList);

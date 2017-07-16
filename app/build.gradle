@@ -42,4 +42,5 @@ dependencies {
     compile 'com.google.android.gms:play-services:10.2.6'
     compile 'com.google.android.gms:play-services-maps:10.2.6'
     testCompile 'junit:junit:4.12'
+    compile 'com.google.code.gson:gson:2.8.1'
 }

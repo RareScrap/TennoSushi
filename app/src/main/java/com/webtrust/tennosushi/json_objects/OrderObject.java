@@ -14,19 +14,24 @@ import java.util.List;
 
 public class OrderObject {
 
-    public boolean isSelfDelivery;
     public String address;
-    public int apartmentNumber;
-    public int porchNumber;
+    public Integer apartmentNumber;
+    public Integer porchNumber;
     public String phoneNumber;
     public List<OrderFoodItem> items;
 
-    public OrderObject(boolean isSelfDelivery, String address, int apartmentNumber,
+    public OrderObject(String address, int apartmentNumber,
                        int porchNumber, String phoneNumber, List<FoodItem> items) {
-        this.isSelfDelivery = isSelfDelivery;
         this.address = address;
         this.apartmentNumber = apartmentNumber;
         this.porchNumber = porchNumber;
+        this.phoneNumber = phoneNumber;
+
+        this.items = new ArrayList<>();
+        for (FoodItem fi: items) this.items.add(new OrderFoodItem(fi));
+    }
+
+    public OrderObject(String phoneNumber, List<FoodItem> items) {
         this.phoneNumber = phoneNumber;
 
         this.items = new ArrayList<>();
