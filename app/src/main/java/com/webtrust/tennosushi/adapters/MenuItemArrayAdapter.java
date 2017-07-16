@@ -4,22 +4,27 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter; // Родительский класс
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.webtrust.tennosushi.R;
 import com.webtrust.tennosushi.list_items.MenuItem;
 
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.webtrust.tennosushi.utils.BitmapCacheProvider.getCacheData;
+import static com.webtrust.tennosushi.utils.BitmapCacheProvider.getFileNameFromPath;
 
 /**
  * Адаптер для списка меню, основанный на {@link ArrayAdapter}
@@ -38,14 +43,14 @@ public class MenuItemArrayAdapter extends ArrayAdapter<MenuItem> {
         TextView menuTextView;
         /** ID-имя категории, с которым связан View, отображающий категорию меню.
          * Используется в слушателе кликов, чтобы дать приложению понять, какое меню нужно отобразить */
-        String categoryID;
+        int categoryID;
     }
 
     /** Кэш для уже загруженных картинок (объектов Bitmap) */
     private Map<String, Bitmap> bitmaps = new HashMap<>();
 
     /** Слушатель кликов по элементам списка */
-    View.OnClickListener clickListener;
+    private View.OnClickListener clickListener;
 
     /**
      * Конструктор для инициализации унаследованных членов суперкласса
@@ -77,8 +82,9 @@ public class MenuItemArrayAdapter extends ArrayAdapter<MenuItem> {
      * @param parent Родительский контейнер для списка
      * @return convertView класса View
      */
+    @NonNull
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(int position, View convertView, @NonNull ViewGroup parent) {
         // Получение объекта MenuItem для заданной позиции ListView
         MenuItem menuItem = getItem(position);
 
@@ -96,22 +102,25 @@ public class MenuItemArrayAdapter extends ArrayAdapter<MenuItem> {
             Извлечение ID-имени категории блюда из элемента menuItem
             (входные данные к адаптеру) и сохранение его во ViewHolder'е
             */
-            viewHolder.categoryID = menuItem.category;
+            if (menuItem != null) viewHolder.categoryID = menuItem.id;
+
             convertView.setTag(viewHolder);
         }else { // Cуществующий объект ViewHolder используется заново
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
         // Если картинка уже загружена, использовать ее; в противном случае загрузить в отдельном потоке
-        if (bitmaps.containsKey(menuItem.picURL)) {
-            viewHolder.menuImageView.setImageBitmap(bitmaps.get(menuItem.picURL));
-        }else { // Загрузить и вывести значок погодных условий
-            new LoadImageTask(viewHolder.menuImageView).execute(menuItem.picURL);
-        }
+        if (menuItem != null) {
+            if (bitmaps.containsKey(menuItem.picURL)) {
+                viewHolder.menuImageView.setImageBitmap(bitmaps.get(menuItem.picURL));
+            } else { // Загрузить и вывести значок погодных условий
+                new LoadImageTask(viewHolder.menuImageView).execute(menuItem.picURL);
+            }
 
-        // Получить данные из объекта MenuItem и заполнить представления
-        // Назначается текст компонентов TextView элемента ListView
-        viewHolder.menuTextView.setText(menuItem.name);
+            // Получить данные из объекта MenuItem и заполнить представления
+            // Назначается текст компонентов TextView элемента ListView
+            viewHolder.menuTextView.setText(menuItem.name);
+        }
 
         convertView.setOnClickListener(clickListener);
 
@@ -154,6 +163,11 @@ public class MenuItemArrayAdapter extends ArrayAdapter<MenuItem> {
             try {
                 URL url = new URL(params[0]); // Создать URL для изображения
 
+                // Ищем картинку в кэше
+                bitmap = getCacheData(getFileNameFromPath(url.getFile()), getContext());
+                if (bitmap != null) return bitmap;  // картинка найдена? тогда уходим.
+
+
                 // Открыть объект HttpURLConnection, получить InputStream
                 // и загрузить изображение
                 connection = (HttpURLConnection) url.openConnection(); // Преобразование типа необходимо, потому что метод возвращает URLConnection
@@ -161,6 +175,10 @@ public class MenuItemArrayAdapter extends ArrayAdapter<MenuItem> {
                 try (InputStream inputStream = connection.getInputStream()) {
                     bitmap = BitmapFactory.decodeStream(inputStream);
                     bitmaps.put(params[0], bitmap); // Кэширование
+
+                    FileOutputStream fos = getContext().openFileOutput(getFileNameFromPath(url.getFile()), Context.MODE_PRIVATE);
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                    fos.close();
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -170,7 +188,9 @@ public class MenuItemArrayAdapter extends ArrayAdapter<MenuItem> {
                 e.printStackTrace();
             }
             finally { // Этот участок кода будет выполняться независимо от того, какие исключения были возбуждены и перехвачены
-                connection.disconnect(); // Закрыть HttpURLConnection
+                // чтобы не слопать пачку хуйцов, проверим, было ли создано соединение вообще
+                // ПОЧЕМУ ЭТО НИКТО НЕ СДЕЛАЛ ДО МЕНЯ?! ВЕДЬ ДАЖЕ СТУДИЯ ОБ ЭТО ГОВОРИЛА!!
+                if (connection != null) connection.disconnect(); // Закрыть HttpURLConnection
             }
 
             return bitmap;

@@ -1,15 +1,16 @@
 package com.webtrust.tennosushi.fragments;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment; // Подлючается для использования в javadoc
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBar; // Для вывода категорий меню в ActionBar
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -17,10 +18,7 @@ import com.webtrust.tennosushi.MainActivity;
 import com.webtrust.tennosushi.R;
 import com.webtrust.tennosushi.adapters.FoodItemRecyclerViewAdapter;
 import com.webtrust.tennosushi.list_items.FoodItem;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.webtrust.tennosushi.utils.ShoppingCartIconGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +53,7 @@ import java.util.List;
  */
 public class FoodListFragment extends MenuListFragment {
     /** Список объектов FoodItem, представляющих элементы меню (блюда) */
-    private List<FoodItem> foodItemList = new ArrayList<>();
+    public List<FoodItem> foodItemList = new ArrayList<>();
     /** Название категории меню */
     private String foodCategoryName;
 
@@ -96,7 +94,7 @@ public class FoodListFragment extends MenuListFragment {
      * @param currentMode Режим отображения списка
      * @return Новый объект фрагмента {@link FoodListFragment}.
      */
-    public static FoodListFragment newInstance(String foodCategory, String foodCategoryName, int currentMode) {
+    public static FoodListFragment newInstance(int foodCategory, String foodCategoryName, int currentMode) {
         FoodListFragment fragment = new FoodListFragment();
 
         /*
@@ -104,7 +102,7 @@ public class FoodListFragment extends MenuListFragment {
         foodCategoryName. Позже можо будет получить foodCategory, используя getArguments()
          */
         Bundle args = new Bundle();
-        args.putString("foodCategory", foodCategory);
+        args.putInt("foodCategory", foodCategory);
         args.putInt("currentMode", currentMode);
         fragment.setArguments(args);
 
@@ -137,7 +135,8 @@ public class FoodListFragment extends MenuListFragment {
     @Override
     public void onViewCreated (View view, Bundle savedInstanceState) {
         // Получение ссылки на recyclerView
-        recyclerView = (RecyclerView) getView().findViewById(R.id.recyclerView);
+        try { recyclerView = (RecyclerView) getView().findViewById(R.id.recyclerView); }
+        catch (Exception ex) { ex.printStackTrace(); }
 
         /*
         Инициализировать LayoutManager для определенного вида списка.
@@ -154,7 +153,7 @@ public class FoodListFragment extends MenuListFragment {
         }
 
         // Создать RecyclerView.Adapter для связывания элементов списка foodItemList с RecyclerView
-        rvAdapter = new FoodItemRecyclerViewAdapter(foodItemList, itemClickListener, buyItemClickListener);
+        rvAdapter = new FoodItemRecyclerViewAdapter(foodItemList, itemClickListener, buyItemClickListener, getContext());
         recyclerView.setAdapter(rvAdapter);
 
         // Названичение текста actionBar'у
@@ -162,13 +161,30 @@ public class FoodListFragment extends MenuListFragment {
         ab.setTitle(foodCategoryName); // Вывести в титульую строку название блюда
         ab.setSubtitle(""); // Стереть подстроку
 
-        // Запрос на получение данных
+        // Получение данных из DataProvider
         try {
-            GetDataTask getLocalDataTask = new GetDataTask();
-            getLocalDataTask.execute( getArguments().getString("foodCategory") );
+            ArrayList<FoodItem> downloadedFoodItemListLink = ((MainActivity) getActivity()).getDataProvider().downloadedFoodItemList;
+            for (int i = 0; i < downloadedFoodItemListLink.size(); ++i ) {
+                if (downloadedFoodItemListLink.get(i).categoryId == getArguments().getInt("foodCategory"))
+                    foodItemList.add(downloadedFoodItemListLink.get(i));
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Отображение команд меню фрагмента.
+     * @param menu Меню
+     * @param inflater Инфлатер для меню
+     */
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        MenuListFragment.menu = menu;
+        menu.clear(); // предотвращает дублирование элементов меню
+        inflater.inflate(R.menu.menu_list_menu, menu);
+        ShoppingCartIconGenerator.generate(getContext(), 1);
     }
 
     /**
@@ -200,66 +216,6 @@ public class FoodListFragment extends MenuListFragment {
         }
 
         return super.onOptionsItemSelected(item); //TODO: Разобраться зачем вообще тут нужен супер
-    }
-
-    /**
-     * Внутренний класс {@link AsyncTask} для получения данных из
-     * скачанного в {@link MenuListFragment} файла JSON.
-     *
-     * @author RareScrap
-     */
-    private class GetDataTask extends AsyncTask<String, Void, String> {
-        @Override
-        protected String doInBackground(String... params) {
-            return params[0];
-        }
-
-        @Override
-        protected void onPostExecute(String findName) {
-            convertJSONtoArrayList(MenuListFragment.downloadedJSON, findName ); // Заполнение weatherList
-            rvAdapter.notifyDataSetChanged(); // Связать с ListView
-
-            // Прокрутить до верха
-            recyclerView.smoothScrollToPosition(0);
-        }
-    }
-
-    /**
-     * Заполняет {@link FoodListFragment#foodItemList} блюдами с категорией findName.
-     * @param jsonObject JSON файл данных, в котором будет происходить поиск
-     * @param findName Категория, блюда из которой следует искать
-     */
-    private void convertJSONtoArrayList(JSONObject jsonObject, String findName) {
-        foodItemList.clear(); // Стирание старых данных
-
-        try {
-            // Получение свойства "list" JSONArray
-            JSONArray list = jsonObject.getJSONArray("categories");
-
-            int categoryIndex = 0;
-            for (; categoryIndex < list.length(); ++categoryIndex) {
-                if ( list.getJSONObject(categoryIndex).getString("category") == findName )
-                    break;
-            }
-
-            list = list.getJSONObject(categoryIndex).getJSONArray("food");
-
-            // Преобразовать каждый элемент списка в объект FoodItem
-            for (int i = 0; i < list.length(); ++i) {
-                JSONObject deash = list.getJSONObject(i);
-                String name = deash.getString("name");
-                String components = deash.getString("components");
-                String price = deash.getString("price");
-                int weight = deash.getInt("weight");
-                String picURL = deash.getString("picURL"); // Получить URL на картинку с блюдом
-
-                // Добавить новый объект FoodItem в foodItemList
-                foodItemList.add( new FoodItem(name, Double.parseDouble(price), components, weight, picURL, findName, foodCategoryName));
-            }
-        }
-        catch (JSONException e) {
-            e.printStackTrace();
-        }
     }
 
     /**
@@ -311,11 +267,31 @@ public class FoodListFragment extends MenuListFragment {
             // Элементы с одинаковой метаинформацией в списке ShoppingCartFragment при свайпах приводят к непредсказуемому поведеию элеметов списка
             FoodItem newFoodItem = new FoodItem(clickedFoodView);
 
-            // Добавляет выбранное блюдо в корзину
-            ShoppingCartFragment.addedFoodList.add(newFoodItem);
+            // Ищем такое же блюдо-хуюдо в корзине
+            FoodItem foodItemInShoppingCart = getExistFoodItem(newFoodItem);
+            if (foodItemInShoppingCart != null)
+                // если такое уже есть, просто добавляем единицу к кол-ву порций
+                foodItemInShoppingCart.count++;
+            else
+                // иначе, добавляем выбранное блюдо в корзину
+                ShoppingCartFragment.addedFoodList.add(newFoodItem);
 
             // Отобразать уведомление о добавлении
             Snackbar.make(getView(), "Добавлено в корзину ;)", Snackbar.LENGTH_SHORT).show();
+            ShoppingCartIconGenerator.generate(getContext(), 1);
+
         }
     };
+
+    /**
+     * Ищет уже имеющийся FoodItem, добавленный в корзину, чтобы в дальнейшем просто
+     * инкрементировать значение порций.
+     * @param fi Объект поиска.
+     * @return Найденный FoodItem.
+     */
+    public static FoodItem getExistFoodItem(FoodItem fi) {
+        for (FoodItem fi2: ShoppingCartFragment.addedFoodList)
+            if (fi2.equals(fi)) return fi2;
+        return null;
+    }
 }

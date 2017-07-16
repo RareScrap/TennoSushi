@@ -1,13 +1,10 @@
 package com.webtrust.tennosushi.fragments;
 
 import android.content.Context;
-import android.content.DialogInterface;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBar; // Для вывода названия приложения в ActionBar
-import android.support.v7.app.AlertDialog;
+import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,16 +17,8 @@ import com.webtrust.tennosushi.MainActivity;
 import com.webtrust.tennosushi.R;
 import com.webtrust.tennosushi.adapters.MenuItemArrayAdapter;
 import com.webtrust.tennosushi.list_items.MenuItem;
+import com.webtrust.tennosushi.utils.ShoppingCartIconGenerator;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,9 +55,6 @@ public class MenuListFragment extends Fragment {
     /** Константа, определяющие режим отображения списка в виде плиток */
     public static int PLATE_MODE = 1;
 
-    /** Хранилище для загруженных данных в формате JSON */
-    public static JSONObject downloadedJSON = null;
-
     // Закомментирован, т.к. еще не изучен
     //private OnFragmentInteractionListener mListener;
 
@@ -91,6 +77,9 @@ public class MenuListFragment extends Fragment {
      * но его субклассы должны уметь получать к нему доступ (поэтому реализованы set и get методы).
      */
     private static int currentMode = 0; // Текущий режим отображения списка (карточками по умолчанию)
+
+    /** Используется для регенерации иконки корзины. */
+    public static Menu menu;
 
     /**
      * Set-метод для currentMode
@@ -162,15 +151,7 @@ public class MenuListFragment extends Fragment {
         setHasOptionsMenu(true); // У фрагмента имеются команды меню
 
         // Запрос на получение данных
-        try {
-            URL url = new URL("http://romhacking.pw/sushi.php");
-
-            GetDataTask getLocalDataTask = new GetDataTask();
-            getLocalDataTask.execute(url);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+        menuItemList = ((MainActivity) getActivity()).getDataProvider().downloadedMenuItemList;
 
         // Развернуть разметку для фрагмента
         if (currentMode == CARD_MODE) { // Для разметки в виде постов
@@ -229,11 +210,11 @@ public class MenuListFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
+        MenuListFragment.menu = menu;
         menu.clear(); // предотвращает дублирование элементов меню
         inflater.inflate(R.menu.menu_list_menu, menu);
+        ShoppingCartIconGenerator.generate(getContext(), 1);
     }
-
-    //
 
     /**
      * Обработка выбора команд меню.
@@ -306,128 +287,7 @@ public class MenuListFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }*/
 
-    /* Обращение к REST-совместимому (якобы) веб-сервису за данными блюд и меню
-    и сохранение этих данных в локальном файле HTML */
-    /**
-     * Внутренний класс {@link AsyncTask} для загрузки данных
-     * в формате JSON.
-     * @author RareScrap
-     */
-    private class GetDataTask extends AsyncTask<URL, Void, JSONObject> {
-        public int CONNECTION_TIMEOUT = 5000; // Максимальное время ожидания данных
-        /**
-         * Получение данных из сети
-         * @param params URL для получения JSON файла
-         * @return JSON файл с категориями меню и блюдами в них
-         */
-        @Override
-        protected JSONObject doInBackground(URL... params) {
-            HttpURLConnection connection = null;
 
-            try {
-                connection = (HttpURLConnection) params[0].openConnection(); // Для выдачи запроса достаточно открыть объект подключения
-                connection.setConnectTimeout(this.CONNECTION_TIMEOUT);
-                int response = connection.getResponseCode(); // Получить код ответа от веб-сервера
-
-                //response = 404; // Это тест при недоступности сети
-
-                if (response == HttpURLConnection.HTTP_OK) {
-                    StringBuilder builder = new StringBuilder();
-
-                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-                        String line;
-                        while ((line = reader.readLine()) != null) {
-                            builder.append(line);
-                        }
-                    }
-                    catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-                    return new JSONObject(builder.toString());
-                }else {}
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-            finally {
-                connection.disconnect(); // Закрыть HttpURLConnection
-            }
-
-            return null;
-        }
-        /**
-         * Обработка ответа JSON и обновление ListView/GridView.
-         * @param jsonObject JSON файл полученный после завершения работы doInBackground()
-         */
-        @Override
-        protected void onPostExecute(JSONObject jsonObject) {
-            if (jsonObject != null) {
-                downloadedJSON = jsonObject; // Сохранение загруженного файла
-
-                convertJSONtoArrayList(jsonObject); // Заполнение weatherList
-                menuItemArrayAdapter.notifyDataSetChanged(); // Связать с ListView
-
-                // Прокрутить до верха
-                if (currentMode == CARD_MODE) {
-                    menuItemListListView.smoothScrollToPosition(0);
-                }else { // currentMode == PLATE_MODE
-                    menuItemListGridView.smoothScrollToPosition(0);
-                }
-            } else { // Вывод алерта в случае, если данные не дошли
-                AlertDialog.Builder adBuilder = new AlertDialog.Builder(getActivity());
-
-                // Назначить сообщение AlertDialog
-                adBuilder.setMessage(R.string.noConnection_useCashe);
-
-                // Добавить кнопку OK в диалоговое окно
-                adBuilder.setPositiveButton(android.R.string.ok,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {}
-                        }
-                );
-
-                // Отображение диалогового окна
-                adBuilder.create().show();
-            }
-        }
-    }
-
-    /**
-     * Создание объектов MenuItem на базе JSONObject
-     * с последующим их заесением в menuItemList.
-     *
-     * @param jsonObject Входящий JSON файл
-     */
-    private void convertJSONtoArrayList(JSONObject jsonObject) {
-        menuItemList.clear(); // Стирание старых погодных данных
-
-        try {
-            // Получение массива с категориями блюд
-            JSONArray list = jsonObject.getJSONArray("categories");
-
-            // Преобразовать каждый элемент списка в объект Weather
-            for (int i = 0; i < list.length(); ++i) {
-                JSONObject category = list.getJSONObject(i); // Данные для одной категории меню
-
-                // Получить из JSONObject ID-имя категории блюда
-                String categoryID = category.getString("category");
-
-                // Получить из JSONObject название кагеории блюда
-                String name = category.getString("name");
-
-                // Получить из JSONObject картинку категории блюда
-                String picURL = category.getString("picURL");
-
-                // Добавить новый объект MenuItem в menuItelList
-                menuItemList.add( new MenuItem(categoryID, name, picURL));
-            }
-        }
-        catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
 
     // Слушатель кликов по объектам
     /**
@@ -451,7 +311,7 @@ public class MenuListFragment extends Fragment {
             TODO: Разберись, как решить задачу мульти клик листенера наилучшым образом
              */
             String viewCategoryName = menuItemList.get( view.getId() ).name;
-            String viewCategory = menuItemList.get( view.getId() ).category;
+            int viewCategory = menuItemList.get( view.getId() ).id;
 
             // В теге передаваемого View ПО-ХОРОШЕМУ ДОЛЖНА хранится ID-категории блюда, которое используется для поиска соответствующих блюд
             FoodListFragment foodListFragment = FoodListFragment.newInstance(viewCategory, viewCategoryName, currentMode);
