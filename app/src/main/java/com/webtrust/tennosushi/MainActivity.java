@@ -2,35 +2,24 @@ package com.webtrust.tennosushi;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.AsyncTask;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
 import com.webtrust.tennosushi.fragments.MenuListFragment;
 import com.webtrust.tennosushi.fragments.ShoppingCartFragment;
-import com.webtrust.tennosushi.list_items.FoodItem;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Основная активити приложения
@@ -44,13 +33,17 @@ public class MainActivity extends AppCompatActivity
     /** Хранилище загруженных из сети данных в виде готовых для работы объектов */
     private DataProvider dataProvider;
 
+    /** Адрес сервера */
+    // private final String SERVER_URL = "http://192.168.0.102/index2.php";
+    private final String SERVER_URL = "http://romhacking.pw/index2.php";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // Подготавливаем DataProvider для загрузки данных
         try {
-            dataProvider = new DataProvider(this, new URL("http://192.168.0.102/index2.php"));
+            dataProvider = new DataProvider(this, new URL(SERVER_URL));
         } catch (MalformedURLException e) {
             e.printStackTrace();
             /* По хорошему, тут должна показываться надпись "Ошибка в приложении. Сообщить разработчикам?",
@@ -79,8 +72,6 @@ public class MainActivity extends AppCompatActivity
         shoppingCartFragment = new ShoppingCartFragment();
         // TODO: Стоит ли тут делать обновление адаптера ShoppingCartFragment? Решил что нет
 
-
-
         /*
         // Создание экземпляра MenuListFragment и назначение ему режим отображения элементов в виде карточек
         MenuListFragment startFragment = MenuListFragment.newInstance(MenuListFragment.CARD_MODE);
@@ -90,7 +81,6 @@ public class MainActivity extends AppCompatActivity
         transaction.add(R.id.fragment_menu_container, startFragment); // startFragment заменяет контейнер лдя фрагментов "fragment_menu_container"
         transaction.commit(); // Завершить транзакцию и отобразить фрагмент
         */
-
     }
 
     /* Обычно я не испльзую геттер для получения поля без преобразования типа, но я чувствую,

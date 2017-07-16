@@ -1,13 +1,10 @@
 package com.webtrust.tennosushi.fragments;
 
 import android.content.Context;
-import android.content.DialogInterface;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBar; // Для вывода названия приложения в ActionBar
-import android.support.v7.app.AlertDialog;
+import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -19,18 +16,9 @@ import android.widget.ListView;
 import com.webtrust.tennosushi.MainActivity;
 import com.webtrust.tennosushi.R;
 import com.webtrust.tennosushi.adapters.MenuItemArrayAdapter;
-import com.webtrust.tennosushi.list_items.FoodItem;
 import com.webtrust.tennosushi.list_items.MenuItem;
+import com.webtrust.tennosushi.utils.ShoppingCartIconGenerator;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -89,6 +77,9 @@ public class MenuListFragment extends Fragment {
      * но его субклассы должны уметь получать к нему доступ (поэтому реализованы set и get методы).
      */
     private static int currentMode = 0; // Текущий режим отображения списка (карточками по умолчанию)
+
+    /** Используется для регенерации иконки корзины. */
+    public static Menu menu;
 
     /**
      * Set-метод для currentMode
@@ -219,11 +210,11 @@ public class MenuListFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
+        MenuListFragment.menu = menu;
         menu.clear(); // предотвращает дублирование элементов меню
         inflater.inflate(R.menu.menu_list_menu, menu);
+        ShoppingCartIconGenerator.generate(getContext(), 1);
     }
-
-    //
 
     /**
      * Обработка выбора команд меню.

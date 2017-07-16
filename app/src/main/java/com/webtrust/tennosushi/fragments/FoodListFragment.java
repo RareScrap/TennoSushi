@@ -2,13 +2,15 @@ package com.webtrust.tennosushi.fragments;
 
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment; // Подлючается для использования в javadoc
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBar; // Для вывода категорий меню в ActionBar
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button; // Для отслеживания кнопки "скрыть облако тегов"
@@ -18,6 +20,7 @@ import com.webtrust.tennosushi.MainActivity;
 import com.webtrust.tennosushi.R;
 import com.webtrust.tennosushi.adapters.FoodItemRecyclerViewAdapter;
 import com.webtrust.tennosushi.list_items.FoodItem;
+import com.webtrust.tennosushi.utils.ShoppingCartIconGenerator;
 import com.webtrust.tennosushi.utils.FoodTag; // Для работы облака тегов
 
 import java.util.ArrayList;
@@ -163,12 +166,19 @@ public class FoodListFragment extends MenuListFragment {
      */
     @Override
     public void onViewCreated (View view, Bundle savedInstanceState) {
+        // TODO: свериться с заказчиком по поводу этой хуйни.
+        // Эта хуйня может вызвать вылет приложения. Подумать по поводу CustomActivityOnCrash.
+      
         // Получение ссылки на элементы GUI
-        recyclerView = (RecyclerView) getView().findViewById(R.id.recyclerView);
-        expandableButton = (Button) getView().findViewById(R.id.expandableButton);
-        expandableLayout = (ExpandableRelativeLayout) getActivity().findViewById(R.id.expandableLayout);
-        tagContainerLayout = (TagContainerLayout) getActivity().findViewById(R.id.tagcontainerLayout);
-
+        //try { 
+          recyclerView = (RecyclerView) getView().findViewById(R.id.recyclerView); 
+          
+          recyclerView = (RecyclerView) getView().findViewById(R.id.recyclerView);
+          expandableButton = (Button) getView().findViewById(R.id.expandableButton);
+          expandableLayout = (ExpandableRelativeLayout) getActivity().findViewById(R.id.expandableLayout);
+          tagContainerLayout = (TagContainerLayout) getActivity().findViewById(R.id.tagcontainerLayout);
+        //}
+        //catch (Exception ex) { ex.printStackTrace(); }
         // TODO Вряд ли работает. Оставленно чтобы знать где ставить цвет тегам.
         tagContainerLayout.setTagBackgroundColor(R.color.tag);
         tagContainerLayout.setTagBorderColor(R.color.tag);
@@ -190,10 +200,11 @@ public class FoodListFragment extends MenuListFragment {
             gridLayoutManager = new GridLayoutManager(getContext(), 2);
             recyclerView.setLayoutManager(gridLayoutManager); // Для плиточного списка
         }
+      
+        // TODO: затолкать getContext() в адаптер
 
         // Создать RecyclerView.Adapter для связывания элементов списка foodItemList с RecyclerView
-        rvAdapter = new FoodItemRecyclerViewAdapter(foodItemList, itemClickListener,
-                buyItemClickListener/*, new ArrayList<FoodTag>()*/);
+        rvAdapter = new FoodItemRecyclerViewAdapter(foodItemList, itemClickListener, buyItemClickListener, getContext()/*, new ArrayList<FoodTag>()*/);
         recyclerView.setAdapter(rvAdapter);
 
         // Названичение текста actionBar'у
@@ -236,6 +247,20 @@ public class FoodListFragment extends MenuListFragment {
         expandableLayout1 = (ExpandableRelativeLayout) getActivity().findViewById(R.id.expandableLayout1);
         expandableLayout1.toggle(); // toggle expand and collapse
     }*/
+
+    /**
+     * Отображение команд меню фрагмента.
+     * @param menu Меню
+     * @param inflater Инфлатер для меню
+     */
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        MenuListFragment.menu = menu;
+        menu.clear(); // предотвращает дублирование элементов меню
+        inflater.inflate(R.menu.menu_list_menu, menu);
+        ShoppingCartIconGenerator.generate(getContext(), 1);
+    }
 
     /**
      * Обработка выбора команд меню.
@@ -317,16 +342,35 @@ public class FoodListFragment extends MenuListFragment {
             // Элементы с одинаковой метаинформацией в списке ShoppingCartFragment при свайпах приводят к непредсказуемому поведеию элеметов списка
             FoodItem newFoodItem = new FoodItem(clickedFoodView);
 
-            // Добавляет выбранное блюдо в корзину
-            ShoppingCartFragment.addedFoodList.add(newFoodItem);
+            // Ищем такое же блюдо-хуюдо в корзине
+            FoodItem foodItemInShoppingCart = getExistFoodItem(newFoodItem);
+            if (foodItemInShoppingCart != null)
+                // если такое уже есть, просто добавляем единицу к кол-ву порций
+                foodItemInShoppingCart.count++;
+            else
+                // иначе, добавляем выбранное блюдо в корзину
+                ShoppingCartFragment.addedFoodList.add(newFoodItem);
 
             // Отобразать уведомление о добавлении
             Snackbar.make(getView(), "Добавлено в корзину ;)", Snackbar.LENGTH_SHORT).show();
+            ShoppingCartIconGenerator.generate(getContext(), 1);
+
         }
     };
 
     /**
-     * Обрабатывает события нажатия на кнопку сокрытия/раскрытия облака тегов (вернее, его
+     * Ищет уже имеющийся FoodItem, добавленный в корзину, чтобы в дальнейшем просто
+     * инкрементировать значение порций.
+     * @param fi Объект поиска.
+     * @return Найденный FoodItem.
+     */
+    public static FoodItem getExistFoodItem(FoodItem fi) {
+        for (FoodItem fi2: ShoppingCartFragment.addedFoodList)
+            if (fi2.equals(fi)) return fi2;
+        return null;
+    }
+  
+     /** Обрабатывает события нажатия на кнопку сокрытия/раскрытия облака тегов (вернее, его
      * контейнера {@link #expandableLayout}
      */
     private /*TODO: final?*/ View.OnClickListener expandableButtonClickListener = new View.OnClickListener() {

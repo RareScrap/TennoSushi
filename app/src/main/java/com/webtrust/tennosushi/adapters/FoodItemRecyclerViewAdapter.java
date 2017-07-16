@@ -1,5 +1,6 @@
 package com.webtrust.tennosushi.adapters;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -13,12 +14,16 @@ import android.widget.TextView;
 import com.webtrust.tennosushi.R;
 import com.webtrust.tennosushi.list_items.FoodItem;
 
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.webtrust.tennosushi.utils.BitmapCacheProvider.getCacheData;
+import static com.webtrust.tennosushi.utils.BitmapCacheProvider.getFileNameFromPath;
 
 /**
  * Адаптер для списка меню, основанный на {@link RecyclerView.Adapter<FoodItemRecyclerViewAdapter.ViewHolder>}
@@ -40,6 +45,9 @@ public class FoodItemRecyclerViewAdapter extends RecyclerView.Adapter<FoodItemRe
     /* Набор тегов, по которым фильтруются элементы списка. Если null, то показывает все элементы. */
     //public ArrayList<FoodTag> checkedFoodTags;
 
+    /** Необходимо для работы кэша. */
+    private final Context context;
+
     /**
      * Конструктор, инициализирующий свои поля.
      * @param items Набор элементов {@link FoodItem}, представляющий
@@ -54,11 +62,11 @@ public class FoodItemRecyclerViewAdapter extends RecyclerView.Adapter<FoodItemRe
      /* @param checkedFoodTags Набор тегов, по которым фильтруются элементы списка. Если null, то
      *                     показывает все элементы. TODO: Оставлен, т.к. может потребоваться фильтрация на сторое адаптера
      */
-    public FoodItemRecyclerViewAdapter(List<FoodItem> items, View.OnClickListener clickListener,
-                                       View.OnClickListener buyClickListener/*, ArrayList<FoodTag> checkedFoodTags*/) {
+    public FoodItemRecyclerViewAdapter(List<FoodItem> items, View.OnClickListener clickListener, View.OnClickListener buyClickListener, Context context/*, ArrayList<FoodTag> checkedFoodTags*/) {
         this.items = items;
         this.clickListener = clickListener;
         this.buyClickListener = buyClickListener;
+        this.context = context;
         //this.checkedFoodTags = checkedFoodTags;
     }
 
@@ -209,12 +217,22 @@ public class FoodItemRecyclerViewAdapter extends RecyclerView.Adapter<FoodItemRe
             try {
                 URL url = new URL(params[0]); // Создать URL для изображения
 
-                // Открыть объект HttpURLConnection, получить InputStream и загрузить изображение
+                // Ищем картинку в кэше
+                bitmap = getCacheData(getFileNameFromPath(url.getFile()), context);
+                if (bitmap != null) return bitmap;  // картинка найдена? тогда уходим.
+
+
+                // Открыть объект HttpURLConnection, получить InputStream
+                // и загрузить изображение
                 connection = (HttpURLConnection) url.openConnection(); // Преобразование типа необходимо, потому что метод возвращает URLConnection
 
                 try (InputStream inputStream = connection.getInputStream()) {
                     bitmap = BitmapFactory.decodeStream(inputStream);
                     bitmaps.put(params[0], bitmap); // Кэширование
+
+                    FileOutputStream fos = context.openFileOutput(getFileNameFromPath(url.getFile()), Context.MODE_PRIVATE);
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                    fos.close();
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -224,7 +242,9 @@ public class FoodItemRecyclerViewAdapter extends RecyclerView.Adapter<FoodItemRe
                 e.printStackTrace();
             }
             finally { // Этот участок кода будет выполняться независимо от того, какие исключения были возбуждены и перехвачены
-                connection.disconnect(); // Закрыть HttpURLConnection
+                // чтобы не слопать пачку хуйцов, проверим, было ли создано соединение вообще
+                // ПОЧЕМУ ЭТО НИКТО НЕ СДЕЛАЛ ДО МЕНЯ?! ВЕДЬ ДАЖЕ СТУДИЯ ОБ ЭТО ГОВОРИЛА!!
+                if (connection != null) connection.disconnect(); // Закрыть HttpURLConnection
             }
 
             return bitmap;

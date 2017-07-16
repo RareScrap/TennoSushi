@@ -16,4 +16,12 @@
     <string name="apartment_number">Apartment_number</string>
     <string name="porch_number">Porch number</string>
     <string name="telephone_number">Telephone number</string>
+    <string name="order">Order</string>
+    <string name="please_wait">Please, wait...</string>
+    <string name="data_sending">Sending data...</string>
+    <string name="cancel">Cancel</string>
+    <string name="error_has_occured">Error has occured!</string>
+    <string name="done">Done!</string>
+    <string name="successful_order">Your order was successfully transferred to the queue!</string>
+    <string name="ok">OK</string>
 </resources>
