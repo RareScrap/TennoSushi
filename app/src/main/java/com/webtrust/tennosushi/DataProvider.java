@@ -17,6 +17,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -270,6 +272,12 @@ public class DataProvider {
                 downloadedFoodItemList.add(new FoodItem(id, categoryId, name, components, foodTags, customOptions,
                         position, price, weight, picURL, null, options));
             }
+
+            // Сортируем категории
+            Collections.sort(downloadedMenuItemList);
+
+            // Сортируем блюда
+            Collections.sort(downloadedFoodItemList);
         }
         catch (JSONException e) {
             e.printStackTrace();

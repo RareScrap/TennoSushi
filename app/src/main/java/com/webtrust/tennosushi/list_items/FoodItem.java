@@ -3,6 +3,7 @@ package com.webtrust.tennosushi.list_items;
 import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
 import com.webtrust.tennosushi.utils.FoodOptions;
 import com.webtrust.tennosushi.utils.FoodTag;
@@ -13,7 +14,7 @@ import java.util.ArrayList;
  * Класс, представляющий собой блюдо из какого-либо меню.
  * @author RareScrap
  */
-public class FoodItem implements Parcelable {
+public class FoodItem implements Parcelable, Comparable<FoodItem> {
     /** ID блюда, необходимое для поиска соответвующих блюд в загруженном JSON */
     public final int id;
     /** ID категоии, к которой принадлежит блюдо */
@@ -97,6 +98,10 @@ public class FoodItem implements Parcelable {
         this.count = 1;
     }
 
+    /**
+     * Специальный конструктор, преобразующий Parcel в FoodItem.
+     * @param in Парсель
+     */
     protected FoodItem(Parcel in) {
         id = in.readInt();
         categoryId = in.readInt();
@@ -113,6 +118,7 @@ public class FoodItem implements Parcelable {
         options = in.createTypedArrayList(FoodOptions.CREATOR);
     }
 
+    // TODO: написать док к этой штуке
     public static final Creator<FoodItem> CREATOR = new Creator<FoodItem>() {
         @Override
         public FoodItem createFromParcel(Parcel in) {
@@ -125,10 +131,25 @@ public class FoodItem implements Parcelable {
         }
     };
 
+    /**
+     * Сравнивает два объекта FoodItem НА РАВЕНСТВО.
+     * Вернёт true только если оба объекта имеют общий ID.
+     * @param obj Второй FoodItem
+     * @return Результат сравнения
+     */
     @Override
     public boolean equals(Object obj) {
         if (obj.getClass() != FoodItem.class) return false;
         return id == ((FoodItem) obj).id;
+    }
+
+    /**
+     * Рассчитывает стоимость блюда в заказе с учётом опций и количества.
+     * @return Стоимость блюда.
+     */
+    public double calcPrice() {
+        // TODO: сделать рассчёт с учётом доп.опций
+        return count * price;
     }
 
     /**
@@ -140,11 +161,17 @@ public class FoodItem implements Parcelable {
         return name;
     }
 
+    // TODO: написать док к этой штуке
     @Override
     public int describeContents() {
         return 0;
     }
 
+    /**
+     * Записывает FoodItem в парсель.
+     * @param dest Парсель
+     * @param flags Флаги парселя
+     */
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(id);
@@ -160,5 +187,15 @@ public class FoodItem implements Parcelable {
         dest.writeParcelable(bitmap, flags);
         dest.writeInt(count);
         dest.writeTypedList(options);
+    }
+
+    /**
+     * Сравнивает два объекта FoodItem НА БОЛЬШЕ/МЕНЬШЕ/РАВНО.
+     * @param o Второй FoodItem
+     * @return Результат сравнения
+     */
+    @Override
+    public int compareTo(@NonNull FoodItem o) {
+        return Integer.compare(position, o.position);
     }
 }
