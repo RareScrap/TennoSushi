@@ -154,6 +154,7 @@ public class FoodItemRecyclerViewAdapter extends RecyclerView.Adapter<FoodItemRe
         /* Тот же ID должен быть присвое и кнопке "добавить в корзину", чтобы
         buyClickListener знал, КАКОЕ блюдо добавлено в корзнну */
         holder.itemView.findViewById(R.id.addToCart_ImageButton).setTag(position);
+        holder.itemView.findViewById(R.id.menu_image_card).setTag(foodItem);
 
         // Назначения текста элементам GUI
         holder.nameTextView.setText(foodItem.name);
@@ -258,6 +259,7 @@ public class FoodItemRecyclerViewAdapter extends RecyclerView.Adapter<FoodItemRe
         @Override
         protected void onPostExecute(Bitmap bitmap) {
             imageView.setImageBitmap(bitmap);
+            ((FoodItem) imageView.getTag()).bitmap = bitmap;
         }
     }
 }
