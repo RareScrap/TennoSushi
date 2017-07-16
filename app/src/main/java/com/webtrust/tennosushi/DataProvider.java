@@ -262,10 +262,10 @@ public class DataProvider {
                 String picURL = productJSONObject.getString("picURL");
 
                 // Получаем опции из категории-родителя
-                JSONArray optionsJSON = productJSONObject.getJSONArray("custom_options");
+                //JSONArray optionsJSON = productJSONObject.getJSONArray("options");
                 ArrayList<FoodOptions> options = new ArrayList<>();
-                for (int j = 0; j < optionsJSON.length(); ++j) {
-                    customOptions.add(downloadedFoodOptionsList.get( categoryOptionsJSON.getInt(j) ));
+                for (int j = 0; j < downloadedMenuItemList.get(categoryId).options.size(); ++j) {
+                    options = (ArrayList<FoodOptions>) downloadedMenuItemList.get(categoryId).options;
                 }
 
                 // Добавить новый объект FoodItem в downloadedFoodItemList
