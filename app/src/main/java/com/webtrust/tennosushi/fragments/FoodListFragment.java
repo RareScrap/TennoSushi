@@ -370,7 +370,7 @@ public class FoodListFragment extends MenuListFragment {
         return null;
     }
   
-     * Обрабатывает события нажатия на кнопку сокрытия/раскрытия облака тегов (вернее, его
+     /** Обрабатывает события нажатия на кнопку сокрытия/раскрытия облака тегов (вернее, его
      * контейнера {@link #expandableLayout}
      */
     private /*TODO: final?*/ View.OnClickListener expandableButtonClickListener = new View.OnClickListener() {

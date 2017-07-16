@@ -62,7 +62,7 @@ public class FoodItemRecyclerViewAdapter extends RecyclerView.Adapter<FoodItemRe
      /* @param checkedFoodTags Набор тегов, по которым фильтруются элементы списка. Если null, то
      *                     показывает все элементы. TODO: Оставлен, т.к. может потребоваться фильтрация на сторое адаптера
      */
-    public FoodItemRecyclerViewAdapter(List<FoodItem> items, View.OnClickListener clickListener, View.OnClickListener buyClickListener, Context context/*, ArrayList<FoodTag> checkedFoodTags*/)) {
+    public FoodItemRecyclerViewAdapter(List<FoodItem> items, View.OnClickListener clickListener, View.OnClickListener buyClickListener, Context context/*, ArrayList<FoodTag> checkedFoodTags*/) {
         this.items = items;
         this.clickListener = clickListener;
         this.buyClickListener = buyClickListener;
@@ -154,6 +154,7 @@ public class FoodItemRecyclerViewAdapter extends RecyclerView.Adapter<FoodItemRe
         /* Тот же ID должен быть присвое и кнопке "добавить в корзину", чтобы
         buyClickListener знал, КАКОЕ блюдо добавлено в корзнну */
         holder.itemView.findViewById(R.id.addToCart_ImageButton).setTag(position);
+        holder.itemView.findViewById(R.id.menu_image_card).setTag(foodItem);
 
         // Назначения текста элементам GUI
         holder.nameTextView.setText(foodItem.name);
@@ -258,6 +259,7 @@ public class FoodItemRecyclerViewAdapter extends RecyclerView.Adapter<FoodItemRe
         @Override
         protected void onPostExecute(Bitmap bitmap) {
             imageView.setImageBitmap(bitmap);
+            ((FoodItem) imageView.getTag()).bitmap = bitmap;
         }
     }
 }

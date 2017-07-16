@@ -277,7 +277,7 @@ public class DataProvider {
 
                 // Добавить новый объект FoodItem в downloadedFoodItemList
                 downloadedFoodItemList.add(new FoodItem(id, categoryId, name, components, foodTags, customOptions,
-                        position, price, weight, picURL, options));
+                        position, price, weight, picURL, null, options));
             }
 
             // Сортируем блюда

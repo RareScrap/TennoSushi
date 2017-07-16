@@ -10,6 +10,7 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout; // Рут-элемет для XML-разметки контейера опций
 import android.widget.RadioButton; // Для работы с опциями
 import android.widget.RadioGroup; // Контейнер опций
@@ -31,7 +32,7 @@ import java.util.ArrayList;
 
 public class DetailFoodFragment extends Fragment {
     /** Блюдо, по которому кликнул пользователь */
-    public FoodItem foodItem;
+    public static FoodItem foodItem;
 
     /**
      * Необходимый пустой публичный конструктор.
@@ -85,11 +86,13 @@ public class DetailFoodFragment extends Fragment {
         TextView weightTextView = (TextView) returnedView.findViewById(R.id.food_weight_textField);
         TextView componentsTextView = (TextView) returnedView.findViewById(R.id.components_textField);
         TextView addButton = (Button) returnedView.findViewById(R.id.addToBusketButton);
+        ImageView foodPicture = (ImageView) returnedView.findViewById(R.id.foodPicture);
         ActionBar ab = ((MainActivity) this.getActivity()).getSupportActionBar();
 
         // Назначение данных элементам GUI
         priceTextView.setText(foodItem.price + " \u20BD");
         weightTextView.setText(foodItem.weight + " Г");
+        foodPicture.setImageBitmap(foodItem.bitmap);
         componentsTextView.setText(foodItem.components);
         addButton.setOnClickListener(buyItemClickListener);
         ab.setTitle(foodItem.name); // Вывести в титульую строку название блюда
@@ -148,6 +151,8 @@ public class DetailFoodFragment extends Fragment {
         }
         return super.onOptionsItemSelected(item); //TODO: Разобраться зачем вообще тут нужен супер
     }
+
+    // TODO: использовать OnClickListener из FoodListFragment
 
     /**
      * Обрабатывает события клика по кнопке "добавить в корзину" для элементов списка

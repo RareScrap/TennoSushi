@@ -207,6 +207,7 @@ public class DeliveryOptionsFragment extends Fragment
                             // устанавливаем соединение
                             URL url = new URL("http://romhacking.pw:1234/makeOrder");
                             HttpURLConnection http = (HttpURLConnection) url.openConnection();
+
                             http.setRequestMethod("POST");
 
                             // передаём объект заказа

@@ -1,5 +1,8 @@
 package com.webtrust.tennosushi.list_items;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.webtrust.tennosushi.utils.FoodOptions;
 
 import java.util.List;
@@ -8,7 +11,7 @@ import java.util.List;
  * Класс, представляющий собой "категорию" блюда (суши, пицца и т.д.).
  * @author RareScrap
  */
-public class MenuItem {
+public class MenuItem implements Parcelable {
     /** ID категории, необходимое для поиска соответвующих блюд в загруженном JSON */
     public final int id;
     /** Название меню */
@@ -34,5 +37,20 @@ public class MenuItem {
         this.position = position;
         this.options = options;
         this.picURL = picURL;
+    }
+
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
+        dest.writeString(name);
+        dest.writeInt(position);
+        dest.writeTypedList(options);
+        dest.writeString(picURL);
     }
 }

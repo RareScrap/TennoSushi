@@ -1,5 +1,9 @@
 package com.webtrust.tennosushi.list_items;
 
+import android.graphics.Bitmap;
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.webtrust.tennosushi.utils.FoodOptions;
 import com.webtrust.tennosushi.utils.FoodTag;
 
@@ -9,7 +13,7 @@ import java.util.ArrayList;
  * Класс, представляющий собой блюдо из какого-либо меню.
  * @author RareScrap
  */
-public class FoodItem {
+public class FoodItem implements Parcelable {
     /** ID блюда, необходимое для поиска соответвующих блюд в загруженном JSON */
     public final int id;
     /** ID категоии, к которой принадлежит блюдо */
@@ -31,13 +35,13 @@ public class FoodItem {
     public final int weight;
     /** Ссылка на картинку блюда */
     public final String picURL;
+    /** Bitmap, присоединённый к FoodItem */
+    public Bitmap bitmap;
     /** Количество, которое будет заказано. */
     public int count = 1;
 
     /** Опции блюд, доступные для данной категории (в JSON'е берется из родительской категории) */
     public final ArrayList<FoodOptions> options;
-
-
 
     /**
      * Коструктор, копирующий уже существующий FoodItem, но без метаинформации
@@ -54,6 +58,7 @@ public class FoodItem {
         this.price = foodItem.price;
         this.weight = foodItem.weight;
         this.picURL = foodItem.picURL;
+        this.bitmap = foodItem.bitmap;
 
         this.options = foodItem.options;
         this.count = 1;
@@ -75,7 +80,7 @@ public class FoodItem {
      */
     public FoodItem(int id, int categoryId, String name, String components, ArrayList<FoodTag> tags,
                     ArrayList<FoodOptions> customOptions, int position, int price, int weight, String picURL,
-                    ArrayList<FoodOptions> options) {
+                    Bitmap bitmap, ArrayList<FoodOptions> options) {
         this.id = id;
         this.categoryId = categoryId;
         this.name = name;
@@ -86,10 +91,39 @@ public class FoodItem {
         this.price = price;
         this.weight = weight;
         this.picURL = picURL;
+        this.bitmap = bitmap;
 
         this.options = options; // Это не берется из JSON-части блюда. Это берется из его категории-родителя
         this.count = 1;
     }
+
+    protected FoodItem(Parcel in) {
+        id = in.readInt();
+        categoryId = in.readInt();
+        name = in.readString();
+        components = in.readString();
+        tags = in.createTypedArrayList(FoodTag.CREATOR);
+        customOptions = in.createTypedArrayList(FoodOptions.CREATOR);
+        position = in.readInt();
+        price = in.readDouble();
+        weight = in.readInt();
+        picURL = in.readString();
+        bitmap = in.readParcelable(Bitmap.class.getClassLoader());
+        count = in.readInt();
+        options = in.createTypedArrayList(FoodOptions.CREATOR);
+    }
+
+    public static final Creator<FoodItem> CREATOR = new Creator<FoodItem>() {
+        @Override
+        public FoodItem createFromParcel(Parcel in) {
+            return new FoodItem(in);
+        }
+
+        @Override
+        public FoodItem[] newArray(int size) {
+            return new FoodItem[size];
+        }
+    };
 
     @Override
     public boolean equals(Object obj) {
@@ -104,5 +138,27 @@ public class FoodItem {
     @Override
     public String toString() {
         return name;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
+        dest.writeInt(categoryId);
+        dest.writeString(name);
+        dest.writeString(components);
+        dest.writeTypedList(tags);
+        dest.writeTypedList(customOptions);
+        dest.writeInt(position);
+        dest.writeDouble(price);
+        dest.writeInt(weight);
+        dest.writeString(picURL);
+        dest.writeParcelable(bitmap, flags);
+        dest.writeInt(count);
+        dest.writeTypedList(options);
     }
 }
