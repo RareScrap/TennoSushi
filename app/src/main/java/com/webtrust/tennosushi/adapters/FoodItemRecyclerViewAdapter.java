@@ -39,7 +39,11 @@ public class FoodItemRecyclerViewAdapter extends RecyclerView.Adapter<FoodItemRe
     private Map<String, Bitmap> bitmaps = new HashMap<>();
 
     /** Список для хранения данных элементов RecyclerView */
-    private final List<FoodItem> items;
+    public List<FoodItem> items;
+
+    // Пригодится, если нужо будет реализовать фильтрацию на стороне адаптера
+    /* Набор тегов, по которым фильтруются элементы списка. Если null, то показывает все элементы. */
+    //public ArrayList<FoodTag> checkedFoodTags;
 
     /** Необходимо для работы кэша. */
     private final Context context;
@@ -47,14 +51,23 @@ public class FoodItemRecyclerViewAdapter extends RecyclerView.Adapter<FoodItemRe
     /**
      * Конструктор, инициализирующий свои поля.
      * @param items Набор элементов {@link FoodItem}, представляющий
-     *              собой входные данные, которые необходимо отобразить
-     * @param clickListener Слушатель, который регистрирется для каждого элемента списка
+     *              собой входные данные, которые необходимо отобразить.
+     *              Эти данные не подлежат фильтрации перед показом, т.к. они
+     *              уже приходят фильтроваными.
+     * @param clickListener Слушатель, который регистрирется для каждого элемента списка.
+     *                      Открывает {@link com.webtrust.tennosushi.fragments.DetailFoodFragment}
+     *                      при клике на блюдо.
+     * @param buyClickListener Слушатель, обрабатывающий события по кнопке "купить"
      */
-    public FoodItemRecyclerViewAdapter(List<FoodItem> items, View.OnClickListener clickListener, View.OnClickListener buyClickListener, Context context) {
+     /* @param checkedFoodTags Набор тегов, по которым фильтруются элементы списка. Если null, то
+     *                     показывает все элементы. TODO: Оставлен, т.к. может потребоваться фильтрация на сторое адаптера
+     */
+    public FoodItemRecyclerViewAdapter(List<FoodItem> items, View.OnClickListener clickListener, View.OnClickListener buyClickListener, Context context/*, ArrayList<FoodTag> checkedFoodTags*/)) {
         this.items = items;
         this.clickListener = clickListener;
         this.buyClickListener = buyClickListener;
         this.context = context;
+        //this.checkedFoodTags = checkedFoodTags;
     }
 
     /**

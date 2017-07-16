@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/place_autocomplete_prediction_secondary_text"
+    android:orientation="vertical">
+
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/expandableButton"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:background="#9c27b0"
+                android:drawableRight="@android:drawable/arrow_down_float"
+                android:paddingRight="10dp"
+                android:text="What Is Android"
+                android:textColor="#fff" />
+
+            <com.github.aakira.expandablelayout.ExpandableRelativeLayout
+                android:id="@+id/expandableLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/expandableButton"
+                android:background="#ba68c8"
+                android:padding="16dp"
+                app:ael_duration="400"
+                app:ael_expanded="false"
+                app:ael_interpolator="accelerate"
+                app:ael_orientation="vertical">
+
+                <!-- TODO: Задать начальный цвет в разметке -->
+                <co.lujun.androidtagview.TagContainerLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_margin="0dp"
+                    android:id="@+id/tagcontainerLayout"
+                    android:padding="10dp"
+                    app:container_enable_drag="false"
+                    app:horizontal_interval="10dp"
+                    app:vertical_interval="10dp"
+                    app:tag_clickable="true"
+                    app:tag_theme="pure_teal"/>
+
+            </com.github.aakira.expandablelayout.ExpandableRelativeLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+</LinearLayout>

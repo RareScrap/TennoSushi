@@ -96,4 +96,13 @@ public class FoodItem {
         if (obj.getClass() != FoodItem.class) return false;
         return id == ((FoodItem) obj).id;
     }
+
+    /**
+     * Преобразует тег к строковому типу
+     * @return Возвращает только поле {@link #name}
+     */
+    @Override
+    public String toString() {
+        return name;
+    }
 }
