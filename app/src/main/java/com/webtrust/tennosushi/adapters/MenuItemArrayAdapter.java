@@ -38,7 +38,7 @@ public class MenuItemArrayAdapter extends ArrayAdapter<MenuItem> {
         TextView menuTextView;
         /** ID-имя категории, с которым связан View, отображающий категорию меню.
          * Используется в слушателе кликов, чтобы дать приложению понять, какое меню нужно отобразить */
-        String categoryID;
+        int categoryID;
     }
 
     /** Кэш для уже загруженных картинок (объектов Bitmap) */
@@ -96,7 +96,7 @@ public class MenuItemArrayAdapter extends ArrayAdapter<MenuItem> {
             Извлечение ID-имени категории блюда из элемента menuItem
             (входные данные к адаптеру) и сохранение его во ViewHolder'е
             */
-            viewHolder.categoryID = menuItem.category;
+            viewHolder.categoryID = menuItem.id;
             convertView.setTag(viewHolder);
         }else { // Cуществующий объект ViewHolder используется заново
             viewHolder = (ViewHolder) convertView.getTag();

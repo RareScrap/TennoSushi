@@ -5,4 +5,7 @@
     <color name="colorAccent">#FF4081</color>
     <color name="backgraundAlpha">#50000000</color>
     <color name="cardBackground">#f2f2f2</color>
+
+    <color name="checkedTag">#ff000d</color>
+    <color name="tag">#ffffff</color>
 </resources>

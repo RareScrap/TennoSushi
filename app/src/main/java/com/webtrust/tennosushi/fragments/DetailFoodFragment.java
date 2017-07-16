@@ -10,11 +10,16 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout; // Рут-элемет для XML-разметки контейера опций
+import android.widget.RadioButton; // Для работы с опциями
+import android.widget.RadioGroup; // Контейнер опций
 import android.widget.TextView;
 
 import com.webtrust.tennosushi.MainActivity;
 import com.webtrust.tennosushi.R;
 import com.webtrust.tennosushi.list_items.FoodItem;
+
+import java.util.ArrayList;
 
 /**
  * Фрагмент, отображающий подробную информацию о блюде, по которумы был
@@ -79,19 +84,35 @@ public class DetailFoodFragment extends Fragment {
         TextView addButton = (Button) returnedView.findViewById(R.id.addToBusketButton);
         ActionBar ab = ((MainActivity) this.getActivity()).getSupportActionBar();
 
-        // Назначение даных элементам GUI
+        // Назначение данных элементам GUI
         priceTextView.setText(foodItem.price + " \u20BD");
         weightTextView.setText(foodItem.weight + " Г");
         componentsTextView.setText(foodItem.components);
         addButton.setOnClickListener(buyItemClickListener);
         ab.setTitle(foodItem.name); // Вывести в титульую строку название блюда
-        ab.setSubtitle(foodItem.categoryName); // Вывести в подстроку категорию люда
+        ab.setSubtitle( ((MainActivity) getActivity()).getDataProvider().downloadedMenuItemList.
+                get(foodItem.categoryId).name); // Вывести в подстроку категорию люда
 
-        // Включить дополнительные опции, в зависимости от категории блюда
-        if (foodItem.category.equals("pizza")) {
-            returnedView.findViewById(R.id.pizza_options_container).setVisibility(View.VISIBLE);
-        } else if (foodItem.category.equals("wok")) {
-            returnedView.findViewById(R.id.wok_options_container).setVisibility(View.VISIBLE);
+        // Создаем экземпляры контейнеров опций БЕЗ помещеия их в иерархию View'х
+        ArrayList<View> optionContainer = new ArrayList<>();
+        for (int i = 0; i < foodItem.options.size(); i++) {
+            View optionView = inflater.inflate(R.layout.viewgroup_options, (ViewGroup) returnedView, false);
+            optionView.findViewById(R.id.radioGroup).setTag(R.id.radioGroup + "_" + i);
+            optionContainer.add(optionView);
+        }
+
+        // Добавляем в каждый контейнер радиокнопки
+        for (int i = 0; i < optionContainer.size(); i++) {
+            for (int j = 0; j < foodItem.options.get(i).items.size(); j++) {
+                RadioButton button = new RadioButton(getContext());
+                button.setText(foodItem.options.get(i).items.get(j).name);
+                ((RadioGroup) optionContainer.get(i).findViewWithTag(R.id.radioGroup + "_" + i)).addView(button);
+            }
+        }
+
+        // Добавлям контейнеры опций в иерархию View'х
+        for (int i = 0; i < optionContainer.size(); i++) {
+            ((LinearLayout) returnedView.findViewById(R.id.detail_root)).addView(optionContainer.get(i));
         }
 
         return returnedView;
