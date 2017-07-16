@@ -62,7 +62,7 @@ public class FoodItemRecyclerViewAdapter extends RecyclerView.Adapter<FoodItemRe
      /* @param checkedFoodTags Набор тегов, по которым фильтруются элементы списка. Если null, то
      *                     показывает все элементы. TODO: Оставлен, т.к. может потребоваться фильтрация на сторое адаптера
      */
-    public FoodItemRecyclerViewAdapter(List<FoodItem> items, View.OnClickListener clickListener, View.OnClickListener buyClickListener, Context context/*, ArrayList<FoodTag> checkedFoodTags*/)) {
+    public FoodItemRecyclerViewAdapter(List<FoodItem> items, View.OnClickListener clickListener, View.OnClickListener buyClickListener, Context context/*, ArrayList<FoodTag> checkedFoodTags*/) {
         this.items = items;
         this.clickListener = clickListener;
         this.buyClickListener = buyClickListener;
