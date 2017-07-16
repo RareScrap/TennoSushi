@@ -17,6 +17,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -221,6 +222,14 @@ public class DataProvider {
                 downloadedMenuItemList.add( new MenuItem(id, name, position, options, picURL));
             }
 
+            // Сортируем категории
+            downloadedMenuItemList.sort(new Comparator<MenuItem>() {
+                @Override
+                public int compare(MenuItem o1, MenuItem o2) {
+                    return Integer.compare(o1.position, o2.position);
+                }
+            });
+
             // Переключаемся на блюда
             JSONArray productsJSON = jsonObject.getJSONArray("products");
             // Создание объектов FoodItem
@@ -270,6 +279,14 @@ public class DataProvider {
                 downloadedFoodItemList.add(new FoodItem(id, categoryId, name, components, foodTags, customOptions,
                         position, price, weight, picURL, options));
             }
+
+            // Сортируем блюда
+            downloadedFoodItemList.sort(new Comparator<FoodItem>() {
+                @Override
+                public int compare(FoodItem o1, FoodItem o2) {
+                    return Integer.compare(o1.position, o2.position);
+                }
+            });
         }
         catch (JSONException e) {
             e.printStackTrace();
