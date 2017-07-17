@@ -17,6 +17,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -268,8 +269,14 @@ public class DataProvider {
 
                 // Добавить новый объект FoodItem в downloadedFoodItemList
                 downloadedFoodItemList.add(new FoodItem(id, categoryId, name, components, foodTags, customOptions,
-                        position, price, weight, picURL, options));
+                        position, price, weight, picURL, null, options));
             }
+
+            // Сортируем категории
+            Collections.sort(downloadedMenuItemList);
+
+            // Сортируем блюда
+            Collections.sort(downloadedFoodItemList);
         }
         catch (JSONException e) {
             e.printStackTrace();

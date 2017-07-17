@@ -3,6 +3,7 @@ package com.webtrust.tennosushi.adapters;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Handler;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.GridLayout;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -10,15 +11,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.webtrust.tennosushi.MainActivity;
 import com.webtrust.tennosushi.R;
 import com.webtrust.tennosushi.fragments.MenuListFragment;
 import com.webtrust.tennosushi.fragments.ShoppingCartFragment;
 import com.webtrust.tennosushi.list_items.FoodItem;
 import com.webtrust.tennosushi.utils.ShoppingCartIconGenerator;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,16 +49,21 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
     private Context context;
     /** Слушатель нажатия на фотографию блюда */
     private final View.OnClickListener clickListener;
+    /** Фрагмент, который заюзал этот фрагмент */
+    private final ShoppingCartFragment fragment;
 
     /**
      * Конструктор, инициализирующий поля слушателя клика по фотографии и списка элементов в корзине. Так же
      * инициализует поле {@link ShoppingCartItemRecyclerViewAdapter#itemsPendingRemoval} пустым списком.
      * @param addedFoodList Список товаров {@link FoodItem}, на основе которых инициализируется адаптер
      * @param clickListener Слушатель кликов по картинке блюда
+     * @param fragment Фрагмент, который собирается юзать этот адаптер
      */
-    public ShoppingCartItemRecyclerViewAdapter(List<FoodItem> addedFoodList, View.OnClickListener clickListener) {
+    public ShoppingCartItemRecyclerViewAdapter(List<FoodItem> addedFoodList, View.OnClickListener clickListener,
+                                               ShoppingCartFragment fragment) {
         this.items = addedFoodList;
         this.clickListener = clickListener;
+        this.fragment = fragment;
 
         itemsPendingRemoval = new ArrayList<>();
     }
@@ -80,6 +89,8 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
         public final RelativeLayout relativeLayout;
         /** Ссылка на элемент GUI, представляющий контейнер опции пиццы заказа */
         public final GridLayout gridLayout;
+        /** Ссылка на элемент GUI, представляющий картинку блюда */
+        public final ImageView pictureView;
 
         /**
          * Конструктор, инициализирующий свои поля.
@@ -98,6 +109,7 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
             undoButton = (Button) itemView.findViewById(R.id.undo_button);
             relativeLayout = (RelativeLayout) itemView.findViewById(R.id.main_container);
             gridLayout = (GridLayout) itemView.findViewById(R.id.pizza_options);
+            pictureView = (ImageView) itemView.findViewById(R.id.picture);
 
             // Связывание слушателя кликов со изображением блюда
             itemView.findViewById(R.id.picture).setOnClickListener(clickListener);
@@ -156,6 +168,7 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
         holder.priceTextView.setText(String.valueOf(item.price) + " \u20BD");
         holder.weightTextView.setText("Вес: " + item.weight + " Г");
         holder.numberOfDeashesTextView.setText(String.valueOf(item.count));
+        holder.pictureView.setImageBitmap(item.bitmap);
 
         // Инициализация объекта, хранящего отступы элемента, по которому был сделан свайп
         ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) holder.itemView.getLayoutParams();
@@ -165,6 +178,10 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
             // Убираем левый отступ, чтобы красный фон соприкасался с левым краем экрана (так красиво)
             lp.setMargins(0, lp.topMargin, lp.rightMargin, lp.bottomMargin);
             holder.itemView.setLayoutParams(lp);
+
+            // отнимаем мани
+            ShoppingCartFragment.totalPrice -= item.calcPrice();
+            fragment.reDrawActionBar();
 
             // we need to show the "undo" state of the row
             holder.itemView.setBackgroundColor(Color.RED);
@@ -179,6 +196,10 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
                      */
                     @Override
                     public void onClick(View v) {
+                        // прибавляем мани обратно
+                        ShoppingCartFragment.totalPrice += item.calcPrice();
+                        fragment.reDrawActionBar();
+
                         // user wants to undo the removal, let's cancel the pending task
                         Runnable pendingRemovalRunnable = pendingRunnables.get(item);
                         pendingRunnables.remove(item);

@@ -26,6 +26,7 @@ import com.webtrust.tennosushi.R;
 import com.webtrust.tennosushi.adapters.ShoppingCartItemRecyclerViewAdapter;
 import com.webtrust.tennosushi.list_items.FoodItem;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -74,6 +75,9 @@ public class ShoppingCartFragment extends Fragment {
     // TODO: МНЕ КАЖЕТСЯ, ЧТО ЭТО ПИЗДЕЦ КАКАЯ ЕБАЛА
     /** Ссылка на свой последний созданный экземпляр */
     public static ShoppingCartFragment shoppingCartFragmentRef;
+
+    /** Общая сумма блюд */
+    public static double totalPrice;
 
     /**
      * Необходимый пустой публичный конструктор. Предназачен для использованя только по нужде
@@ -137,7 +141,7 @@ public class ShoppingCartFragment extends Fragment {
         buyButton.setOnClickListener(buyClickListener);
 
         // Создать RecyclerView.Adapter для связывания элементов FoodItem с RecyclerView
-        rvAdapter = new ShoppingCartItemRecyclerViewAdapter(addedFoodList, pictureClickListener); // Второй аргмент - слушатель кликов по картинке блюда
+        rvAdapter = new ShoppingCartItemRecyclerViewAdapter(addedFoodList, pictureClickListener, this); // Второй аргмент - слушатель кликов по картинке блюда
         recyclerView.setAdapter(rvAdapter);
 
         /*
@@ -193,9 +197,13 @@ public class ShoppingCartFragment extends Fragment {
         // На основании переданного списка определяет что показать: список покупок или картинку пустой корзины
         changeCartUI(addedFoodList);
 
+        // Получить общий ценник на блюда
+        totalPrice = ShoppingCartFragment.getTotalPrice();
+
         // Названичение текста actionBar'у
         ActionBar ab = ((MainActivity) this.getActivity()).getSupportActionBar();
-        ab.setTitle( getResources().getString(R.string.shopping_cart) );
+        ab.setTitle(getResources().getString(R.string.shopping_cart)
+                + " (" + new DecimalFormat("0.00").format(totalPrice) + " \u20BD)");
         ab.setSubtitle(""); // Стереть подстроку
 
         // Запрос на получение данных
@@ -207,6 +215,16 @@ public class ShoppingCartFragment extends Fragment {
 
         setUpItemTouchHelper(); // Инициализация движка свайпов и сопутствующего функционала
         //setUpAnimationDecoratorHelper(); // Установка дополнительных графических эффектов для свайпов
+    }
+
+    /**
+     * Регенерирует ActionBar с новым ценником.
+     */
+    public void reDrawActionBar() {
+        ActionBar ab = ((MainActivity) this.getActivity()).getSupportActionBar();
+        ab.setTitle(getResources().getString(R.string.shopping_cart)
+                + " (" + new DecimalFormat("0.00").format(totalPrice) + " \u20BD)");
+        ab.setSubtitle(""); // Стереть подстроку
     }
 
     @Override

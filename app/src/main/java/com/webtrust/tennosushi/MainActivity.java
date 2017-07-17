@@ -3,6 +3,7 @@ package com.webtrust.tennosushi;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -31,7 +32,7 @@ public class MainActivity extends AppCompatActivity
     /** Фрагмет корзины, который будет доступен на все время работы приложения */
     public ShoppingCartFragment shoppingCartFragment;
     /** Хранилище загруженных из сети данных в виде готовых для работы объектов */
-    private DataProvider dataProvider;
+    private static DataProvider dataProvider;
 
     /** Адрес сервера */
     // private final String SERVER_URL = "http://192.168.0.102/index2.php";
@@ -41,18 +42,19 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Подготавливаем DataProvider для загрузки данных
-        try {
-            dataProvider = new DataProvider(this, new URL(SERVER_URL));
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
+        if (dataProvider == null) {
+
+            // Подготавливаем DataProvider для загрузки данных
+            try {
+                dataProvider = new DataProvider(this, new URL(SERVER_URL));
+                dataProvider.startDownloadData(); // Начинаем загрузку данных
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
             /* По хорошему, тут должна показываться надпись "Ошибка в приложении. Сообщить разработчикам?",
             но я думаю, что это будет очень плохо смотреться */
-            this.onDownloadError(); // Показать ошибку сети
+                this.onDownloadError(); // Показать ошибку сети
+            }
         }
-        if (dataProvider != null)
-           dataProvider.startDownloadData(); // Начинаем загрузку данных
-
         // Заполнение экрана начальным макетом
         setContentView(R.layout.activity_main);
 
