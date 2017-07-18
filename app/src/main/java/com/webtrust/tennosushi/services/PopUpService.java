@@ -103,6 +103,8 @@ public class PopUpService extends Service {
                                         .setContentTitle(String.format(getString(R.string.order_status_was_changed), oi.order_id))
                                         .setContentText(String.format(getString(R.string.current_status), oi.getStatus().toString()))
                                         .setSound(RingtoneManager.getActualDefaultRingtoneUri(PopUpService.this, RingtoneManager.TYPE_NOTIFICATION))
+                                        .setPriority(Notification.PRIORITY_HIGH)
+                                        .setDefaults(Notification.DEFAULT_VIBRATE)
                                         .setSmallIcon(R.mipmap.ic_launcher).build());
                             }
                         }
