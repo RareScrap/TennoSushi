@@ -201,7 +201,6 @@ public class FoodListFragment extends MenuListFragment {
             recyclerView.setLayoutManager(gridLayoutManager); // Для плиточного списка
         }
       
-        // TODO: затолкать getContext() в адаптер
 
         // Создать RecyclerView.Adapter для связывания элементов списка foodItemList с RecyclerView
         rvAdapter = new FoodItemRecyclerViewAdapter(foodItemList, itemClickListener, buyItemClickListener, getContext()/*, new ArrayList<FoodTag>()*/);

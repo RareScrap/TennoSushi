@@ -1,9 +1,9 @@
 package com.webtrust.tennosushi.json_objects;
 
 /**
- * Created by VladislavSavvateev on 18.07.2017.
+ * Интерфейс для объектов, умеющих представлять себя в JSON.
  */
-
 public interface JSONable {
+    /** Метод, преобразовывающий объект в его JSON-представление. */
     String getJSON();
 }

@@ -3,14 +3,9 @@ package com.webtrust.tennosushi;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.graphics.Point;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -18,7 +13,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -29,6 +23,7 @@ import android.widget.Toast;
 import com.webtrust.tennosushi.fragments.MenuListFragment;
 import com.webtrust.tennosushi.fragments.ShoppingCartFragment;
 import com.webtrust.tennosushi.json_objects.CallMeObject;
+import com.webtrust.tennosushi.services.PopUpService;
 
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -51,6 +46,10 @@ public class MainActivity extends AppCompatActivity
     private static DataProvider dataProvider;
     /** Переменная, указывающая на тип устройства */
     public static boolean isTablet;
+    /** Контекст, нужный для работы некоторых классов */
+    public static Context context;
+
+
 
     /** Адрес сервера */
     // private final String SERVER_URL = "http://192.168.0.102/index2.php";
@@ -59,6 +58,12 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // запускаем сервис
+        startService(new Intent(this, PopUpService.class));
+
+        // получение контекста
+        context = this;
 
         // Заполнение экрана начальным макетом
         setContentView(R.layout.activity_main);

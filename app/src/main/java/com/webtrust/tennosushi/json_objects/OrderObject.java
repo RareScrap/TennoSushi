@@ -89,4 +89,24 @@ public class OrderObject implements JSONable {
             count = fi.count;
         }
     }
+
+    /**
+     * Класс, необходимый для десериализации ответа сервера на OrderObject/
+     */
+    public static class OrderObject_Answer {
+        /** Статус операции */
+        public String status;
+        /** ID заказа */
+        public int order_id;
+
+        /**
+         * Возвращает экземпляр этого класса на основе JSON.
+         * @param json JSON
+         * @return Экземпляр
+         */
+        public static OrderObject_Answer getFromJSON(String json) {
+            return new Gson().fromJson(json, OrderObject_Answer.class);
+        }
+
+    }
 }

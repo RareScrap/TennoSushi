@@ -30,4 +30,11 @@
     <string name="wait_for_call">Ждите звонка, скоро мы вам позвоним!</string>
     <string name="unexcepted_error">Произошла непредвиденная ошибка!</string>
     <string name="oops">Упс...</string>
+    <string name="not_started">Ещё не начали готовить</string>
+    <string name="cooking">Готовится...</string>
+    <string name="courier_left">Курьер доставляет Ваш заказ.</string>
+    <string name="courier_arrives">Курьер прибыл!</string>
+    <string name="order_status_was_changed">Статус заказа №%d был изменён</string>
+    <string name="current_status">Текущий статус: %s</string>
+    <string name="order_completed">Заказ завершён</string>
 </resources>

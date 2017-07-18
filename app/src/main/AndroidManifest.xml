@@ -45,6 +45,9 @@
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps" />
 
+        <service
+            android:name=".services.PopUpService"
+            android:enabled="true" />
     </application>
 
 </manifest>

@@ -33,16 +33,21 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.gson.Gson;
 import com.webtrust.tennosushi.MainActivity;
 import com.webtrust.tennosushi.MapsActivity;
 import com.webtrust.tennosushi.R;
-import com.webtrust.tennosushi.json_objects.OrderObject;
+import com.webtrust.tennosushi.json_objects.*;
+import com.webtrust.tennosushi.json_objects.OrderObject.*;
+import com.webtrust.tennosushi.list_items.OrderItem;
+import com.webtrust.tennosushi.services.PopUpService;
 
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
@@ -212,6 +217,8 @@ public class DeliveryOptionsFragment extends Fragment
 
                             // передаём объект заказа
                             http.setDoOutput(true);
+                            http.setReadTimeout(5000);
+                            http.setConnectTimeout(5000);
                             OutputStream os = http.getOutputStream();
                             os.write(oo.getJSON().getBytes("UTF-8"));
 
@@ -221,8 +228,13 @@ public class DeliveryOptionsFragment extends Fragment
                             // считываем данные
                             Scanner sc = new Scanner(http.getInputStream());
                             if (sc.hasNext()) {
-                                if (sc.next().equals("ok!")) {
+                                String answer = sc.next();
+                                final OrderObject_Answer orderObjectAnswer = OrderObject_Answer.getFromJSON(answer);
+                                if (orderObjectAnswer.status.equals("ok")) {
                                     // всё ок
+                                    if (PopUpService.items == null) PopUpService.items = new ArrayList<OrderItem>();
+                                    PopUpService.items.add(new Gson().fromJson(answer, OrderItem.class));
+                                    PopUpService.loe.writeData(PopUpService.items);
                                     returnedView.post(new Runnable() {
                                         @Override
                                         public void run() {
@@ -230,7 +242,7 @@ public class DeliveryOptionsFragment extends Fragment
                                             new AlertDialog.Builder(getContext())
                                                     .setIcon(R.drawable.ic_check_black_24dp)
                                                     .setTitle(R.string.done)
-                                                    .setMessage(R.string.successful_order)
+                                                    .setMessage(getString(R.string.successful_order) + "\nID: " + orderObjectAnswer.order_id)
                                                     .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                                                         @Override
                                                         public void onClick(DialogInterface dialog, int which) { }
