@@ -11,8 +11,10 @@ import java.util.List;
  * Объект, хранящий информацию о заказе.
  * Используется при передаче информации серверу.
  */
+public class OrderObject implements JSONable {
 
-public class OrderObject {
+    /** Метод сервера */
+    public String method = "makeOrder";
 
     /** Адрес доставки */
     public String address;

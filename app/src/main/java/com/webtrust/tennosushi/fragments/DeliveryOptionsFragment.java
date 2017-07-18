@@ -205,7 +205,7 @@ public class DeliveryOptionsFragment extends Fragment
                                                              telephoneNumber.getText().toString(), ShoppingCartFragment.addedFoodList);
 
                             // устанавливаем соединение
-                            URL url = new URL("http://romhacking.pw:1234/makeOrder");
+                            URL url = new URL("http://romhacking.pw:1234/");
                             HttpURLConnection http = (HttpURLConnection) url.openConnection();
 
                             http.setRequestMethod("POST");
@@ -228,7 +228,7 @@ public class DeliveryOptionsFragment extends Fragment
                                         public void run() {
                                             d.hide();
                                             new AlertDialog.Builder(getContext())
-                                                    .setIcon(R.drawable.ic_check)
+                                                    .setIcon(R.drawable.ic_check_black_24dp)
                                                     .setTitle(R.string.done)
                                                     .setMessage(R.string.successful_order)
                                                     .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {

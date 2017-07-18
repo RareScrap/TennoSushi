@@ -1,7 +1,10 @@
 package com.webtrust.tennosushi;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
@@ -14,13 +17,26 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.Display;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import com.webtrust.tennosushi.fragments.MenuListFragment;
 import com.webtrust.tennosushi.fragments.ShoppingCartFragment;
+import com.webtrust.tennosushi.json_objects.CallMeObject;
 
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Scanner;
+
+import static com.webtrust.tennosushi.utils.PhoneNumberChecker.checkNumber;
 
 /**
  * Основная активити приложения
@@ -33,6 +49,8 @@ public class MainActivity extends AppCompatActivity
     public ShoppingCartFragment shoppingCartFragment;
     /** Хранилище загруженных из сети данных в виде готовых для работы объектов */
     private static DataProvider dataProvider;
+    /** Переменная, указывающая на тип устройства */
+    public static boolean isTablet;
 
     /** Адрес сервера */
     // private final String SERVER_URL = "http://192.168.0.102/index2.php";
@@ -41,6 +59,24 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Заполнение экрана начальным макетом
+        setContentView(R.layout.activity_main);
+
+        // вычисляем диагональ устройства
+        Display display = getWindowManager().getDefaultDisplay();
+        DisplayMetrics metrics = new DisplayMetrics();
+        display.getMetrics(metrics);
+        double diagonal = Math.sqrt(Math.pow(metrics.widthPixels, 2) + Math.pow(metrics.heightPixels, 2)) / metrics.xdpi;
+
+        // если диагональ устройства больше или равно 7 дюймам
+        // то это устройство - планшет
+        isTablet = diagonal >= 7;
+
+        /*if (isTablet) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            return;
+        }*/
 
         if (dataProvider == null) {
 
@@ -55,8 +91,6 @@ public class MainActivity extends AppCompatActivity
                 this.onDownloadError(); // Показать ошибку сети
             }
         }
-        // Заполнение экрана начальным макетом
-        setContentView(R.layout.activity_main);
 
         // Подгатавливаем компоенты navigationDrawer'а
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -119,26 +153,100 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
-        int id = item.getItemId();
+        switch (item.getItemId()) {
+            case R.id.nav_call_me:
+                // создаём диалог с вводом номера
+                final AlertDialog.Builder adb = new AlertDialog.Builder(this);
+                LayoutInflater li = LayoutInflater.from(this);
+                View v = li.inflate(R.layout.dialog_call_me, null);
+                final EditText phoneNumber = (EditText) v.findViewById(R.id.dialog_call_me_number);
+                final AlertDialog ad = adb.setTitle(R.string.call_me).setView(v).setCancelable(false)
+                        .setNegativeButton(R.string.cancel, null)
+                        .setPositiveButton(R.string.ok, null).create();
+                ad.setOnShowListener(new DialogInterface.OnShowListener() {
+                    @Override
+                    public void onShow(DialogInterface dialog) {
+                        ((AlertDialog) dialog).getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                // проверочки номера~
+                                if (phoneNumber.getText().length() == 0) {
+                                    Toast.makeText(MainActivity.this, "Вы не указали номер телефона!", Toast.LENGTH_LONG).show();
+                                    return;
+                                }
+                                if (!checkNumber(phoneNumber.getText().toString())) {
+                                    Toast.makeText(MainActivity.this, "Номер телефона имеет неверный формат!", Toast.LENGTH_LONG).show();
+                                    return;
+                                }
 
-        if (id == R.id.nav_camera) {
-            Intent intent = new Intent(MainActivity.this, MapsActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-        } else if (id == R.id.nav_gallery) {
+                                // если номер в порядке, то отсылаем его на сервер
+                                ad.hide();
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        String alertAnswer;
+                                        String alertTitle;
+                                        int alertIcon = R.drawable.ic_close_black_24dp;
+                                        try {
+                                            CallMeObject cmo = new CallMeObject(phoneNumber.getText().toString());
 
-        } else if (id == R.id.nav_slideshow) {
+                                            // устанавливаем соединение
+                                            HttpURLConnection http = (HttpURLConnection) new URL("http://romhacking.pw:1234/").openConnection();
 
-        } else if (id == R.id.nav_manage) {
+                                            // отсылаем данные
+                                            http.setDoOutput(true);
+                                            OutputStream os = http.getOutputStream();
+                                            os.write(cmo.getJSON().getBytes("UTF-8"));
+                                            os.close();
 
-        } else if (id == R.id.nav_share) {
+                                            // принимаем ответ
+                                            Scanner sc = new Scanner(http.getInputStream());
+                                            String answer = "";
+                                            if (sc.hasNext()) answer = sc.next();
+                                            sc.close();
 
-        } else if (id == R.id.nav_send) {
+                                            // проверяем ответ
+                                            if (answer.equals("ok!")) {
+                                                // если всё ок
+                                                alertAnswer = getString(R.string.wait_for_call);
+                                                alertTitle = getString(R.string.done);
+                                                alertIcon = R.drawable.ic_check_black_24dp;
+                                            } else {
+                                                // если что-то пошло не так
+                                                alertAnswer = getString(R.string.unexcepted_error);
+                                                alertTitle = getString(R.string.oops);
+                                            }
+                                        } catch (Exception ex) {
+                                            alertTitle = getString(R.string.unexcepted_error);
+                                            alertAnswer = ex.getMessage();
+                                        }
+                                        final String finalAlertTitle = alertTitle;
+                                        final String finalAlertAnswer = alertAnswer;
+                                        final int finalAlertIcon = alertIcon;
 
+                                        // выводим второй диалог с результатом операции
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                adb.setTitle(finalAlertTitle).setMessage(finalAlertAnswer)
+                                                        .setPositiveButton(R.string.ok, null)
+                                                        .setNegativeButton(null, null)
+                                                        .setIcon(finalAlertIcon)
+                                                        .setView(null)
+                                                        .create().show();
+                                            }
+                                        });
+                                    }
+                                }).start();
+                            }
+                        });
+                    }
+                });
+                ad.show();
+                break;
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

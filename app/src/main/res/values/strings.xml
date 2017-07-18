@@ -24,4 +24,11 @@
     <string name="done">Done!</string>
     <string name="successful_order">Your order was successfully transferred to the queue!</string>
     <string name="ok">OK</string>
+    <string name="communicate">Communicate</string>
+    <string name="call_me">Call me</string>
+    <string name="phone_number">Phone number</string>
+    <string name="we_will_call_you">Leave your number, and we\'ll call you soon!</string>
+    <string name="wait_for_call">Wait for the call, we\'ll call you soon!</string>
+    <string name="unexcepted_error">An unexpected error has occurred!</string>
+    <string name="oops">Oops...</string>
 </resources>

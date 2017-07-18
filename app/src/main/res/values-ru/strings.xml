@@ -23,4 +23,11 @@
     <string name="done">Готово!</string>
     <string name="successful_order">Ваш заказ был успешно передан в очередь!</string>
     <string name="ok">ОК</string>
+    <string name="communicate">Связь</string>
+    <string name="call_me">Перезвоните мне</string>
+    <string name="phone_number">Номер телефона</string>
+    <string name="we_will_call_you">Оставьте ваш номер, и мы вскоре перезвоним вам!</string>
+    <string name="wait_for_call">Ждите звонка, скоро мы вам позвоним!</string>
+    <string name="unexcepted_error">Произошла непредвиденная ошибка!</string>
+    <string name="oops">Упс...</string>
 </resources>
