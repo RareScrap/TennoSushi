@@ -86,17 +86,23 @@ public class OrderItem {
         try {
             CheckOrderObject coo = new CheckOrderObject(this);
 
+            // устанавливаем соединение
             HttpURLConnection http = (HttpURLConnection) new URL("http://romhacking.pw:1234/").openConnection();
-
             http.setDoOutput(true);
+            http.setReadTimeout(5000);
+            http.setConnectTimeout(5000);
+
+            // отправляем данные
             OutputStream os = http.getOutputStream();
             os.write(coo.getJSON().getBytes("UTF-8"));
             os.close();
 
+            // получаем данные
             Scanner sc = new Scanner(http.getInputStream());
             String answer = "";
             if (sc.hasNext()) answer = sc.next();
 
+            // сравниваем с уже имеющимися данными
             OrderItem oi = new Gson().fromJson(answer, OrderItem.class);
             boolean result = oi.order_status != order_status;
             order_status = oi.order_status;
