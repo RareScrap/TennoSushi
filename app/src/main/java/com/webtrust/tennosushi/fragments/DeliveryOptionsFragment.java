@@ -1,11 +1,19 @@
 package com.webtrust.tennosushi.fragments;
 
+import android.Manifest;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -49,33 +57,36 @@ import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.Scanner;
 
 import static com.webtrust.tennosushi.utils.PhoneNumberChecker.checkNumber;
 
 /**
  * Фрагмент, предоставляющий возможность выбрать способ доставки: курьером или самовывозом.
- * Если выбран курьер - пользователю предлагается ввести адрес ( или TODO: ОПРЕДЕЛИТЬ ЕГО АВТОМАТИЧЕСКИ ).
+ * Если выбран курьер - пользователю предлагается ввести адрес (или он определяется автоматически).
  * Если выбран самовывоз - открывается {@link MapView} с отображением адреса пункта самовывоза
- * 
+ *
  * @author RareScrap
  */
 public class DeliveryOptionsFragment extends Fragment
         implements View.OnClickListener,
         OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener {
-   
+        GoogleApiClient.OnConnectionFailedListener,
+        LocationListener {
+
     /** Элемент GUI, представляющий собой радио-кнопку курьерской доставки */
     private RadioButton courierDelivery;
     /** Элемент GUI, представляющий собой радио-кнопку доставки самовывозом */
     private RadioButton selfDelivery;
-    
+
     /** Элемент GUI, представляющий собой контейнер текстовых полей, в которых записывается адрес доставки */
     private LinearLayout addressContainer;
     /** Элемент GUI, представляющий собой контейнер карты, которая отображает пункт самовывоза */
     private FrameLayout mapContainer;
-    
+
     /** Элемент GUI, представляющий собой текстовое поле адреса доставки */
     private EditText address;
     /** Элемент GUI, представляющий собой номер квартиры получателя */
@@ -88,11 +99,13 @@ public class DeliveryOptionsFragment extends Fragment
     private ImageButton button;
     /** Элемент GUI, представляющий собой кнопку совершения заказа */
     private Button orderButton;
-    
+
     /** Элемент GUI, представляющий собой View'ху Google карты  */
     private MapView mapView;
     /** Элемент GUI, представляющий собой объект Google карты */
     private GoogleMap map;
+    /** Геокодер, для получения информации о текущем местоположении */
+    private Geocoder geocoder;
 
     /** Элемент GUI, представляющий собой {@link ActionBar} фрагмета */
     private ActionBar ab;
@@ -164,10 +177,11 @@ public class DeliveryOptionsFragment extends Fragment
         button.setOnClickListener(new View.OnClickListener() {
             /**
              * При клике на кнопку, запускает активити с картой для выбора адреса
+             *
              * @param v {@link View}, по которой был сдела клик для вызова этого метода (т.е. сама кнопка)
              */
             @Override
-            public void onClick(View v)  {
+            public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), MapsActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
@@ -217,7 +231,9 @@ public class DeliveryOptionsFragment extends Fragment
                         adb.create().show();
                         return;
                     }
-                    try { Integer.parseInt(apartmentNumber.getText().toString()); } // неверный формат номера квартиры
+                    try {
+                        Integer.parseInt(apartmentNumber.getText().toString());
+                    } // неверный формат номера квартиры
                     catch (Exception ex) {
                         adb.setMessage(R.string.incorrect_apartment_number);
                         adb.create().show();
@@ -229,7 +245,9 @@ public class DeliveryOptionsFragment extends Fragment
                         adb.create().show();
                         return;
                     }
-                    try { Integer.parseInt(porchNumber.getText().toString()); } // неверный формат номера подъезда
+                    try {
+                        Integer.parseInt(porchNumber.getText().toString());
+                    } // неверный формат номера подъезда
                     catch (Exception ex) {
                         adb.setMessage(R.string.incorrect_porch_number);
                         adb.create().show();
@@ -284,7 +302,8 @@ public class DeliveryOptionsFragment extends Fragment
                                 final OrderObject_Answer orderObjectAnswer = OrderObject_Answer.getFromJSON(answer);
                                 if (orderObjectAnswer.status.equals("ok")) {
                                     // всё ок
-                                    if (PopUpService.items == null) PopUpService.items = new ArrayList<OrderItem>();
+                                    if (PopUpService.items == null)
+                                        PopUpService.items = new ArrayList<OrderItem>();
                                     PopUpService.items.add(new Gson().fromJson(answer, OrderItem.class));
                                     PopUpService.loe.writeData(PopUpService.items);
                                     returnedView.post(new Runnable() {
@@ -297,7 +316,8 @@ public class DeliveryOptionsFragment extends Fragment
                                                     .setMessage(getString(R.string.successful_order) + "\nID: " + orderObjectAnswer.order_id)
                                                     .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                                                         @Override
-                                                        public void onClick(DialogInterface dialog, int which) { }
+                                                        public void onClick(DialogInterface dialog, int which) {
+                                                        }
                                                     })
                                                     .create().show();
                                         }
@@ -313,7 +333,8 @@ public class DeliveryOptionsFragment extends Fragment
                                                     .setMessage("Сервер вернул \"fail!\".")
                                                     .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                                                         @Override
-                                                        public void onClick(DialogInterface dialog, int which) { }
+                                                        public void onClick(DialogInterface dialog, int which) {
+                                                        }
                                                     })
                                                     .create().show();
                                         }
@@ -330,7 +351,8 @@ public class DeliveryOptionsFragment extends Fragment
                                                 .setMessage("Сервер ничего не вернул.")
                                                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                                                     @Override
-                                                    public void onClick(DialogInterface dialog, int which) { }
+                                                    public void onClick(DialogInterface dialog, int which) {
+                                                    }
                                                 })
                                                 .create().show();
                                     }
@@ -343,13 +365,17 @@ public class DeliveryOptionsFragment extends Fragment
                             // убираем диалог
                             returnedView.post(new Runnable() {
                                 @Override
-                                public void run() { d.hide(); }
+                                public void run() {
+                                    d.hide();
+                                }
                             });
                         } catch (Exception ex) {
                             // убираем диалог и показываем стэк трейс в другом диалоге
                             returnedView.post(new Runnable() {
                                 @Override
-                                public void run() { d.hide(); }
+                                public void run() {
+                                    d.hide();
+                                }
                             });
                             final StringWriter sw = new StringWriter();
                             PrintWriter pw = new PrintWriter(sw);
@@ -380,6 +406,12 @@ public class DeliveryOptionsFragment extends Fragment
                 .addApi(Places.PLACE_DETECTION_API)
                 .build();
         googleApiClient.connect();
+
+        // инициализируем получение данных с GPS
+        geocoder = new Geocoder(getContext(), Locale.getDefault());
+        LocationManager lm = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
+        try { lm.requestSingleUpdate(LocationManager.GPS_PROVIDER, this, Looper.myLooper()); }
+        catch (Exception ex) { ex.printStackTrace(); }
 
         // Получения Google карты для MapView (map не назначается mapView!)
         mapView.getMapAsync(this);
@@ -503,5 +535,39 @@ public class DeliveryOptionsFragment extends Fragment
         mapView.onLowMemory();
     }
 
+    /**
+     * Вызывается, когда обновились данные с GPS.
+     * @param location Данные с GPS
+     */
+    @Override
+    public void onLocationChanged(Location location) {
+        try {
+            // получаем адрес
+            List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+            Address a = addresses.get(0);
 
+            // если поле с адресом уже имеет что-либо, то не заменять содержимое актуальными даными
+            if (address.getText().length() != 0) return;
+
+            // если адрес был получен успешно, вставить его в поле с адресом
+            if (a != null) {
+                StringBuilder sb = new StringBuilder();
+                sb.append(a.getLocality());
+                sb.append(", ");
+                sb.append(a.getThoroughfare());
+                sb.append(", ");
+                sb.append(a.getSubThoroughfare());
+                address.setText(sb.toString());
+            }
+        } catch (Exception ex) { ex.printStackTrace(); }
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) { }
+
+    @Override
+    public void onProviderEnabled(String provider) { }
+
+    @Override
+    public void onProviderDisabled(String provider) { }
 }
