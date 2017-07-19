@@ -213,7 +213,7 @@ public class DeliveryOptionsFragment extends Fragment
                     }
 
                     if (apartmentNumber.getText().length() == 0) {  // пустой номер квартиры
-                        adb.setMessage(String.format(getString(R.string.enter_apartment_number), "\n"));
+                        adb.setMessage(R.string.enter_apartment_number);
                         adb.create().show();
                         return;
                     }
@@ -225,13 +225,13 @@ public class DeliveryOptionsFragment extends Fragment
                     }
 
                     if (porchNumber.getText().length() == 0) {  // пустой номер подъезда
-                        adb.setMessage(String.format(getString(R.string.enter_porch_number), "\n"));
+                        adb.setMessage(R.string.enter_porch_number);
                         adb.create().show();
                         return;
                     }
                     try { Integer.parseInt(porchNumber.getText().toString()); } // неверный формат номера подъезда
                     catch (Exception ex) {
-                        adb.setMessage(R.string.incorerct_porch_number);
+                        adb.setMessage(R.string.incorrect_porch_number);
                         adb.create().show();
                         return;
                     }

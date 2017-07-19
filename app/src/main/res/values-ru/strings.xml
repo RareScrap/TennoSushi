@@ -41,8 +41,8 @@
     <string name="incorrect_phone_number">Формат номера телефона некорректен!</string>
     <string name="enter_address">Пожалуйста, введите ваш адрес!</string>
     <string name="error">Ошибка</string>
-    <string name="enter_apartment_number">Пожалуйста, введите номер своей квартиры!%sP.S. Если вы живёте в частном доме, укажите вместо номера \"0\".</string>
+    <string name="enter_apartment_number">Пожалуйста, введите номер своей квартиры!\nP.S. Если вы живёте в частном доме, укажите вместо номера \"0\".</string>
     <string name="incorrect_apartment_number">Формат номера квартиры некорректен!</string>
-    <string name="enter_porch_number">Пожалуйста, введите номер своего подъезда!%sP.S. Если вы живёте в частном доме, укажите вместо номера \"0\".</string>
-    <string name="incorerct_porch_number">Формат номера подъезда некорректен!</string>
+    <string name="enter_porch_number">Пожалуйста, введите номер своего подъезда!\nP.S. Если вы живёте в частном доме, укажите вместо номера \"0\".</string>
+    <string name="incorrect_porch_number">Формат номера подъезда некорректен!</string>
 </resources>

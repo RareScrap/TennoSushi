@@ -41,8 +41,8 @@
     <string name="incorrect_phone_number">Phone number format is incorrect!</string>
     <string name="enter_address">Please enter your address!</string>
     <string name="error">Error</string>
-    <string name="enter_apartment_number">Please enter your apartment number!%sP.S. If you live in a private home, specify \"0\" instead of number.</string>
+    <string name="enter_apartment_number">Please enter your apartment number!\nP.S. If you live in a private home, specify \"0\" instead of number.</string>
     <string name="incorrect_apartment_number">Apartment number is incorrect!</string>
-    <string name="enter_porch_number">Please enter your porch number!%sP.S. If you live in a private home, specify \"0\" instead of number.</string>
-    <string name="incorerct_porch_number">Porch number is incorrect!</string>
+    <string name="enter_porch_number">Please enter your porch number!\nP.S. If you live in a private home, specify \"0\" instead of number.</string>
+    <string name="incorrect_porch_number">Porch number is incorrect!</string>
 </resources>
