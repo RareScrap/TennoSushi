@@ -2,6 +2,7 @@ package com.webtrust.tennosushi.services;
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.media.RingtoneManager;
@@ -11,6 +12,7 @@ import android.util.Log;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.webtrust.tennosushi.OrdersActivity;
 import com.webtrust.tennosushi.R;
 import com.webtrust.tennosushi.json_objects.CheckOrderObject;
 import com.webtrust.tennosushi.list_items.OrderItem;
@@ -34,6 +36,8 @@ public class PopUpService extends Service {
     public static Thread thread;
     /** Булева, которая показывает состояние прерывности потока */
     public boolean isInterrupted;
+
+    public static NotificationManager nm;
 
     /**
      * Стандартный пустой конструктор.
@@ -81,7 +85,7 @@ public class PopUpService extends Service {
             @Override
             public void run() {
                 // получаем менеджер уведомлений
-                NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
                 while (!isInterrupted) {
                     try {
                         // проходим по всем заказам в обратном порядке
@@ -105,10 +109,24 @@ public class PopUpService extends Service {
                                         .setSound(RingtoneManager.getActualDefaultRingtoneUri(PopUpService.this, RingtoneManager.TYPE_NOTIFICATION))
                                         .setPriority(Notification.PRIORITY_HIGH)
                                         .setDefaults(Notification.DEFAULT_VIBRATE)
+                                        .setContentIntent(PendingIntent.getActivity(PopUpService.this, 0,
+                                                new Intent(PopUpService.this, OrdersActivity.class), 0))
                                         .setSmallIcon(R.mipmap.ic_launcher).build());
+
+                                loe.writeData(items);
                             }
                         }
                     } catch (Exception ex) { ex.printStackTrace(); }
+
+                    // обновить список заказов в Activity
+                    if (OrdersActivity.orderList != null)
+                        OrdersActivity.orderList.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                OrdersActivity.orderList.getRecycledViewPool().clear();
+                                OrdersActivity.orderList.getAdapter().notifyDataSetChanged();
+                            }
+                        });
 
                     try { Thread.sleep(5000); } catch (Exception ex) { ex.printStackTrace(); }
                 }

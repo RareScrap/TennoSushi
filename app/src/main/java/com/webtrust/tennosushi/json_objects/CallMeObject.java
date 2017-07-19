@@ -23,7 +23,7 @@ public class CallMeObject implements JSONable {
     }
 
     /**
-     * Преобразует CallMeObject в JSON-представление.
+     * Преобразует {@link CallMeObject} в JSON-представление.
      * @return JSON
      */
     @Override

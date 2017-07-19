@@ -3,6 +3,7 @@ package com.webtrust.tennosushi.utils;
 import android.content.Context;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.webtrust.tennosushi.list_items.OrderItem;
 
 import java.io.FileInputStream;
@@ -44,10 +45,11 @@ public class LocalOrderExchanger {
             FileInputStream fis = context.openFileInput("orders.json");
             Scanner sc = new Scanner(fis);
             String json = "";
-            if (sc.hasNext()) json = sc.next();
+            while (sc.hasNextLine()) json += sc.nextLine();
             sc.close();
             fis.close();
-            LocalOrderExchanger loe = new Gson().fromJson(json, LocalOrderExchanger.class);
+            LocalOrderExchanger loe = new GsonBuilder().setDateFormat("MMM dd, yyyy HH:mm:ss")
+                    .create().fromJson(json, LocalOrderExchanger.class);
             return loe.items;
         } catch (Exception ex) {
             ex.printStackTrace();

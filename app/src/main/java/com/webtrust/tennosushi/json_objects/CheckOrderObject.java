@@ -16,15 +16,15 @@ public class CheckOrderObject implements JSONable {
     public int order_id;
 
     /**
-     * Конструктор класса, основанный на OrderItem.
-     * @param oi Экземпляр класса OrderItem.
+     * Конструктор класса, основанный на {@link OrderItem}.
+     * @param oi Экземпляр класса {@link OrderItem}.
      */
     public CheckOrderObject(OrderItem oi) {
         order_id = oi.order_id;
     }
 
     /**
-     * Преобразует CheckOrderObject в JSON-представление.
+     * Преобразует {@link CheckOrderObject} в JSON-представление.
      * @return JSON
      */
     @Override

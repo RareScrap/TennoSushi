@@ -45,4 +45,17 @@
     <string name="incorrect_apartment_number">Apartment number is incorrect!</string>
     <string name="enter_porch_number">Please enter your porch number!\nP.S. If you live in a private home, specify \"0\" instead of number.</string>
     <string name="incorrect_porch_number">Porch number is incorrect!</string>
+    <string name="my_orders">My orders</string>
+    <string name="hello_world" translatable="false">Hello, World!</string>
+    <string name="status">Status: %s</string>
+    <string name="order_time">Order time: %s</string>
+    <string name="confirm_your_choice">Confirm your choice</string>
+    <string name="sure_cancel_order">Are you sure you want to cancel your order?</string>
+    <string name="no">No</string>
+    <string name="yes">Yes</string>
+    <string name="its_been_time" translatable="false">(%s: %d)</string>
+    <string name="hours_late">hours</string>
+    <string name="minutes_late">minutes</string>
+    <string name="seconds_late">seconds</string>
+    <string name="days_late">days</string>
 </resources>

@@ -210,7 +210,7 @@ public class MainActivity extends AppCompatActivity
                                             // принимаем ответ
                                             Scanner sc = new Scanner(http.getInputStream());
                                             String answer = "";
-                                            if (sc.hasNext()) answer = sc.next();
+                                            while (sc.hasNextLine()) answer += sc.nextLine();
                                             sc.close();
 
                                             // проверяем ответ
@@ -251,6 +251,9 @@ public class MainActivity extends AppCompatActivity
                     }
                 });
                 ad.show();
+                break;
+            case R.id.nav_my_orders:
+                startActivity(new Intent(this, OrdersActivity.class));
                 break;
         }
 

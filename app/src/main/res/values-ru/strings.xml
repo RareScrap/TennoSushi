@@ -3,7 +3,7 @@
     <string name="app_name">TennoSushi</string>
     <string name="shopping_cart">Корзина</string>
     <string name="button_undo">Отменить</string>
-    <string name="title_activity_maps">Куда нам доставить ваш заказ?</string>
+    <string name="title_activity_maps">Куда нам доставить Ваш заказ?</string>
     <string name="delivery_option">Выберете способ доставки</string>
     <string name="courier_delivery">Доставка курьером</string>
     <string name="self_delivery">Самовывоз</string>
@@ -14,7 +14,7 @@
     <string name="delivery_option_title">Способы доставки</string>
     <string name="hello_blank_fragment">Экран фрагмента приветствия</string>
     <string name="sort_list">Изменить вид списка</string>
-    <string name="noConnection_useCashe">Нет соединения. ПРиложение использует локальный кеш</string>
+    <string name="noConnection_useCashe">Нет соединения. Приложение использует локальный кеш</string>
     <string name="order">Сделать заказ</string>
     <string name="please_wait">Пожалуйста, подождите...</string>
     <string name="data_sending">Идёт отправка данных...</string>
@@ -26,8 +26,8 @@
     <string name="communicate">Связь</string>
     <string name="call_me">Перезвоните мне</string>
     <string name="phone_number">Номер телефона</string>
-    <string name="we_will_call_you">Оставьте ваш номер, и мы вскоре перезвоним вам!</string>
-    <string name="wait_for_call">Ждите звонка, скоро мы вам позвоним!</string>
+    <string name="we_will_call_you">Оставьте ваш номер, и мы вскоре перезвоним Вам!</string>
+    <string name="wait_for_call">Ждите звонка, скоро мы Вам позвоним!</string>
     <string name="unexcepted_error">Произошла непредвиденная ошибка!</string>
     <string name="oops">Упс...</string>
     <string name="not_started">Ещё не начали готовить</string>
@@ -37,12 +37,23 @@
     <string name="order_status_was_changed">Статус заказа №%d был изменён</string>
     <string name="current_status">Текущий статус: %s</string>
     <string name="order_completed">Заказ завершён</string>
-    <string name="enter_phone_number">Пожалуйста, введите ваш номер телефона!</string>
+    <string name="enter_phone_number">Пожалуйста, введите Ваш номер телефона!</string>
     <string name="incorrect_phone_number">Формат номера телефона некорректен!</string>
-    <string name="enter_address">Пожалуйста, введите ваш адрес!</string>
+    <string name="enter_address">Пожалуйста, введите Ваш адрес!</string>
     <string name="error">Ошибка</string>
-    <string name="enter_apartment_number">Пожалуйста, введите номер своей квартиры!\nP.S. Если вы живёте в частном доме, укажите вместо номера \"0\".</string>
+    <string name="enter_apartment_number">Пожалуйста, введите номер Вашей квартиры!\nP.S. Если Вы живёте в частном доме, укажите вместо номера \"0\".</string>
     <string name="incorrect_apartment_number">Формат номера квартиры некорректен!</string>
-    <string name="enter_porch_number">Пожалуйста, введите номер своего подъезда!\nP.S. Если вы живёте в частном доме, укажите вместо номера \"0\".</string>
+    <string name="enter_porch_number">Пожалуйста, введите номер Вашего подъезда!\nP.S. Если Вы живёте в частном доме, укажите вместо номера \"0\".</string>
     <string name="incorrect_porch_number">Формат номера подъезда некорректен!</string>
+    <string name="my_orders">Мои заказы</string>
+    <string name="status">Статус: %s</string>
+    <string name="order_time">Время заказа: %s</string>
+    <string name="confirm_your_choice">Подтвердите выбор</string>
+    <string name="sure_cancel_order">Вы уверены, что хотите отменить Ваш заказ?</string>
+    <string name="no">Нет</string>
+    <string name="yes">Да</string>
+    <string name="hours_late">часов</string>
+    <string name="minutes_late">минут</string>
+    <string name="seconds_late">секунд</string>
+    <string name="days_late">дней</string>
 </resources>

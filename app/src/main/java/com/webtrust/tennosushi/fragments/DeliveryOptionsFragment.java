@@ -55,6 +55,7 @@ import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
@@ -137,6 +138,7 @@ public class DeliveryOptionsFragment extends Fragment
     /**
      * Создает View фрагмента, устанавливает слушатели и текста ActionBar'у, получает карту и
      * инициализирует {@link #googleApiClient}
+     *
      * @param inflater Инфлаттер для получения View из XML-разметки
      * @param container Если не равно NULL, это родительский ViewGroup, к которому должен
      *                  быть присоединен View фрагмента. Это может быть использовано для получение
@@ -320,58 +322,43 @@ public class DeliveryOptionsFragment extends Fragment
                                сервер. Какой-то пиздец, однако. */
                             // считываем данные
                             Scanner sc = new Scanner(http.getInputStream());
-                            if (sc.hasNext()) {
-                                String answer = sc.next();
-                                final OrderObject_Answer orderObjectAnswer = OrderObject_Answer.getFromJSON(answer);
-                                if (orderObjectAnswer.status.equals("ok")) {
-                                    // всё ок
-                                    if (PopUpService.items == null)
-                                        PopUpService.items = new ArrayList<OrderItem>();
-                                    PopUpService.items.add(new Gson().fromJson(answer, OrderItem.class));
-                                    PopUpService.loe.writeData(PopUpService.items);
-                                    returnedView.post(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            d.hide();
-                                            new AlertDialog.Builder(getContext())
-                                                    .setIcon(R.drawable.ic_check_black_24dp)
-                                                    .setTitle(R.string.done)
-                                                    .setMessage(getString(R.string.successful_order) + "\nID: " + orderObjectAnswer.order_id)
-                                                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                                        @Override
-                                                        public void onClick(DialogInterface dialog, int which) {
-                                                        }
-                                                    })
-                                                    .create().show();
-                                        }
-                                    });
-                                } else {
-                                    // чёт произошло
-                                    returnedView.post(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            d.hide();
-                                            new AlertDialog.Builder(getContext())
-                                                    .setTitle(R.string.error_has_occured)
-                                                    .setMessage("Сервер вернул \"fail!\".")
-                                                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                                        @Override
-                                                        public void onClick(DialogInterface dialog, int which) {
-                                                        }
-                                                    })
-                                                    .create().show();
-                                        }
-                                    });
-                                }
+                            String answer = "";
+                            while (sc.hasNextLine()) answer += sc.nextLine();
+                            sc.close();
+                            final OrderObject_Answer orderObjectAnswer = OrderObject_Answer.getFromJSON(answer);
+                            if (orderObjectAnswer.status.equals("ok")) {
+                                // всё ок
+                                if (PopUpService.items == null)
+                                    PopUpService.items = new ArrayList<OrderItem>();
+                                OrderItem oi = new Gson().fromJson(answer, OrderItem.class);
+                                oi.order_date = new Date(System.currentTimeMillis());
+                                PopUpService.items.add(oi);
+                                PopUpService.loe.writeData(PopUpService.items);
+                                returnedView.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        d.hide();
+                                        new AlertDialog.Builder(getContext())
+                                                .setIcon(R.drawable.ic_check_black_24dp)
+                                                .setTitle(R.string.done)
+                                                .setMessage(getString(R.string.successful_order) + "\nID: " + orderObjectAnswer.order_id)
+                                                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which) {
+                                                    }
+                                                })
+                                                .create().show();
+                                    }
+                                });
                             } else {
-                                // ничего не пришло
+                                // чёт произошло
                                 returnedView.post(new Runnable() {
                                     @Override
                                     public void run() {
                                         d.hide();
                                         new AlertDialog.Builder(getContext())
                                                 .setTitle(R.string.error_has_occured)
-                                                .setMessage("Сервер ничего не вернул.")
+                                                .setMessage("Сервер вернул \"fail!\".")
                                                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                                                     @Override
                                                     public void onClick(DialogInterface dialog, int which) {
@@ -449,11 +436,12 @@ public class DeliveryOptionsFragment extends Fragment
     /**
      * Обрабатывает клик по радиокнопкам и отображает соответствующий контент в зависимости от
      * выбранной кнопки
+     *
      * @param v View (радио-кнопка), по которой был сделан клик
      */
     @Override
     public void onClick(View v) {
-        switch ( v.getId() ) {
+        switch (v.getId()) {
             case R.id.courier_delivery: // Показываем только контент для курьерской доставки
                 mapContainer.setVisibility(View.GONE);
                 addressContainer.setVisibility(View.VISIBLE);
@@ -476,6 +464,7 @@ public class DeliveryOptionsFragment extends Fragment
 
     /**
      * Сохраняет карту и выставляет зум и начальную точку
+     *
      * @param googleMap
      */
     @Override
@@ -492,8 +481,9 @@ public class DeliveryOptionsFragment extends Fragment
 
     /**
      * Коллбек, обрабатывающий полученное разрешение.
-     * @param requestCode Код входящего предоставленного разрешения
-     * @param permissions Массив разрешений
+     *
+     * @param requestCode  Код входящего предоставленного разрешения
+     * @param permissions  Массив разрешений
      * @param grantResults Массив подтвержденных разрешений
      */
     @Override
@@ -565,6 +555,7 @@ public class DeliveryOptionsFragment extends Fragment
 
     /**
      * Вызывается, когда обновились данные с GPS.
+     *
      * @param location Данные с GPS
      */
     @Override

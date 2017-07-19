@@ -8,9 +8,8 @@ import com.webtrust.tennosushi.services.PopUpService;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Date;
 import java.util.Scanner;
-
-// TODO: запилить отдельную Activity для отображения состояния заказов
 
 /**
  * Класс, представляющий собой заказ.
@@ -52,14 +51,22 @@ public class OrderItem {
             public String toString() {
                 return PopUpService.loe.context.getString(R.string.order_completed);
             }
-        }, DELETED,                          // заключительный этап
-        UNDEFINED                                            // неопределено
+        }, DELETED () {
+
+        },                 // заключительный этап
+        UNDEFINED () {
+
+        }                                   // неопределено
     }
 
     /** ID заказа */
     public int order_id;
     /** Статус заказа */
     public int order_status = 0;
+    /** Дата заказа */
+    public Date order_date;
+    /** Описание заказа */
+    public String desc;
 
     /**
      * Возвращает статус заказа из перечисления.
@@ -100,7 +107,8 @@ public class OrderItem {
             // получаем данные
             Scanner sc = new Scanner(http.getInputStream());
             String answer = "";
-            if (sc.hasNext()) answer = sc.next();
+            while (sc.hasNextLine()) answer += sc.nextLine();
+            sc.close();
 
             // сравниваем с уже имеющимися данными
             OrderItem oi = new Gson().fromJson(answer, OrderItem.class);
@@ -109,6 +117,7 @@ public class OrderItem {
             return result;
         } catch (Exception ex) {
             ex.printStackTrace();
+            order_status = -1;
             return null;
         }
     }

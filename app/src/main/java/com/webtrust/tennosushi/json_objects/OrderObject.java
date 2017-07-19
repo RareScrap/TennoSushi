@@ -3,6 +3,7 @@ package com.webtrust.tennosushi.json_objects;
 import com.google.gson.Gson;
 import com.webtrust.tennosushi.list_items.FoodItem;
 import com.webtrust.tennosushi.utils.FoodOptions;
+import com.webtrust.tennosushi.utils.PhoneNumberChecker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,8 @@ public class OrderObject implements JSONable {
     public String phoneNumber;
     /** Список заказанных блюд */
     public List<OrderFoodItem> items;
+    /** Описание заказа (строится на телефоне) */
+    public String desc;
 
     /**
      * Конструктор, используемый при выбранной доставке блюд на дом.
@@ -44,6 +47,13 @@ public class OrderObject implements JSONable {
 
         this.items = new ArrayList<>();
         for (FoodItem fi: items) this.items.add(new OrderFoodItem(fi));
+
+        desc = "";
+        for (int i = 0; i < items.size(); i++) {
+            FoodItem fi = items.get(i);
+            desc += fi.count + " x " + fi.name;
+            if (i != (items.size() - 1)) desc += ", ";
+        }
     }
 
     /**
@@ -56,10 +66,17 @@ public class OrderObject implements JSONable {
 
         this.items = new ArrayList<>();
         for (FoodItem fi: items) this.items.add(new OrderFoodItem(fi));
+
+        desc = "";
+        for (int i = 0; i < items.size(); i++) {
+            FoodItem fi = items.get(i);
+            desc += fi.count + " x " + fi.name;
+            if (i != (items.size() - 1)) desc += ", ";
+        }
     }
 
     /**
-     * Преобразует OrderObject в JSON-представление.
+     * Преобразует {@link OrderObject} в JSON-представление.
      * @return JSON
      */
     public String getJSON() {
@@ -68,7 +85,7 @@ public class OrderObject implements JSONable {
 
     /**
      * Специальный класс для оптимизации передачи данных о продуктах.
-     * Что-то типа клона FoodItem.
+     * Что-то типа клона {@link FoodItem}.
      */
     private class OrderFoodItem {
         /** ID блюда */
@@ -81,7 +98,7 @@ public class OrderObject implements JSONable {
 
         /**
          * Клонирующий конструктор.
-         * @param fi FoodItem, который необходимо клонировать.
+         * @param fi {@link FoodItem}, который необходимо клонировать.
          */
         public OrderFoodItem(FoodItem fi) {
             id = fi.id;
@@ -91,7 +108,7 @@ public class OrderObject implements JSONable {
     }
 
     /**
-     * Класс, необходимый для десериализации ответа сервера на OrderObject/
+     * Класс, необходимый для десериализации ответа сервера на {@link OrderObject}.
      */
     public static class OrderObject_Answer {
         /** Статус операции */
