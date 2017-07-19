@@ -22,6 +22,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -49,6 +50,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Scanner;
+
+import static com.webtrust.tennosushi.utils.PhoneNumberChecker.checkNumber;
 
 /**
  * Фрагмент, предоставляющий возможность выбрать способ доставки: курьером или самовывозом.
@@ -184,6 +187,55 @@ public class DeliveryOptionsFragment extends Fragment
                         })
                         .create().show(); */
 
+                AlertDialog.Builder adb = new AlertDialog.Builder(getContext());
+                adb.setTitle(R.string.error);
+                adb.setIcon(R.drawable.ic_close_black_24dp);
+                adb.setPositiveButton(R.string.ok, null);
+
+                // многочисленные проверки введённых данных
+                // проверка телефона
+                if (telephoneNumber.getText().length() == 0) {  // пустой номер телефона
+                    adb.setMessage(R.string.enter_phone_number);
+                    adb.create().show();
+                    return;
+                }
+                if (!checkNumber(telephoneNumber.getText().toString())) {   // неверный формат номера телефона
+                    adb.setMessage(R.string.incorrect_phone_number);
+                    adb.create().show();
+                    return;
+                }
+
+                if (courierDelivery.isChecked()) {
+                    if (address.getText().length() == 0) { // пустой адрес
+                        adb.setMessage(R.string.enter_address);
+                        adb.create().show();
+                        return;
+                    }
+
+                    if (apartmentNumber.getText().length() == 0) {  // пустой номер квартиры
+                        adb.setMessage(String.format(getString(R.string.enter_apartment_number), "\n"));
+                        adb.create().show();
+                        return;
+                    }
+                    try { Integer.parseInt(apartmentNumber.getText().toString()); } // неверный формат номера квартиры
+                    catch (Exception ex) {
+                        adb.setMessage(R.string.incorrect_apartment_number);
+                        adb.create().show();
+                        return;
+                    }
+
+                    if (porchNumber.getText().length() == 0) {  // пустой номер подъезда
+                        adb.setMessage(String.format(getString(R.string.enter_porch_number), "\n"));
+                        adb.create().show();
+                        return;
+                    }
+                    try { Integer.parseInt(porchNumber.getText().toString()); } // неверный формат номера подъезда
+                    catch (Exception ex) {
+                        adb.setMessage(R.string.incorerct_porch_number);
+                        adb.create().show();
+                        return;
+                    }
+                }
 
                 // да начнётся адовый ПИЗДЕЦ!
 
@@ -194,21 +246,21 @@ public class DeliveryOptionsFragment extends Fragment
                 d.setCancelable(false);
                 d.show();
 
+                // создаём объект заказа
+                final OrderObject oo;
+                if (selfDelivery.isChecked())
+                    oo = new OrderObject(telephoneNumber.getText().toString(), ShoppingCartFragment.addedFoodList);
+                else
+                    oo = new OrderObject(address.getText().toString(),
+                            Integer.parseInt(apartmentNumber.getText().toString()),
+                            Integer.parseInt(porchNumber.getText().toString()),
+                            telephoneNumber.getText().toString(), ShoppingCartFragment.addedFoodList);
+
                 // выполняем все сетевые действия в отдельном потоке
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
                         try {
-                            // создаём объект заказа
-                            OrderObject oo;
-                            if (selfDelivery.isChecked())
-                                oo = new OrderObject(telephoneNumber.getText().toString(), ShoppingCartFragment.addedFoodList);
-                            else
-                                oo = new OrderObject(address.getText().toString(),
-                                                             Integer.parseInt(apartmentNumber.getText().toString()),
-                                                             Integer.parseInt(porchNumber.getText().toString()),
-                                                             telephoneNumber.getText().toString(), ShoppingCartFragment.addedFoodList);
-
                             // устанавливаем соединение
                             URL url = new URL("http://romhacking.pw:1234/");
                             HttpURLConnection http = (HttpURLConnection) url.openConnection();

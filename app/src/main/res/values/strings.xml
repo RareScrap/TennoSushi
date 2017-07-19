@@ -37,4 +37,12 @@
     <string name="order_status_was_changed">Status of order #%d was changed</string>
     <string name="current_status">Current status: %s</string>
     <string name="order_completed">Order is completed</string>
+    <string name="enter_phone_number">Please enter your phone number!</string>
+    <string name="incorrect_phone_number">Phone number format is incorrect!</string>
+    <string name="enter_address">Please enter your address!</string>
+    <string name="error">Error</string>
+    <string name="enter_apartment_number">Please enter your apartment number!%sP.S. If you live in a private home, specify \"0\" instead of number.</string>
+    <string name="incorrect_apartment_number">Apartment number is incorrect!</string>
+    <string name="enter_porch_number">Please enter your porch number!%sP.S. If you live in a private home, specify \"0\" instead of number.</string>
+    <string name="incorerct_porch_number">Porch number is incorrect!</string>
 </resources>
