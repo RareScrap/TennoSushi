@@ -182,6 +182,9 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
             // отнимаем мани
             ShoppingCartFragment.totalPrice -= item.calcPrice();
             fragment.reDrawActionBar();
+            if (pendingRunnables.size() == items.size())        // если элементов в корзине не осталось
+                fragment.buyButton.setVisibility(View.GONE);    // то убрать кнопку заказа
+
 
             // we need to show the "undo" state of the row
             holder.itemView.setBackgroundColor(Color.RED);
@@ -199,6 +202,7 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
                         // прибавляем мани обратно
                         ShoppingCartFragment.totalPrice += item.calcPrice();
                         fragment.reDrawActionBar();
+                        fragment.buyButton.setVisibility(View.VISIBLE); // возвращаем кнопку заказа обратно
 
                         // user wants to undo the removal, let's cancel the pending task
                         Runnable pendingRemovalRunnable = pendingRunnables.get(item);

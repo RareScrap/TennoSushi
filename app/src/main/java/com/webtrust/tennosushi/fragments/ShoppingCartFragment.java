@@ -64,7 +64,7 @@ public class ShoppingCartFragment extends Fragment {
     /** Элемент GUI, реализующий функции отображения списка */
     private RecyclerView recyclerView;
     /** Элемент GUI, реализующий функции кнопки "купить" */
-    private Button buyButton;
+    public Button buyButton;
     /** LayoutManager для отображения в виде списка */
     private RecyclerView.LayoutManager listLayoutManager;
 
