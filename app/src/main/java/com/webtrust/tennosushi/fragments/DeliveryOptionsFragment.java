@@ -1,7 +1,5 @@
 package com.webtrust.tennosushi.fragments;
 
-import android.Manifest;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -30,7 +28,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -51,6 +48,7 @@ import com.webtrust.tennosushi.json_objects.OrderObject.*;
 import com.webtrust.tennosushi.list_items.OrderItem;
 import com.webtrust.tennosushi.services.PopUpService;
 
+import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -168,6 +166,19 @@ public class DeliveryOptionsFragment extends Fragment
         button = (ImageButton) returnedView.findViewById(R.id.set_on_map);
         orderButton = (Button) returnedView.findViewById(R.id.order_button);
 
+        // получаем сохранённые данные
+        try {
+            Scanner sc = new Scanner(getContext().openFileInput("delivery.json"));
+            String json = "";
+            while (sc.hasNextLine()) json += sc.nextLine();
+            sc.close();
+            SavedAddressObject sao = SavedAddressObject.fromJSON(json);
+            telephoneNumber.setText(sao.phoneNumber);
+            address.setText(sao.address);
+            if (sao.apartmentNumber != -1) apartmentNumber.setText(Integer.toString(sao.apartmentNumber));
+            if (sao.porchNumber != -1) porchNumber.setText(Integer.toString(sao.porchNumber));
+        } catch (Exception ex) { ex.printStackTrace(); }
+
         // Создаем View карты
         mapView.onCreate(savedInstanceState);
 
@@ -255,7 +266,19 @@ public class DeliveryOptionsFragment extends Fragment
                     }
                 }
 
-                // да начнётся адовый ПИЗДЕЦ!
+                // сохраняем данные
+                try {
+                    SavedAddressObject sao = new SavedAddressObject(telephoneNumber.getText().toString(),
+                            address.getText().toString(), apartmentNumber.getText().toString(),
+                            porchNumber.getText().toString());
+
+                    FileOutputStream fos = getContext().openFileOutput("delivery.json", Context.MODE_PRIVATE);
+                    fos.write(sao.getJSON().getBytes(("UTF-8")));
+                    fos.close();
+                } catch (Exception ex) { ex.printStackTrace(); }
+
+
+                // да начнётся адовый ПИЗДЕЦ! (выгрузка на сервер)
 
                 // создаём диалог с загрузкой
                 final ProgressDialog d = new ProgressDialog(getContext());
@@ -522,7 +545,12 @@ public class DeliveryOptionsFragment extends Fragment
     @Override
     public void onResume() {
         mapView.onResume();
-        address.setText(adr); // Устанавливает адрес, который был выбран в MapActivity
+
+        // Код ниже затирал загруженные сохранённые данные. Поправлено.
+        if (adr != null) {
+            address.setText(adr); // Устанавливает адрес, который был выбран в MapActivity
+            adr = null;
+        }
         super.onResume();
     }
 
