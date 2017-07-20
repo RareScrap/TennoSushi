@@ -51,12 +51,12 @@ public class OrderItem {
             public String toString() {
                 return PopUpService.loe.context.getString(R.string.order_completed);
             }
-        }, DELETED () {
+        }, DELETED() {
 
-        },                 // заключительный этап
-        UNDEFINED () {
+        },                  // заключительный этап
+        UNDEFINED() {
 
-        }                                   // неопределено
+        }                                    // неопределено
     }
 
     /** ID заказа */

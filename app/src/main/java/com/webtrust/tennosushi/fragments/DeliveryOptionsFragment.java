@@ -332,6 +332,7 @@ public class DeliveryOptionsFragment extends Fragment
                                     PopUpService.items = new ArrayList<OrderItem>();
                                 OrderItem oi = new Gson().fromJson(answer, OrderItem.class);
                                 oi.order_date = new Date(System.currentTimeMillis());
+                                oi.desc = oo.desc;
                                 PopUpService.items.add(oi);
                                 PopUpService.loe.writeData(PopUpService.items);
                                 returnedView.post(new Runnable() {

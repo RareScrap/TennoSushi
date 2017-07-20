@@ -28,7 +28,7 @@ public class OrderObject implements JSONable {
     /** Список заказанных блюд */
     public List<OrderFoodItem> items;
     /** Описание заказа (строится на телефоне) */
-    public String desc;
+    public transient String desc;
 
     /**
      * Конструктор, используемый при выбранной доставке блюд на дом.

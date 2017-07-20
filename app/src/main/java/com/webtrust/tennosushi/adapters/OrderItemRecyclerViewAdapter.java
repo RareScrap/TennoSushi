@@ -94,6 +94,10 @@ public class OrderItemRecyclerViewAdapter extends RecyclerView.Adapter<OrderItem
 
         holder.date.setText(orderTime);
         holder.oi = oi;
+
+        if (oi.order_status == 5) {
+            holder.deleteButton.setVisibility(View.GONE);
+        }
     }
 
     /**
