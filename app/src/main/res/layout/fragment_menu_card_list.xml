@@ -5,8 +5,6 @@
     android:layout_height="match_parent"
     tools:context="com.webtrust.tennosushi.fragments.MenuListFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-
     <ListView
         android:id="@+id/cardList"
         android:layout_width="match_parent"

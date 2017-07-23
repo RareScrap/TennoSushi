@@ -165,7 +165,10 @@ public class MapsActivity extends FragmentActivity
                     /*for (int i = 0; i < address.getMaxAddressLineIndex(); i++){
                         sb.append(address.getAddressLine(i) + "\n");
                     }*/
-                    sb.append(address.getThoroughfare() + ", ");
+                    sb.append(address.getLocality());
+                    sb.append(", ");
+                    sb.append(address.getThoroughfare());
+                    sb.append(", ");
                     sb.append(address.getSubThoroughfare());
                     address_g = sb.toString();
                     //( (TextView) findViewById(R.id.snippet) ).setText(sb.toString());

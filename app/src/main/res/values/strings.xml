@@ -1,7 +1,6 @@
 <resources>
     <string name="app_name">TennoSushi</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="shopping_cart">Shopping Cart</string>
     <string name="sort_list">Sort List</string>
@@ -24,4 +23,39 @@
     <string name="done">Done!</string>
     <string name="successful_order">Your order was successfully transferred to the queue!</string>
     <string name="ok">OK</string>
+    <string name="communicate">Communicate</string>
+    <string name="call_me">Call me</string>
+    <string name="phone_number">Phone number</string>
+    <string name="we_will_call_you">Leave your number, and we\'ll call you soon!</string>
+    <string name="wait_for_call">Wait for the call, we\'ll call you soon!</string>
+    <string name="unexcepted_error">An unexpected error has occurred!</string>
+    <string name="oops">Oops...</string>
+    <string name="not_started">Not started yet</string>
+    <string name="cooking">Cooking...</string>
+    <string name="courier_left">The courier delivers your order.</string>
+    <string name="courier_arrives">The courier arrives!</string>
+    <string name="order_status_was_changed">Status of order #%d was changed</string>
+    <string name="current_status">Current status: %s</string>
+    <string name="order_completed">Order is completed</string>
+    <string name="enter_phone_number">Please enter your phone number!</string>
+    <string name="incorrect_phone_number">Phone number format is incorrect!</string>
+    <string name="enter_address">Please enter your address!</string>
+    <string name="error">Error</string>
+    <string name="enter_apartment_number">Please enter your apartment number!\nP.S. If you live in a private home, specify \"0\" instead of number.</string>
+    <string name="incorrect_apartment_number">Apartment number is incorrect!</string>
+    <string name="enter_porch_number">Please enter your porch number!\nP.S. If you live in a private home, specify \"0\" instead of number.</string>
+    <string name="incorrect_porch_number">Porch number is incorrect!</string>
+    <string name="my_orders">My orders</string>
+    <string name="hello_world" translatable="false">Hello, World!</string>
+    <string name="status">Status: %s</string>
+    <string name="order_time">Order time: %s</string>
+    <string name="confirm_your_choice">Confirm your choice</string>
+    <string name="sure_cancel_order">Are you sure you want to cancel your order?</string>
+    <string name="no">No</string>
+    <string name="yes">Yes</string>
+    <string name="its_been_time" translatable="false">(%s: %d)</string>
+    <string name="hours_late">hours</string>
+    <string name="minutes_late">minutes</string>
+    <string name="seconds_late">seconds</string>
+    <string name="days_late">days</string>
 </resources>

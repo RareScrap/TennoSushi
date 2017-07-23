@@ -225,6 +225,9 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
             // отнимаем мани
             ShoppingCartFragment.totalPrice -= item.calcPrice();
             fragment.reDrawActionBar();
+            if (pendingRunnables.size() == items.size())        // если элементов в корзине не осталось
+                fragment.buyButton.setVisibility(View.GONE);    // то убрать кнопку заказа
+
 
             // Мера предостоожости, чтобы при восстановлении последнего удаленного элемента контейнеры опций не дублировались
             holder.options.removeAllViews();
@@ -235,27 +238,28 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
             holder.options.setVisibility(View.GONE);
             holder.undoButton.setVisibility(View.VISIBLE);
             holder.undoButton.setOnClickListener(new View.OnClickListener() {
-                /**
-                 * Реализует клик, приводящий к отмене удаления элемета
-                 *
-                 * @param v View'ха, нажатие на которую привело к отмене удаления элемента из списка
-                 */
-                @Override
-                public void onClick(View v) {
-                    // прибавляем мани обратно
-                    ShoppingCartFragment.totalPrice += item.calcPrice();
-                    fragment.reDrawActionBar();
+                    /**
+                     * Реализует клик, приводящий к отмене удаления элемета
+                     *
+                     * @param v View'ха, нажатие на которую привело к отмене удаления элемента из списка
+                     */
+                    @Override
+                    public void onClick(View v) {
+                        // прибавляем мани обратно
+                        ShoppingCartFragment.totalPrice += item.calcPrice();
+                        fragment.reDrawActionBar();
+                        fragment.buyButton.setVisibility(View.VISIBLE); // возвращаем кнопку заказа обратно
 
-                    // user wants to undo the removal, let's cancel the pending task
-                    Runnable pendingRemovalRunnable = pendingRunnables.get(item);
-                    pendingRunnables.remove(item);
-                    if (pendingRemovalRunnable != null)
-                        handler.removeCallbacks(pendingRemovalRunnable);
-                    itemsPendingRemoval.remove(item);
-                    // this will rebind the row in "normal" state
-                    notifyItemChanged(items.indexOf(item));
-                }
-            });
+                        // user wants to undo the removal, let's cancel the pending task
+                        Runnable pendingRemovalRunnable = pendingRunnables.get(item);
+                        pendingRunnables.remove(item);
+                        if (pendingRemovalRunnable != null)
+                            handler.removeCallbacks(pendingRemovalRunnable);
+                        itemsPendingRemoval.remove(item);
+                        // this will rebind the row in "normal" state
+                        notifyItemChanged(items.indexOf(item));
+                    }
+                });
         } else {
             // we need to show the "normal" state
             holder.itemView.setBackgroundColor(Color.WHITE);

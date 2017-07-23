@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/shopping_cart_cardview_margin">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="@dimen/shopping_cart_cardview_padding">
+
+        <TextView
+            android:id="@+id/order_item_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toStartOf="@+id/order_item_delete"
+            android:text="@string/hello_world"
+            android:textSize="22sp"/>
+
+        <TextView
+            android:id="@+id/order_item_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/hello_world"
+            android:textSize="14sp"
+            android:layout_toStartOf="@+id/order_item_delete"
+            android:layout_below="@id/order_item_id"/>
+
+        <TextView
+            android:id="@+id/order_item_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/order_item_status"
+            android:text="@string/hello_world"
+            android:textSize="14sp"/>
+
+        <!-- TODO: разобраться, как уместить кнопку слева полностью в высоту и придать ей квадратную форму.-->
+        <ImageButton
+            android:id="@+id/order_item_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_close_black_24dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true" />
+
+    </RelativeLayout>
+
+
+
+</android.support.v7.widget.CardView>

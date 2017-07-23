@@ -1,11 +1,17 @@
 package com.webtrust.tennosushi.fragments;
 
-import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -33,41 +39,53 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.gson.Gson;
 import com.webtrust.tennosushi.MainActivity;
 import com.webtrust.tennosushi.MapsActivity;
 import com.webtrust.tennosushi.R;
-import com.webtrust.tennosushi.json_objects.OrderObject;
+import com.webtrust.tennosushi.json_objects.*;
+import com.webtrust.tennosushi.json_objects.OrderObject.*;
+import com.webtrust.tennosushi.list_items.OrderItem;
+import com.webtrust.tennosushi.services.PopUpService;
 
+import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 import java.util.Scanner;
+
+import static com.webtrust.tennosushi.utils.PhoneNumberChecker.checkNumber;
 
 /**
  * Фрагмент, предоставляющий возможность выбрать способ доставки: курьером или самовывозом.
- * Если выбран курьер - пользователю предлагается ввести адрес ( или TODO: ОПРЕДЕЛИТЬ ЕГО АВТОМАТИЧЕСКИ ).
+ * Если выбран курьер - пользователю предлагается ввести адрес (или он определяется автоматически).
  * Если выбран самовывоз - открывается {@link MapView} с отображением адреса пункта самовывоза
- * 
+ *
  * @author RareScrap
  */
 public class DeliveryOptionsFragment extends Fragment
         implements View.OnClickListener,
         OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener {
-   
+        GoogleApiClient.OnConnectionFailedListener,
+        LocationListener {
+
     /** Элемент GUI, представляющий собой радио-кнопку курьерской доставки */
     private RadioButton courierDelivery;
     /** Элемент GUI, представляющий собой радио-кнопку доставки самовывозом */
     private RadioButton selfDelivery;
-    
+
     /** Элемент GUI, представляющий собой контейнер текстовых полей, в которых записывается адрес доставки */
     private LinearLayout addressContainer;
     /** Элемент GUI, представляющий собой контейнер карты, которая отображает пункт самовывоза */
     private FrameLayout mapContainer;
-    
+
     /** Элемент GUI, представляющий собой текстовое поле адреса доставки */
     private EditText address;
     /** Элемент GUI, представляющий собой номер квартиры получателя */
@@ -80,11 +98,13 @@ public class DeliveryOptionsFragment extends Fragment
     private ImageButton button;
     /** Элемент GUI, представляющий собой кнопку совершения заказа */
     private Button orderButton;
-    
+
     /** Элемент GUI, представляющий собой View'ху Google карты  */
     private MapView mapView;
     /** Элемент GUI, представляющий собой объект Google карты */
     private GoogleMap map;
+    /** Геокодер, для получения информации о текущем местоположении */
+    private Geocoder geocoder;
 
     /** Элемент GUI, представляющий собой {@link ActionBar} фрагмета */
     private ActionBar ab;
@@ -118,6 +138,7 @@ public class DeliveryOptionsFragment extends Fragment
     /**
      * Создает View фрагмента, устанавливает слушатели и текста ActionBar'у, получает карту и
      * инициализирует {@link #googleApiClient}
+     *
      * @param inflater Инфлаттер для получения View из XML-разметки
      * @param container Если не равно NULL, это родительский ViewGroup, к которому должен
      *                  быть присоединен View фрагмента. Это может быть использовано для получение
@@ -147,6 +168,19 @@ public class DeliveryOptionsFragment extends Fragment
         button = (ImageButton) returnedView.findViewById(R.id.set_on_map);
         orderButton = (Button) returnedView.findViewById(R.id.order_button);
 
+        // получаем сохранённые данные
+        try {
+            Scanner sc = new Scanner(getContext().openFileInput("delivery.json"));
+            String json = "";
+            while (sc.hasNextLine()) json += sc.nextLine();
+            sc.close();
+            SavedAddressObject sao = SavedAddressObject.fromJSON(json);
+            telephoneNumber.setText(sao.phoneNumber);
+            address.setText(sao.address);
+            if (sao.apartmentNumber != -1) apartmentNumber.setText(Integer.toString(sao.apartmentNumber));
+            if (sao.porchNumber != -1) porchNumber.setText(Integer.toString(sao.porchNumber));
+        } catch (Exception ex) { ex.printStackTrace(); }
+
         // Создаем View карты
         mapView.onCreate(savedInstanceState);
 
@@ -156,10 +190,11 @@ public class DeliveryOptionsFragment extends Fragment
         button.setOnClickListener(new View.OnClickListener() {
             /**
              * При клике на кнопку, запускает активити с картой для выбора адреса
+             *
              * @param v {@link View}, по которой был сдела клик для вызова этого метода (т.е. сама кнопка)
              */
             @Override
-            public void onClick(View v)  {
+            public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), MapsActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
@@ -179,8 +214,73 @@ public class DeliveryOptionsFragment extends Fragment
                         })
                         .create().show(); */
 
+                AlertDialog.Builder adb = new AlertDialog.Builder(getContext());
+                adb.setTitle(R.string.error);
+                adb.setIcon(R.drawable.ic_close_black_24dp);
+                adb.setPositiveButton(R.string.ok, null);
 
-                // да начнётся адовый ПИЗДЕЦ!
+                // многочисленные проверки введённых данных
+                // проверка телефона
+                if (telephoneNumber.getText().length() == 0) {  // пустой номер телефона
+                    adb.setMessage(R.string.enter_phone_number);
+                    adb.create().show();
+                    return;
+                }
+                if (!checkNumber(telephoneNumber.getText().toString())) {   // неверный формат номера телефона
+                    adb.setMessage(R.string.incorrect_phone_number);
+                    adb.create().show();
+                    return;
+                }
+
+                if (courierDelivery.isChecked()) {
+                    if (address.getText().length() == 0) { // пустой адрес
+                        adb.setMessage(R.string.enter_address);
+                        adb.create().show();
+                        return;
+                    }
+
+                    if (apartmentNumber.getText().length() == 0) {  // пустой номер квартиры
+                        adb.setMessage(R.string.enter_apartment_number);
+                        adb.create().show();
+                        return;
+                    }
+                    try {
+                        Integer.parseInt(apartmentNumber.getText().toString());
+                    } // неверный формат номера квартиры
+                    catch (Exception ex) {
+                        adb.setMessage(R.string.incorrect_apartment_number);
+                        adb.create().show();
+                        return;
+                    }
+
+                    if (porchNumber.getText().length() == 0) {  // пустой номер подъезда
+                        adb.setMessage(R.string.enter_porch_number);
+                        adb.create().show();
+                        return;
+                    }
+                    try {
+                        Integer.parseInt(porchNumber.getText().toString());
+                    } // неверный формат номера подъезда
+                    catch (Exception ex) {
+                        adb.setMessage(R.string.incorrect_porch_number);
+                        adb.create().show();
+                        return;
+                    }
+                }
+
+                // сохраняем данные
+                try {
+                    SavedAddressObject sao = new SavedAddressObject(telephoneNumber.getText().toString(),
+                            address.getText().toString(), apartmentNumber.getText().toString(),
+                            porchNumber.getText().toString());
+
+                    FileOutputStream fos = getContext().openFileOutput("delivery.json", Context.MODE_PRIVATE);
+                    fos.write(sao.getJSON().getBytes(("UTF-8")));
+                    fos.close();
+                } catch (Exception ex) { ex.printStackTrace(); }
+
+
+                // да начнётся адовый ПИЗДЕЦ! (выгрузка на сервер)
 
                 // создаём диалог с загрузкой
                 final ProgressDialog d = new ProgressDialog(getContext());
@@ -189,29 +289,31 @@ public class DeliveryOptionsFragment extends Fragment
                 d.setCancelable(false);
                 d.show();
 
+                // создаём объект заказа
+                final OrderObject oo;
+                if (selfDelivery.isChecked())
+                    oo = new OrderObject(telephoneNumber.getText().toString(), ShoppingCartFragment.addedFoodList);
+                else
+                    oo = new OrderObject(address.getText().toString(),
+                            Integer.parseInt(apartmentNumber.getText().toString()),
+                            Integer.parseInt(porchNumber.getText().toString()),
+                            telephoneNumber.getText().toString(), ShoppingCartFragment.addedFoodList);
+
                 // выполняем все сетевые действия в отдельном потоке
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
                         try {
-                            // создаём объект заказа
-                            OrderObject oo;
-                            if (selfDelivery.isChecked())
-                                oo = new OrderObject(telephoneNumber.getText().toString(), ShoppingCartFragment.addedFoodList);
-                            else
-                                oo = new OrderObject(address.getText().toString(),
-                                                             Integer.parseInt(apartmentNumber.getText().toString()),
-                                                             Integer.parseInt(porchNumber.getText().toString()),
-                                                             telephoneNumber.getText().toString(), ShoppingCartFragment.addedFoodList);
-
                             // устанавливаем соединение
-                            URL url = new URL("http://romhacking.pw:1234/makeOrder");
+                            URL url = new URL("http://romhacking.pw:1234/");
                             HttpURLConnection http = (HttpURLConnection) url.openConnection();
 
                             http.setRequestMethod("POST");
 
                             // передаём объект заказа
                             http.setDoOutput(true);
+                            http.setReadTimeout(5000);
+                            http.setConnectTimeout(5000);
                             OutputStream os = http.getOutputStream();
                             os.write(oo.getJSON().getBytes("UTF-8"));
 
@@ -220,53 +322,48 @@ public class DeliveryOptionsFragment extends Fragment
                                сервер. Какой-то пиздец, однако. */
                             // считываем данные
                             Scanner sc = new Scanner(http.getInputStream());
-                            if (sc.hasNext()) {
-                                if (sc.next().equals("ok!")) {
-                                    // всё ок
-                                    returnedView.post(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            d.hide();
-                                            new AlertDialog.Builder(getContext())
-                                                    .setIcon(R.drawable.ic_check)
-                                                    .setTitle(R.string.done)
-                                                    .setMessage(R.string.successful_order)
-                                                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                                        @Override
-                                                        public void onClick(DialogInterface dialog, int which) { }
-                                                    })
-                                                    .create().show();
-                                        }
-                                    });
-                                } else {
-                                    // чёт произошло
-                                    returnedView.post(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            d.hide();
-                                            new AlertDialog.Builder(getContext())
-                                                    .setTitle(R.string.error_has_occured)
-                                                    .setMessage("Сервер вернул \"fail!\".")
-                                                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                                        @Override
-                                                        public void onClick(DialogInterface dialog, int which) { }
-                                                    })
-                                                    .create().show();
-                                        }
-                                    });
-                                }
+                            String answer = "";
+                            while (sc.hasNextLine()) answer += sc.nextLine();
+                            sc.close();
+                            final OrderObject_Answer orderObjectAnswer = OrderObject_Answer.getFromJSON(answer);
+                            if (orderObjectAnswer.status.equals("ok")) {
+                                // всё ок
+                                if (PopUpService.items == null)
+                                    PopUpService.items = new ArrayList<OrderItem>();
+                                OrderItem oi = new Gson().fromJson(answer, OrderItem.class);
+                                oi.order_date = new Date(System.currentTimeMillis());
+                                oi.desc = oo.desc;
+                                PopUpService.items.add(oi);
+                                PopUpService.loe.writeData(PopUpService.items);
+                                returnedView.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        d.hide();
+                                        new AlertDialog.Builder(getContext())
+                                                .setIcon(R.drawable.ic_check_black_24dp)
+                                                .setTitle(R.string.done)
+                                                .setMessage(getString(R.string.successful_order) + "\nID: " + orderObjectAnswer.order_id)
+                                                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which) {
+                                                    }
+                                                })
+                                                .create().show();
+                                    }
+                                });
                             } else {
-                                // ничего не пришло
+                                // чёт произошло
                                 returnedView.post(new Runnable() {
                                     @Override
                                     public void run() {
                                         d.hide();
                                         new AlertDialog.Builder(getContext())
                                                 .setTitle(R.string.error_has_occured)
-                                                .setMessage("Сервер ничего не вернул.")
+                                                .setMessage("Сервер вернул \"fail!\".")
                                                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                                                     @Override
-                                                    public void onClick(DialogInterface dialog, int which) { }
+                                                    public void onClick(DialogInterface dialog, int which) {
+                                                    }
                                                 })
                                                 .create().show();
                                     }
@@ -279,13 +376,17 @@ public class DeliveryOptionsFragment extends Fragment
                             // убираем диалог
                             returnedView.post(new Runnable() {
                                 @Override
-                                public void run() { d.hide(); }
+                                public void run() {
+                                    d.hide();
+                                }
                             });
                         } catch (Exception ex) {
                             // убираем диалог и показываем стэк трейс в другом диалоге
                             returnedView.post(new Runnable() {
                                 @Override
-                                public void run() { d.hide(); }
+                                public void run() {
+                                    d.hide();
+                                }
                             });
                             final StringWriter sw = new StringWriter();
                             PrintWriter pw = new PrintWriter(sw);
@@ -317,6 +418,12 @@ public class DeliveryOptionsFragment extends Fragment
                 .build();
         googleApiClient.connect();
 
+        // инициализируем получение данных с GPS
+        geocoder = new Geocoder(getContext(), Locale.getDefault());
+        LocationManager lm = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
+        try { lm.requestSingleUpdate(LocationManager.GPS_PROVIDER, this, Looper.myLooper()); }
+        catch (Exception ex) { ex.printStackTrace(); }
+
         // Получения Google карты для MapView (map не назначается mapView!)
         mapView.getMapAsync(this);
 
@@ -330,11 +437,12 @@ public class DeliveryOptionsFragment extends Fragment
     /**
      * Обрабатывает клик по радиокнопкам и отображает соответствующий контент в зависимости от
      * выбранной кнопки
+     *
      * @param v View (радио-кнопка), по которой был сделан клик
      */
     @Override
     public void onClick(View v) {
-        switch ( v.getId() ) {
+        switch (v.getId()) {
             case R.id.courier_delivery: // Показываем только контент для курьерской доставки
                 mapContainer.setVisibility(View.GONE);
                 addressContainer.setVisibility(View.VISIBLE);
@@ -357,6 +465,7 @@ public class DeliveryOptionsFragment extends Fragment
 
     /**
      * Сохраняет карту и выставляет зум и начальную точку
+     *
      * @param googleMap
      */
     @Override
@@ -373,8 +482,9 @@ public class DeliveryOptionsFragment extends Fragment
 
     /**
      * Коллбек, обрабатывающий полученное разрешение.
-     * @param requestCode Код входящего предоставленного разрешения
-     * @param permissions Массив разрешений
+     *
+     * @param requestCode  Код входящего предоставленного разрешения
+     * @param permissions  Массив разрешений
      * @param grantResults Массив подтвержденных разрешений
      */
     @Override
@@ -426,7 +536,12 @@ public class DeliveryOptionsFragment extends Fragment
     @Override
     public void onResume() {
         mapView.onResume();
-        address.setText(adr); // Устанавливает адрес, который был выбран в MapActivity
+
+        // Код ниже затирал загруженные сохранённые данные. Поправлено.
+        if (adr != null) {
+            address.setText(adr); // Устанавливает адрес, который был выбран в MapActivity
+            adr = null;
+        }
         super.onResume();
     }
 
@@ -439,5 +554,40 @@ public class DeliveryOptionsFragment extends Fragment
         mapView.onLowMemory();
     }
 
+    /**
+     * Вызывается, когда обновились данные с GPS.
+     *
+     * @param location Данные с GPS
+     */
+    @Override
+    public void onLocationChanged(Location location) {
+        try {
+            // получаем адрес
+            List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+            Address a = addresses.get(0);
 
+            // если поле с адресом уже имеет что-либо, то не заменять содержимое актуальными даными
+            if (address.getText().length() != 0) return;
+
+            // если адрес был получен успешно, вставить его в поле с адресом
+            if (a != null) {
+                StringBuilder sb = new StringBuilder();
+                sb.append(a.getLocality());
+                sb.append(", ");
+                sb.append(a.getThoroughfare());
+                sb.append(", ");
+                sb.append(a.getSubThoroughfare());
+                address.setText(sb.toString());
+            }
+        } catch (Exception ex) { ex.printStackTrace(); }
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) { }
+
+    @Override
+    public void onProviderEnabled(String provider) { }
+
+    @Override
+    public void onProviderDisabled(String provider) { }
 }
