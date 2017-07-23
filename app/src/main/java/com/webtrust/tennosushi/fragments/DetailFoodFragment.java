@@ -26,7 +26,7 @@ import static com.webtrust.tennosushi.fragments.FoodListFragment.getExistFoodIte
 import java.util.ArrayList;
 
 /**
- * Фрагмент, отображающий подробную информацию о блюде, по которумы был
+ * Фрагмент, отображающий подробную информацию о блюде, по которому был
  * сделан клик в {@link FoodListFragment}.
  */
 
@@ -102,8 +102,13 @@ public class DetailFoodFragment extends Fragment {
         // Создаем экземпляры контейнеров опций БЕЗ помещеия их в иерархию View'х
         ArrayList<View> optionContainer = new ArrayList<>();
         for (int i = 0; i < foodItem.options.size(); i++) {
+            // Надуваем макет опции
             View optionView = inflater.inflate(R.layout.viewgroup_options, (ViewGroup) returnedView, false);
+            // Устанавливаем ему тег (служит уникальным идентификатором, т.к. на View существует несколько опций с одним ID)
             optionView.findViewById(R.id.radioGroup).setTag(R.id.radioGroup + "_" + i);
+            // Установки имени для вида опции
+            ((TextView) optionView.findViewById(R.id.name)).setText(foodItem.options.get(i).name);
+            // Добавляем опцию в контейнер
             optionContainer.add(optionView);
         }
 
@@ -112,6 +117,7 @@ public class DetailFoodFragment extends Fragment {
             for (int j = 0; j < foodItem.options.get(i).items.size(); j++) {
                 RadioButton button = new RadioButton(getContext());
                 button.setText(foodItem.options.get(i).items.get(j).name);
+                button.setTag(j);
                 ((RadioGroup) optionContainer.get(i).findViewWithTag(R.id.radioGroup + "_" + i)).addView(button);
             }
         }
@@ -167,9 +173,21 @@ public class DetailFoodFragment extends Fragment {
          */
         @Override
         public void onClick(View view) {
+            // Сохранеие выбранных опций
+            for (int i = 0; i < foodItem.options.size(); i++) {
+                RadioGroup radioGroup = (RadioGroup) getView().findViewWithTag(R.id.radioGroup + "_" + i);
+                int pos = (int) radioGroup.findViewById(radioGroup.getCheckedRadioButtonId()).getTag();
+                //- 1; // т.к. первый элемет начинается с 1, а хочется с 0
+                foodItem.choosenOptions.put(foodItem.options.get(i).id, pos);
+            }
+
             // Использется констуктор копирования для создания объекта с такими же полями, но без метаифомации
             // Элементы с одинаковой метаинформацией в списке ShoppingCartFragment при свайпах приводят к непредсказуемому поведеию элеметов списка
             FoodItem newFoodItem = new FoodItem(foodItem);
+
+            /* Очистка выбранных опций у foodItem'а, т.к. тот представляет собой лишь временный объект.
+            Его клон был сохранен чуть выше */
+            foodItem.choosenOptions.clear();
 
             // Ищем такое же блюдо-хуюдо в корзине
             FoodItem foodItemInShoppingCart = getExistFoodItem(newFoodItem);
