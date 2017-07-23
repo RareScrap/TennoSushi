@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.util.SparseIntArray;
 
 import com.webtrust.tennosushi.utils.FoodOptions;
 import com.webtrust.tennosushi.utils.FoodTag;
@@ -43,6 +44,8 @@ public class FoodItem implements Parcelable, Comparable<FoodItem> {
 
     /** Опции блюд, доступные для данной категории (в JSON'е берется из родительской категории) */
     public final ArrayList<FoodOptions> options;
+    /** Значения опций, которые были выбраны пользователем */
+    public SparseIntArray choosenOptions = new SparseIntArray();
 
     /**
      * Коструктор, копирующий уже существующий FoodItem, но без метаинформации
@@ -63,6 +66,10 @@ public class FoodItem implements Parcelable, Comparable<FoodItem> {
 
         this.options = foodItem.options;
         this.count = 1;
+
+        // Копирование массива выбранных опций (не через копирвание ссылки, а через создаие объекта-клона
+        for (int i = 0; i < foodItem.choosenOptions.size(); i++)
+            this.choosenOptions.put(foodItem.choosenOptions.keyAt(i), foodItem.choosenOptions.get(foodItem.choosenOptions.keyAt(i)));
     }
 
     /**
@@ -116,6 +123,8 @@ public class FoodItem implements Parcelable, Comparable<FoodItem> {
         bitmap = in.readParcelable(Bitmap.class.getClassLoader());
         count = in.readInt();
         options = in.createTypedArrayList(FoodOptions.CREATOR);
+
+        // TODO: Достать choosenOptions из Parcel (и нужно ли это тут)
     }
 
     // TODO: написать док к этой штуке
@@ -131,16 +140,23 @@ public class FoodItem implements Parcelable, Comparable<FoodItem> {
         }
     };
 
+    // TODO: Нуждается в тщательейшем тестировании
     /**
-     * Сравнивает два объекта FoodItem НА РАВЕНСТВО.
-     * Вернёт true только если оба объекта имеют общий ID.
-     * @param obj Второй FoodItem
-     * @return Результат сравнения
+     * Определяет сходство с другим обьектов
+     * @param obj Обьект, с которым нужно определить сходство
+     * @return True, если оба объекта одинаковы (на основании тела этого метода). Иначе - false.
      */
     @Override
     public boolean equals(Object obj) {
-        if (obj.getClass() != FoodItem.class) return false;
-        return id == ((FoodItem) obj).id;
+        if (obj.getClass() != FoodItem.class) {
+            return false;
+        }
+
+        boolean result = id == ((FoodItem) obj).id &&
+                choosenOptions.toString().equals(((FoodItem) obj).choosenOptions.toString());
+                // Способ ниже не работает, т.к. сравнивает только ссылки
+                //choosenOptions == ((FoodItem) obj).choosenOptions;
+        return result;
     }
 
     /**

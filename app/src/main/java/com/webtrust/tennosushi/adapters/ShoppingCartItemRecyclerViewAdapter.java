@@ -12,6 +12,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -32,7 +35,7 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
     /** Список для хранения данных элементов RecyclerView */
     private final List<FoodItem> items;
     /** Время, пока кнопка Undo Все еще доступна*/
-    private static final int PENDING_REMOVAL_TIMEOUT = 3000; // 3sec
+    private static final int PENDING_REMOVAL_TIMEOUT = 10000; // 3sec
     /** Список элеметов, ожидающих удаление */
     private List<FoodItem> itemsPendingRemoval;
     /** Флаг, определяющий возможность отменить последствия удаления свайпом */
@@ -88,7 +91,7 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
         /** Ссылка на элемент GUI, представляющий основной контейнер заказа */
         public final RelativeLayout relativeLayout;
         /** Ссылка на элемент GUI, представляющий контейнер опции пиццы заказа */
-        public final GridLayout gridLayout;
+        public final LinearLayout options;
         /** Ссылка на элемент GUI, представляющий картинку блюда */
         public final ImageView pictureView;
 
@@ -108,7 +111,7 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
             numberOfDeashesTextView = (TextView) itemView.findViewById(R.id.number_of_deashes);
             undoButton = (Button) itemView.findViewById(R.id.undo_button);
             relativeLayout = (RelativeLayout) itemView.findViewById(R.id.main_container);
-            gridLayout = (GridLayout) itemView.findViewById(R.id.pizza_options);
+            options = (LinearLayout) itemView.findViewById(R.id.options);
             pictureView = (ImageView) itemView.findViewById(R.id.picture);
 
             // Связывание слушателя кликов со изображением блюда
@@ -173,6 +176,46 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
         // Инициализация объекта, хранящего отступы элемента, по которому был сделан свайп
         ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) holder.itemView.getLayoutParams();
 
+        // Добавляет кнопки опций для выбранных товаров
+
+        // Определяем необходимые объекты
+        ViewGroup optionsContainer = (ViewGroup) holder.itemView.findViewById(R.id.options);
+        LayoutInflater inflater = LayoutInflater.from(context);
+
+        // Создаем экземпляры контейнеров опций БЕЗ помещеия их в иерархию View'х
+        ArrayList<View> optionContainer = new ArrayList<>();
+        for (int i = 0; i < item.options.size(); i++) {
+            Log.d("2", String.valueOf(i));
+            View optionView = inflater.inflate(R.layout.viewgroup_cart_options, optionsContainer, false);
+            optionView.findViewById(R.id.radioGroup).setTag(R.id.radioGroup + "_" + i);
+            ((TextView) optionView.findViewById(R.id.name)).setText(item.options.get(i).name);
+            optionContainer.add(optionView);
+        }
+
+        // Добавляем в каждый контейнер радиокнопки
+        for (int i = 0; i < optionContainer.size(); i++) {
+            for (int j = 0; j < item.options.get(i).items.size(); j++) {
+                RadioButton button = new RadioButton(context);
+                button.setText(item.options.get(i).items.get(j).name);
+                button.setTag(j);
+                ((RadioGroup) optionContainer.get(i).findViewWithTag(R.id.radioGroup + "_" + i)).addView(button);
+            }
+
+            /* Выставляем чекнутые кнопки. Если пользователя добавил блюдо из FoodListFragment - кнопки
+            ставятся по умолчаинию (первая радиокопка в каждой опции). Если же из DetailFoodFragment - то
+            те, которые пользователь выставил блюду перед тем, как добавить его в корзину */
+            int checked = item.choosenOptions.get( item.options.get(i).id ); // Получение позиции кнопки, которая должна быть чекнута
+            RadioGroup radioGroup = (RadioGroup) optionContainer.get(i).findViewById(R.id.radioGroup); // Получение радиогруппы для данной опции
+            ( (RadioButton) radioGroup.getChildAt(checked)).setChecked(true);
+        }
+
+        // Добавлям контейнеры опций в иерархию View'х
+        for (int i = 0; i < optionContainer.size(); i++) {
+            ((LinearLayout) optionsContainer).addView(optionContainer.get(i));
+        }
+        Log.d("1", "ASD");
+
+
         // Опредляет, какое состояние элемента показать: обычное или состояние с кнопкой Undo
         if (itemsPendingRemoval.contains(item)) {
             // Убираем левый отступ, чтобы красный фон соприкасался с левым краем экрана (так красиво)
@@ -186,10 +229,13 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
                 fragment.buyButton.setVisibility(View.GONE);    // то убрать кнопку заказа
 
 
+            // Мера предостоожости, чтобы при восстановлении последнего удаленного элемента контейнеры опций не дублировались
+            holder.options.removeAllViews();
+
             // we need to show the "undo" state of the row
             holder.itemView.setBackgroundColor(Color.RED);
             holder.relativeLayout.setVisibility(View.GONE);
-            holder.gridLayout.setVisibility(View.GONE);
+            holder.options.setVisibility(View.GONE);
             holder.undoButton.setVisibility(View.VISIBLE);
             holder.undoButton.setOnClickListener(new View.OnClickListener() {
                     /**
@@ -218,7 +264,7 @@ public class ShoppingCartItemRecyclerViewAdapter extends RecyclerView.Adapter<Sh
             // we need to show the "normal" state
             holder.itemView.setBackgroundColor(Color.WHITE);
             holder.relativeLayout.setVisibility(View.VISIBLE);
-            holder.gridLayout.setVisibility(View.VISIBLE);
+            holder.options.setVisibility(View.VISIBLE);
             holder.undoButton.setVisibility(View.GONE);
             holder.undoButton.setOnClickListener(null);
 

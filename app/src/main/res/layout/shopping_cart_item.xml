@@ -107,88 +107,14 @@
 
         </RelativeLayout>
 
-        <android.support.v7.widget.GridLayout
-            android:id="@+id/pizza_options"
+        <LinearLayout
+            android:id="@+id/options"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/main_container"
-            app:columnCount="2"
-            app:orientation="vertical"
-            app:rowCount="2">
+            android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/editText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:inputType="textPersonName"
-                android:text="Размер"
-                app:layout_column="0"
-                app:layout_columnWeight="1"
-                app:layout_row="0" />
-
-            <RadioGroup
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_column="1"
-                app:layout_columnWeight="5"
-                app:layout_row="0">
-
-                <RadioButton
-                    android:id="@+id/radioButton2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Маленький" />
-
-                <RadioButton
-                    android:id="@+id/radioButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Большой" />
-
-            </RadioGroup>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:inputType="textPersonName"
-                android:text="Тесто"
-                app:layout_column="0"
-                app:layout_columnWeight="1"
-                app:layout_row="1" />
-
-            <RadioGroup
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_column="1"
-                app:layout_columnWeight="5"
-                app:layout_row="1">
-
-                <RadioButton
-                    android:id="@+id/radioButton3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Тонкое" />
-
-                <RadioButton
-                    android:id="@+id/radioButton4"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Традиционное" />
-
-                <RadioButton
-                    android:id="@+id/radioButton5"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Толстое" />
-
-            </RadioGroup>
-        </android.support.v7.widget.GridLayout>
+        </LinearLayout>
 
     </RelativeLayout>
 

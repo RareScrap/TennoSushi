@@ -20,6 +20,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 
 import com.webtrust.tennosushi.MainActivity;
 import com.webtrust.tennosushi.R;
@@ -333,6 +334,11 @@ public class ShoppingCartFragment extends Fragment {
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
                 // Порядковый номер элемента, по которому был сделан свайп
                 int swipedPosition = viewHolder.getAdapterPosition();
+
+                /* Удаляем опции. Они будут восстановленны в методе ShoppingCartItemRecclerViewAdapter::onBindViewHolder.
+                Если этого не сделать - опции будут дублироваться при каждом нажатии кнопки UNDO */
+                ((LinearLayout) viewHolder.itemView.findViewById(R.id.options)).removeAllViews();
+
                 if (rvAdapter.undoOn) {
                     rvAdapter.pendingRemoval(swipedPosition); // Добавить элемент в список элементов, ожидающих удаление
                 } else {
