@@ -13,8 +13,10 @@ import android.view.ViewGroup;
 import android.widget.GridView;
 import android.widget.ListView;
 
+import com.gigamole.infinitecycleviewpager.HorizontalInfiniteCycleViewPager;
 import com.webtrust.tennosushi.MainActivity;
 import com.webtrust.tennosushi.R;
+import com.webtrust.tennosushi.adapters.InfiniteCycleViewPagerAdapter;
 import com.webtrust.tennosushi.adapters.MenuItemArrayAdapter;
 import com.webtrust.tennosushi.list_items.MenuItem;
 import com.webtrust.tennosushi.utils.ShoppingCartIconGenerator;
@@ -76,7 +78,7 @@ public class MenuListFragment extends Fragment {
      * Текущий вид списка. Поле {@link MenuListFragment#currentMode} не должно наследоваться (поэтому стоит private),
      * но его субклассы должны уметь получать к нему доступ (поэтому реализованы set и get методы).
      */
-    private static int currentMode = 0; // Текущий режим отображения списка (карточками по умолчанию)
+    private static int currentMode; // Текущий режим отображения списка (карточками по умолчанию)
 
     /** Используется для регенерации иконки корзины. */
     public static Menu menu;
@@ -118,6 +120,7 @@ public class MenuListFragment extends Fragment {
      * @return Новый объект фрагмента {@link MenuListFragment}.
      */
     public static MenuListFragment newInstance(int currentMode) {
+        MenuListFragment.currentMode = currentMode;
         MenuListFragment fragment = new MenuListFragment();
 
         // Отображать список в виде currentMode
@@ -153,28 +156,39 @@ public class MenuListFragment extends Fragment {
         // Запрос на получение данных
         menuItemList = ((MainActivity) getActivity()).getDataProvider().downloadedMenuItemList;
 
+        View returnedView = inflater.inflate(R.layout.fragment_menu, container, false);
+
         // Развернуть разметку для фрагмента
         if (currentMode == CARD_MODE) { // Для разметки в виде постов
-            return inflater.inflate(R.layout.fragment_menu_card_list, container, false);
+            returnedView.findViewById(R.id.platesList).setVisibility(View.INVISIBLE);
+            returnedView.findViewById(R.id.cardList).setVisibility(View.VISIBLE);
         } else { // ДЛя разметки в виде плиток
             // currentMode == PLATE_MODE
-            return inflater.inflate(R.layout.fragment_menu_plates_list, container, false);
+            returnedView.findViewById(R.id.platesList).setVisibility(View.VISIBLE);
+            returnedView.findViewById(R.id.cardList).setVisibility(View.INVISIBLE);
         }
+
+        return  returnedView;
 
     }
 
     // Ранее этот код хранился в onActivityCreated
     @Override
     public void onViewCreated (View view, Bundle savedInstanceState) {
+        List<Integer> lstImages = new ArrayList<>();
+        lstImages.add(R.drawable.ic_menu_camera);
+        lstImages.add(R.drawable.ic_menu_gallery);
+        lstImages.add(R.drawable.ic_menu_send);
+        HorizontalInfiniteCycleViewPager pager = (HorizontalInfiniteCycleViewPager) view.findViewById(R.id.view_pager);
+        InfiniteCycleViewPagerAdapter adapter = new InfiniteCycleViewPagerAdapter(lstImages, getContext());
+        pager.setAdapter(adapter);
+
         // ArrayAdapter для связывания menuItemList с menuItemListListView или menuItemListGridView
         menuItemArrayAdapter = new MenuItemArrayAdapter(getActivity(), menuItemList, itemClickListener);
-        if (currentMode == CARD_MODE) {
-            menuItemListListView = (ListView) getView().findViewById(R.id.cardList);
-            menuItemListListView.setAdapter(menuItemArrayAdapter);
-        }else { // currentMode == PLATE_MODE
-            menuItemListGridView = (GridView) getView().findViewById(R.id.platesList);
-            menuItemListGridView.setAdapter(menuItemArrayAdapter);
-        }
+        menuItemListListView = (ListView) getView().findViewById(R.id.cardList);
+        menuItemListListView.setAdapter(menuItemArrayAdapter);
+        menuItemListGridView = (GridView) getView().findViewById(R.id.platesList);
+        menuItemListGridView.setAdapter(menuItemArrayAdapter);
 
         // Названичение текста actionBar'у
         ActionBar ab = ((MainActivity) this.getActivity()).getSupportActionBar();
@@ -231,38 +245,19 @@ public class MenuListFragment extends Fragment {
             case R.id.sort:
                 // Получение ссылки для ViewGroup контейнера фрагментов
                 ViewGroup fragmentMenuContainerViewGroup = (ViewGroup) getActivity().findViewById(R.id.fragment_menu_container);
-                fragmentMenuContainerViewGroup.removeAllViews(); // Удаляет View на экране (сам список)
+                //fragmentMenuContainerViewGroup.removeAllViews(); // Удаляет View на экране (сам список)
 
                 // Замена одной разметки списка на другую
                 if (currentMode == CARD_MODE) {
                     currentMode = PLATE_MODE; // Изменяет тукущий способ отображеия списка
-                    LayoutInflater inflater = getActivity().getLayoutInflater();
 
-                    /*
-                    Помещает разметку списка как корневой элемент фрагмента
-                    Возвращаемое значение не имеет смысла, т.к. всю работу делает сам метод
-                    */
-                    View view = inflater.inflate(R.layout.fragment_menu_plates_list, fragmentMenuContainerViewGroup, true);
-
-                    // Получение ссыки на GridView-элемент, помещенный в разметку методом inflate(), приведенным выше
-                    menuItemListGridView = (GridView) fragmentMenuContainerViewGroup.findViewById(R.id.platesList);
-                    menuItemListGridView.setAdapter(menuItemArrayAdapter); // Установка адаптера
-                    menuItemArrayAdapter.notifyDataSetChanged(); // Обовлеия данных адаптера
+                    getView().findViewById(R.id.platesList).setVisibility(View.VISIBLE);
+                    getView().findViewById(R.id.cardList).setVisibility(View.INVISIBLE);
                 } else {// currentMode == PLATE_MODE
                     currentMode = CARD_MODE; // Изменяет тукущий способ отображеия списка
-                    LayoutInflater inflater = getActivity().getLayoutInflater();
 
-                    /*
-                    Помещает разметку списка как корневой элемент фрагмента
-                    Возвращаемое значение не имеет смысла, т.к. всю работу делает сам метод
-                    */
-                    View view = inflater.inflate(R.layout.fragment_menu_card_list, fragmentMenuContainerViewGroup, true);
-
-                    // Получение ссыки на ListView-элемент, помещенный в разметку методом inflate(), приведенным выше
-                    menuItemListListView = (ListView) fragmentMenuContainerViewGroup.findViewById(R.id.cardList);
-                    menuItemListListView.setAdapter(menuItemArrayAdapter); // Установка адаптера
-                    menuItemArrayAdapter.notifyDataSetChanged(); // Обовлеия данных адаптера
-
+                    getView().findViewById(R.id.platesList).setVisibility(View.INVISIBLE);
+                    getView().findViewById(R.id.cardList).setVisibility(View.VISIBLE);
                 }
             return true; // Событие меню обработано
         }

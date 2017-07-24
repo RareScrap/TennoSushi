@@ -268,7 +268,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onDataReady() {
         // Создание экземпляра MenuListFragment и назначение ему режим отображения элементов в виде карточек
-        MenuListFragment startFragment = MenuListFragment.newInstance(MenuListFragment.CARD_MODE);
+        MenuListFragment startFragment = MenuListFragment.newInstance(MenuListFragment.PLATE_MODE);
 
         // Показываем самый первый фрагмент, с которого пльзователь начиает работу в приложеии
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();

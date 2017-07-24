@@ -29,7 +29,6 @@ import java.util.ArrayList;
  * Фрагмент, отображающий подробную информацию о блюде, по которому был
  * сделан клик в {@link FoodListFragment}.
  */
-
 public class DetailFoodFragment extends Fragment {
     /** Блюдо, по которому кликнул пользователь */
     public static FoodItem foodItem;
