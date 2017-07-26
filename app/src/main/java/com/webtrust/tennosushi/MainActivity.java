@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity
 
     /** Адрес сервера */
     // private final String SERVER_URL = "http://192.168.0.102/index2.php";
-    private final String SERVER_URL = "http://romhacking.pw/index2.php";
+    private final String SERVER_URL = "http://romhacking.pw/index4.php";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity
 
             // Подготавливаем DataProvider для загрузки данных
             try {
-                dataProvider = new DataProvider(this, new URL(SERVER_URL));
+                dataProvider = new DataProvider(this, new URL(SERVER_URL), this);
                 dataProvider.startDownloadData(); // Начинаем загрузку данных
             } catch (MalformedURLException e) {
                 e.printStackTrace();

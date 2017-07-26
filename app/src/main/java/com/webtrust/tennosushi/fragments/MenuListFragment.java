@@ -2,8 +2,10 @@ package com.webtrust.tennosushi.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -13,16 +15,18 @@ import android.view.ViewGroup;
 import android.widget.GridView;
 import android.widget.ListView;
 
-import com.gigamole.infinitecycleviewpager.HorizontalInfiniteCycleViewPager;
 import com.webtrust.tennosushi.MainActivity;
 import com.webtrust.tennosushi.R;
 import com.webtrust.tennosushi.adapters.InfiniteCycleViewPagerAdapter;
 import com.webtrust.tennosushi.adapters.MenuItemArrayAdapter;
+import com.webtrust.tennosushi.adapters.MenuItemViewPagerAdapter;
 import com.webtrust.tennosushi.list_items.MenuItem;
 import com.webtrust.tennosushi.utils.ShoppingCartIconGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * <p> Фрагмент, реализующий список категорий блюд. </p>
@@ -82,6 +86,11 @@ public class MenuListFragment extends Fragment {
 
     /** Используется для регенерации иконки корзины. */
     public static Menu menu;
+
+    ViewPager viewPager;
+    MenuItemViewPagerAdapter myCustomPagerAdapter;
+    int currentPage = 0;
+    Timer timer;
 
     /**
      * Set-метод для currentMode
@@ -175,13 +184,30 @@ public class MenuListFragment extends Fragment {
     // Ранее этот код хранился в onActivityCreated
     @Override
     public void onViewCreated (View view, Bundle savedInstanceState) {
-        List<Integer> lstImages = new ArrayList<>();
-        lstImages.add(R.drawable.ic_menu_camera);
-        lstImages.add(R.drawable.ic_menu_gallery);
-        lstImages.add(R.drawable.ic_menu_send);
-        HorizontalInfiniteCycleViewPager pager = (HorizontalInfiniteCycleViewPager) view.findViewById(R.id.view_pager);
-        InfiniteCycleViewPagerAdapter adapter = new InfiniteCycleViewPagerAdapter(lstImages, getContext());
-        pager.setAdapter(adapter);
+        viewPager = (ViewPager) getActivity().findViewById(R.id.view_pager);
+
+        myCustomPagerAdapter = new MenuItemViewPagerAdapter(getActivity(), ((MainActivity) getActivity()).getDataProvider().downloadedOfferItemList);
+        viewPager.setAdapter(myCustomPagerAdapter);
+
+        /*After setting the adapter use the timer */
+        final Handler handler = new Handler();
+        final Runnable Update = new Runnable() {
+            public void run() {
+                if (currentPage == myCustomPagerAdapter.offers.size()) {
+                    currentPage = 0;
+                }
+                viewPager.setCurrentItem(currentPage++, true);
+            }
+        };
+
+        timer = new Timer(); // This will create a new Thread
+        timer .schedule(new TimerTask() { // task to be scheduled
+
+            @Override
+            public void run() {
+                handler.post(Update);
+            }
+        }, 500, 3000);
 
         // ArrayAdapter для связывания menuItemList с menuItemListListView или menuItemListGridView
         menuItemArrayAdapter = new MenuItemArrayAdapter(getActivity(), menuItemList, itemClickListener);

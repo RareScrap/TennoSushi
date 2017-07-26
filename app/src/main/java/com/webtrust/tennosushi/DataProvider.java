@@ -1,9 +1,11 @@
 package com.webtrust.tennosushi;
 
+import android.content.Context;
 import android.os.AsyncTask;
 
 import com.webtrust.tennosushi.list_items.FoodItem;
 import com.webtrust.tennosushi.list_items.MenuItem;
+import com.webtrust.tennosushi.list_items.OfferItem;
 import com.webtrust.tennosushi.utils.FoodOptions;
 import com.webtrust.tennosushi.utils.FoodTag;
 
@@ -29,6 +31,8 @@ public class DataProvider {
     /** Вызывается, когда данные скачаны и распарсены */
     public interface DataReady {
         /*public*/ void onDataReady();
+        // TODO: Стоит ли использовать этот интерфейс (GetImageTask)?
+        //void onImageReady();
         void onDownloadError();
     }
 
@@ -45,19 +49,26 @@ public class DataProvider {
     public ArrayList<FoodTag> downloadedFoodTagList = new ArrayList<>();
     /** Список опций блюда, полученных парсингом JSON'а */
     public ArrayList<FoodOptions> downloadedFoodOptionsList = new ArrayList<>();
+    /** Список акций, полученных парсингом JSOM'а */
+    public ArrayList<OfferItem> downloadedOfferItemList = new ArrayList<>();
 
     /** Объект реализации интерфейса. Приходит из вне */
     public DataReady dataReady;
+
+    /** Объект контекста, используемый для получения ресурсов */
+    private Context context;
 
     /**
      * Конструктор, инициализирующий свои поля
      * @param dataReady Реализация интерфейса, метод которого вызывается, когда данные распарсены
      *                  и готовы к работе
      * @param url Адрес, откуда будет скачан JSON с данными
+     * @param context Объект контекста, используемый для получения ресурсов
      */
-    public DataProvider(DataReady dataReady, URL url) {
+    public DataProvider(DataReady dataReady, URL url, Context context) {
         this.dataReady = dataReady;
         this.jsonURL = url;
+        this.context = context;
     }
 
     /**
@@ -162,8 +173,33 @@ public class DataProvider {
         // Стирание старых данных
         downloadedMenuItemList.clear();
         downloadedFoodItemList.clear();
+        downloadedFoodTagList.clear();
+        downloadedFoodOptionsList.clear();
+        downloadedOfferItemList.clear();
 
         try {
+            // Получение массива акций
+            JSONArray offersJSON = jsonObject.getJSONArray("offers");
+            for (int i = 0; i < offersJSON.length(); ++i) {
+                JSONObject offerJSONObject = offersJSON.getJSONObject(i);
+
+                // Определяем, какие ссылки на картинки поместить в наш объект акции
+                boolean isTablet = context.getResources().getBoolean(R.bool.isTablet);
+                if (isTablet) {
+                    downloadedOfferItemList.add( new OfferItem(offerJSONObject.getInt("id"),
+                            offerJSONObject.getString("description"),
+                            offerJSONObject.getString("tabletPortraitPicURL"),
+                            offerJSONObject.getString("tabletLandscapePicURL")
+                    ));
+                } else {
+                    downloadedOfferItemList.add( new OfferItem(offerJSONObject.getInt("id"),
+                            offerJSONObject.getString("description"),
+                            offerJSONObject.getString("phonePicURL"),
+                            null
+                    ));
+                }
+            }
+
             // Получение массива с тегами блюд
             JSONArray tagsJSON = jsonObject.getJSONArray("tags");
             for (int i = 0; i < tagsJSON.length(); ++i) {
@@ -272,6 +308,7 @@ public class DataProvider {
                         position, price, weight, picURL, null, options));
             }
 
+            // TODO: Зачем?
             // Сортируем категории
             Collections.sort(downloadedMenuItemList);
 
@@ -281,7 +318,7 @@ public class DataProvider {
         catch (JSONException e) {
             e.printStackTrace();
         }
-        // Инормировать, что данные готовы к использованию
+        // Информировать, что данные готовы к использованию
         dataReady.onDataReady();
     }
 }
