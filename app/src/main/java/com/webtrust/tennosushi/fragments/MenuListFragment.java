@@ -189,6 +189,11 @@ public class MenuListFragment extends Fragment {
         myCustomPagerAdapter = new MenuItemViewPagerAdapter(getActivity(), ((MainActivity) getActivity()).getDataProvider().downloadedOfferItemList);
         viewPager.setAdapter(myCustomPagerAdapter);
 
+        if (timer != null) {
+            timer.cancel();
+            timer.purge();
+        }
+
         /*After setting the adapter use the timer */
         final Handler handler = new Handler();
         final Runnable Update = new Runnable() {
@@ -238,6 +243,7 @@ public class MenuListFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
+
         // Кусок сгенерированного кода
         //mListener = null;
     }
