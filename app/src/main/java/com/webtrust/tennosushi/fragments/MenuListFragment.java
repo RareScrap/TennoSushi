@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -14,10 +15,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 
 import com.webtrust.tennosushi.MainActivity;
 import com.webtrust.tennosushi.R;
-import com.webtrust.tennosushi.adapters.InfiniteCycleViewPagerAdapter;
 import com.webtrust.tennosushi.adapters.MenuItemArrayAdapter;
 import com.webtrust.tennosushi.adapters.MenuItemViewPagerAdapter;
 import com.webtrust.tennosushi.list_items.MenuItem;
@@ -60,6 +61,25 @@ public class MenuListFragment extends Fragment {
     public static int CARD_MODE = 0;
     /** Константа, определяющие режим отображения списка в виде плиток */
     public static int PLATE_MODE = 1;
+
+    /** Костанта, определяющая коэфицент длины карусели,
+     * если приложение запущено на телефоне в потретной ориентации */
+    public static int PHONE_WIDTH_COEFFICIEN = 21;
+    /** Костанта, определяющая коэфицент ширины карусели,
+     * если приложение запущено на телефоне в потретной ориентации */
+    public static int PHONE_HEIGHT_COEFFICIEN = 7;
+    /** Костанта, определяющая коэфицент длины карусели,
+     * если приложение запущено на планшете в потретной ориентации */
+    public static int TABLET_PORTAIR_WIDTH_COEFFICIEN = 10;
+    /** Костанта, определяющая коэфицент ширины карусели,
+     * если приложение запущено на планшете в потретной ориентации */
+    public static int TABLET_PORTAIR_HEIGHT_COEFFICIEN = 3;
+    /** Костанта, определяющая коэфицент длины карусели,
+     * если приложение запущено на планшете в альбомной ориентации */
+    public static int TABLET_LANDSCAPE_WIDTH_COEFFICIEN = 21;
+    /** Костанта, определяющая коэфицент ширины карусели,
+     * если приложение запущено на планшете в альбомной ориентации */
+    public static int TABLET_LANDSCAPE_HEIGHT_COEFFICIEN = 6;
 
     // Закомментирован, т.к. еще не изучен
     //private OnFragmentInteractionListener mListener;
@@ -186,9 +206,42 @@ public class MenuListFragment extends Fragment {
     public void onViewCreated (View view, Bundle savedInstanceState) {
         viewPager = (ViewPager) getActivity().findViewById(R.id.view_pager);
 
+        // Определяем размеры карусели
+
+        // Получаем информацию об оуркжении
+        boolean isLandscapeOrientation = getResources().getBoolean(R.bool.isLandscapeOrientation);
+        boolean isTablet = getResources().getBoolean(R.bool.isTablet);
+        RelativeLayout relativeLayout = (RelativeLayout) getActivity().findViewById(R.id.relativeLayoutRoot);
+        RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) viewPager.getLayoutParams();
+
+        // Инициализируем объект получения метрики
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        // TODO: Нужно получить длину viewPager'а, а не длину экрана! Это не логично!
+        // Получаем ширину экрана
+        getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        //int a = view.getWidth(); //не работает для определения длины вьюх в onViewCreated
+
+        // Определяем какие размеры применить
+        if (isLandscapeOrientation) {
+            // Это планшет в альбомной ориентации
+            layoutParams.height = displayMetrics.widthPixels * TABLET_LANDSCAPE_HEIGHT_COEFFICIEN / TABLET_LANDSCAPE_WIDTH_COEFFICIEN;
+        } else {
+            if (isTablet) {
+                // Это планшет в портретной ориентации
+                layoutParams.height = displayMetrics.widthPixels * TABLET_PORTAIR_HEIGHT_COEFFICIEN / TABLET_PORTAIR_WIDTH_COEFFICIEN;
+            } else {
+                // Это телефон в портретной ориентаци
+                 layoutParams.height = displayMetrics.widthPixels * PHONE_HEIGHT_COEFFICIEN / PHONE_WIDTH_COEFFICIEN;
+            }
+        }
+        // Применяем выбранные размеры
+        viewPager.setLayoutParams(layoutParams);
+
+        // Установка адаптеров
         myCustomPagerAdapter = new MenuItemViewPagerAdapter(getActivity(), ((MainActivity) getActivity()).getDataProvider().downloadedOfferItemList);
         viewPager.setAdapter(myCustomPagerAdapter);
 
+        // Очистка таймера
         if (timer != null) {
             timer.cancel();
             timer.purge();
@@ -243,7 +296,6 @@ public class MenuListFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
-
         // Кусок сгенерированного кода
         //mListener = null;
     }
